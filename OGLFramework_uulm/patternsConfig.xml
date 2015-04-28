@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="12">
+<config class_id="0" tracking_level="0" version="2">
+	<fullscreen>0</fullscreen>
+	<backbufferBits>32</backbufferBits>
+	<windowLeft>0</windowLeft>
+	<windowTop>0</windowTop>
+	<windowWidth>1200</windowWidth>
+	<windowHeight>600</windowHeight>
+	<resourceBase>resources</resourceBase>
+	<useCUDA>1</useCUDA>
+	<cudaDevice>0</cudaDevice>
+</config>
+</boost_serialization>
+
