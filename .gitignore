@@ -180,3 +180,6 @@ $RECYCLE.BIN/
 *.exe
 *.out
 *.app
+
+# include all resource files
+!**/resources/*.obj
