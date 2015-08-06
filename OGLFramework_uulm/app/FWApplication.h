@@ -16,52 +16,50 @@
 #include "gfx/glrenderer/Font.h"
 #include "gfx/glrenderer/ScreenText.h"
 #include "gfx/OBJMesh.h"
-// TODO: no dialogs today ...
-// #include "gui/DialogManager.h"
+#include "scene/ArcballRotatedSceneRenderable.h"
 
-/**
- * @brief Implementation of the framework application.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   21. Januar 2014
- */
-class FWApplication : public ApplicationBase
-{
-public:
-    FWApplication(GLWindow& window);
-    virtual ~FWApplication();
+namespace cguFrameworkApp {
 
-    virtual void HandleKeyDown(unsigned int keyCode);
+    /**
+     * @brief Implementation of the framework application.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   21. Januar 2014
+     */
+    class FWApplication : public cgu::ApplicationBase
+    {
+    public:
+        FWApplication(cgu::GLWindow& window);
+        virtual ~FWApplication();
 
-private:
-    /** Holds the dialog manager. */
-    // std::unique_ptr<DialogManager> dialogManager = {};
-    /** Holds the shader used. */
-    GPUProgram* program;
-    /** Holds the vertex attribute bindings. */
-    VertexAttributeBindings bind;
-    /** Holds the object mesh used. */
-    std::unique_ptr<OBJMesh> objMesh;
-    /** Holds the rendered mesh. */
-    std::unique_ptr<MeshRenderable> mesh;
-    /** Holds a uniform buffer containing a color. */
-    std::unique_ptr<GLUniformBuffer> uBuffer;
+        virtual bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender) override;
+        virtual bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, cgu::BaseGLWindow* sender) override;
+        virtual void OnResize(unsigned int width, unsigned int height) override;
 
-    /** Holds the shader program used for font rendering. */
-    GPUProgram* fontProgram;
-    /** Holds the font to use. */
-    std::unique_ptr<Font> font;
-    /** Holds the screen text to render. */
-    std::unique_ptr<ScreenText> text;
+    private:
+        /** Holds the shader for simple rendering used. */
+        cgu::GPUProgram* simpleProgram;
 
-    /** holds the gui renderable for a textured quad. */
-    std::unique_ptr<GUIRenderable> quad;
-    /** holds the quads texture. */
-    std::unique_ptr<GLTexture> quadTex;
+        /** Holds the vertex attribute bindings. */
+        cgu::VertexAttributeBindings triangleMeshBind;
+        /** Holds the object mesh used for the triangle. */
+        std::unique_ptr<cgu::OBJMesh> triangleMesh;
+        /** Holds the rendered mesh. */
+        std::unique_ptr<cgu::MeshRenderable> triangleRenderable;
+        /** Holds a uniform buffer containing a color. */
+        std::unique_ptr<cgu::GLUniformBuffer> colorUBuffer;
 
-protected:
-    void FrameMove(float time, float elapsed);
-    void RenderScene();
-};
+        /** Holds the shader program used for font rendering. */
+        cgu::GPUProgram* fontProgram;
+        /** Holds the font to use. */
+        std::unique_ptr<cgu::Font> font;
+        /** Holds the screen text to render. */
+        std::unique_ptr<cgu::ScreenText> text;
+
+    protected:
+        void FrameMove(float time, float elapsed) override;
+        void RenderScene() override;
+    };
+}
 
 #endif /* FWAPPLICATION_H */

@@ -8,6 +8,9 @@
 
 #include "main.h"
 #include "app/FWApplication.h"
+#include "gfx/glrenderer/GLUniformBuffer.h"
+#include "app/Configuration.h"
+#include "app/GLWindow.h"
 
 #include <fstream>
 #include <boost/archive/xml_oarchive.hpp>
@@ -21,7 +24,7 @@
  */
 void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
 {
-    LOG(ERROR) << L"FreeImage Error Occured:";
+    LOG(ERROR) << L"FreeImage Error occured:";
     LOG(ERROR) << L"***";
     if (fif != FIF_UNKNOWN) {
         LOG(ERROR) << FreeImage_GetFormatFromFIF(fif) << L" Format";
@@ -48,7 +51,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    g2LogWorker g2log("application", "./");
+    g2LogWorker g2log("application", "./", LOG_USE_TIMESTAMPS);
     g2::initializeLogging(&g2log);
 
     LOG(INFO) << L"Log created.";
@@ -57,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     FreeImage_SetOutputMessage(FreeImageErrorHandler);
 
     LOG(DEBUG) << L"Trying to load configuration.";
-    Configuration config;
+    cgu::Configuration config;
     std::ifstream configFile(configFileName, std::ios::in);
     if (configFile.is_open()) {
         boost::archive::xml_iarchive ia(configFile);
@@ -67,29 +70,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
     LOG(DEBUG) << L"Starting window initialization.";
     // GLWindow win(hInstance, nCmdShow, L"", config);
-    GLWindow win(hInstance, nCmdShow, "", config);
+    cgu::GLWindow win(hInstance, nCmdShow, "", config);
     // FWApplication app(*pwin);
-    FWApplication app(win);
+    cguFrameworkApp::FWApplication app(win);
 
     LOG(DEBUG) << L"Starting main loop.";
     app.StartRun();
     MSG msg = {0, 0, 0, 0, 0, 0, 0};
     bool done = false;
     while (app.IsRunning() && !done) {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            if (WM_QUIT == msg.message) {
+                done = true;
+            }
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-
-        if (WM_QUIT == msg.message) {
+        try {
+            app.Step();
+        } catch (std::runtime_error e) {
+            LOG(ERROR) << L"Could not process frame step: " << e.what() << std::endl << L"Exiting.";
             done = true;
-        } else {
-            try {
-                app.Step();
-            } catch (std::runtime_error e) {
-                LOG(ERROR) << L"Could not process frame step: " << e.what() << std::endl << L"Exiting.";
-                done = true;
-            }
         }
     }
     app.EndRun();

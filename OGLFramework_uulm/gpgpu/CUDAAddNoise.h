@@ -12,22 +12,27 @@
 #include <cuda_runtime_api.h>
 #include <glm/glm.hpp>
 
-class CUDAGrid;
+namespace cgu {
+    namespace gpgpu {
 
-/// <summary>
-/// Class for adding noise to a grid.
-/// </summary>
-class CUDAAddNoise
-{
-public:
-    CUDAAddNoise(CUDAGrid* theGrid);
-    ~CUDAAddNoise();
+        class CUDAGrid;
 
-    void RunKernel(const glm::vec4& color, float resolution, float strength, unsigned int seed);
+        /// <summary>
+        /// Class for adding noise to a grid.
+        /// </summary>
+        class CUDAAddNoise
+        {
+        public:
+            CUDAAddNoise(CUDAGrid* theGrid);
+            ~CUDAAddNoise();
 
-private:
-    /** holds the grid. */
-    CUDAGrid* grid;
-};
+            void RunKernel(const glm::vec4& color, float resolution, float strength, unsigned int seed);
+
+        private:
+            /** holds the grid. */
+            CUDAGrid* grid;
+        };
+    }
+}
 
 #endif /* CUDAADDNOISE_H */

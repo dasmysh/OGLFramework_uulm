@@ -7,6 +7,7 @@
  */
 
 #include "boost_helper.h"
+#include <iomanip>
 
 /**
  * Returns the float value of a string.

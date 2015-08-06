@@ -11,6 +11,8 @@
 
 /** The configuration file name. */
 static const char* configFileName = "patternsConfig.xml";
+/** Use a timestamp for the log files. */
+static bool LOG_USE_TIMESTAMPS = false;
 /** The OpenGL major version used. */
 static unsigned int PTRN_OPENGL_MAJOR_VERSION = 3;
 /** The OpenGL minor version used. */
@@ -27,6 +29,7 @@ static const char* guiProgramID = "renderGUI.vp|renderGUI.fp";
 /** Uniform buffer block name of the font metrics buffer. */
 static const char* fontMetricsUBBName = "fontMetrics";
 static const char* orthoProjectionUBBName = "orthoProjection";
+static const char* perspectiveProjectionUBBName = "perspectiveTransform";
 
 /** Holds the number of buffers used for dynamic buffering. */
 static unsigned int NUM_DYN_BUFFERS = 5;

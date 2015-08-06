@@ -10,54 +10,57 @@
 #define FONT_H
 
 #include "../font_metrics.h"
-#include "GLUniformBuffer.h"
-#include "GLTexture.h"
 #include "GLVertexAttributeArray.h"
 
-class GLTexture2D;
+namespace cgu {
 
-/**
- * @brief  Represents a font.
- * This font engine uses a modified BMFont XML-Format (<a href="http://www.angelcode.com/products/bmfont/doc/file_format.html">BMFont Format</a>.
- * The fonts used need to be converted into signed distance fields.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   6. Februar 2014
- */
-class Font : public Resource
-{
-private:
-    /** Deleted copy constructor. */
-    Font(const Font& orig) : Resource(orig) {};
-    /** Deleted copy assignment operator. */
-    Font& operator=(const Font&) { return *this; };
+    class GPUProgram;
+    class GLUniformBuffer;
+    class GLTexture;
 
-public:
-    Font(const std::string& fontName, ApplicationBase* app);
-    virtual ~Font();
-    /** Default move constructor. */
-    Font(Font&& orig);
-    /** Default move assignment operator. */
-    Font& operator=(Font&& orig);
+    /**
+     * @brief  Represents a font.
+     * This font engine uses a modified BMFont XML-Format (<a href="http://www.angelcode.com/products/bmfont/doc/file_format.html">BMFont Format</a>.
+     * The fonts used need to be converted into signed distance fields.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   6. Februar 2014
+     */
+    class Font : public Resource
+    {
+    private:
+        /** Deleted copy constructor. */
+        Font(const Font& orig) = delete;
+        /** Deleted copy assignment operator. */
+        Font& operator=(const Font&) = delete;
 
-    virtual void Load() override;
-    virtual void Unload() override;
+    public:
+        Font(const std::string& fontName, ApplicationBase* app);
+        virtual ~Font();
+        /** Default move constructor. */
+        Font(Font&& orig);
+        /** Default move assignment operator. */
+        Font& operator=(Font&& orig);
 
-    void UseFont(GPUProgram* fontProgram, BindingLocation fontMetricsLocation) const;
-    const font_metrics& GetFontMetrics() const;
-    unsigned int GetCharacterId(char character) const;
+        virtual void Load() override;
+        virtual void Unload() override;
 
-private:
-    /** Holds the font texture. */
-    std::unique_ptr<GLTexture> fontPages;
-    /** Holds the font metrics. */
-    font_metrics fm;
-    /** Holds the font metrics uniform buffer. */
-    std::unique_ptr<GLUniformBuffer> fontMetrics;
-    /** Holds the binding point for the font metrics buffer. */
-    GLuint fontMetricsBindingPoint;
+        void UseFont(GPUProgram* fontProgram, BindingLocation fontMetricsLocation) const;
+        const font_metrics& GetFontMetrics() const;
+        unsigned int GetCharacterId(char character) const;
 
-    void UnloadLocal();
-};
+    private:
+        /** Holds the font texture. */
+        std::unique_ptr<GLTexture> fontPages;
+        /** Holds the font metrics. */
+        font_metrics fm;
+        /** Holds the font metrics uniform buffer. */
+        std::unique_ptr<GLUniformBuffer> fontMetrics;
+        /** Holds the binding point for the font metrics buffer. */
+        GLuint fontMetricsBindingPoint;
+
+        void UnloadLocal();
+    };
+}
 
 #endif /* FONT_H */

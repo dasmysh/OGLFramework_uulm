@@ -8,6 +8,7 @@ Dependencies:
 - GLEW (http://glew.sourceforge.net/)
 - FreeImage (http://freeimage.sourceforge.net/)
 - Boost (http://www.boost.org/)
+- gtest (https://code.google.com/p/googletest/)
 
 The dependencies are expected to be in the Visual Studio include / library directories.
 

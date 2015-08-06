@@ -1,7 +1,7 @@
 /**
  * @file   FrameBuffer.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   17. Januar 2014
+ * @date   2014.01.17
  *
  * @brief  Contains the implementation of FrameBuffer.
  */
@@ -11,166 +11,224 @@
 #include <stdexcept>
 #include "../../main.h"
 
-/**
- * Constructor.
- * Creates a FrameBuffer representing the backbuffer.
- */
-FrameBuffer::FrameBuffer() :
-fbo(0),
-type(FrameBufferType::BACKBUFFER),
-textures(),
-renderBuffers(),
-width(0),
-height(0)
-{
-}
-
-/**
- * Constructor.
- * Creates a new FrameBuffer with given width and height. It is initialized as backbuffer as default.
- * @param fbWidth the frame buffers width
- * @param fbHeight the frame buffers height.
- */
-FrameBuffer::FrameBuffer(unsigned int fbWidth, unsigned int fbHeight) :
-fbo(0),
-type(FrameBufferType::BACKBUFFER),
-width(fbWidth),
-height(fbHeight)
-{
-}
-
-FrameBuffer::~FrameBuffer()
-{
-    FreeTextures();
-    if (fbo != 0) {
-        OGL_CALL(glDeleteFramebuffers, 1, &fbo);
-        fbo = 0;
-    }
-}
-
-/**
- * Releases all textures used in the current frame buffer object.
- */
-void FrameBuffer::FreeTextures()
-{
-    for (GLuint tex : textures) {
-        if (tex != 0) {
-            OGL_CALL(glDeleteTextures, 1, &tex);
-        }
-    }
-    for (GLuint rb : renderBuffers) {
-        if (rb != 0) {
-            OGL_CALL(glDeleteRenderbuffers, 1, &rb);
-        }
-    }
-    textures.clear();
-    renderBuffers.clear();
-}
-
-/**
- * Resizes the frame buffer and re-initializes it if needed.
- * @param fbWidth the new width
- * @param fbHeight the new height
- */
-void FrameBuffer::Resize(unsigned int fbWidth, unsigned int fbHeight)
-{
-    width = fbWidth;
-    height = fbHeight;
-
-    switch (type)
+namespace cgu {
+    /**
+     * Constructor.
+     * Creates a FrameBuffer representing the backbuffer.
+     */
+    FrameBuffer::FrameBuffer() :
+        fbo(0),
+        isBackbuffer(true),
+        desc(),
+        textures(),
+        renderBuffers(),
+        width(0),
+        height(0)
     {
-        case FrameBufferType::BACKBUFFER:
+    }
+
+    /**
+     * Constructor.
+     * Creates a new FrameBuffer with given width and height. It is initialized as backbuffer as default.
+     * @param fbWidth the frame buffers width
+     * @param fbHeight the frame buffers height.
+     * @param d the frame buffers description.
+     */
+    FrameBuffer::FrameBuffer(unsigned int fbWidth, unsigned int fbHeight, const FrameBufferDescriptor& d) :
+        fbo(0),
+        isBackbuffer(false),
+        desc(d)
+    {
+        Resize(fbHeight, fbWidth);
+    }
+
+    /**
+     *  Copy constructor for a frame buffer.
+     *  @param orig the original frame buffer.
+     */
+    FrameBuffer::FrameBuffer(const FrameBuffer& orig) :
+        fbo(0),
+        isBackbuffer(false),
+        desc(orig.desc)
+    {
+        Resize(orig.width, orig.height);
+    }
+
+    /**
+     *  Move-Constructs a frame buffer object.
+     *  @param orig the original frame buffer.
+     */
+    FrameBuffer::FrameBuffer(FrameBuffer&& orig) :
+        fbo(orig.fbo),
+        isBackbuffer(orig.isBackbuffer),
+        desc(std::move(orig.desc)),
+        textures(std::move(orig.textures)),
+        renderBuffers(std::move(orig.renderBuffers)),
+        width(orig.width),
+        height(orig.height)
+    {
+        orig.fbo = 0;
+        orig.isBackbuffer = false;
+        orig.desc = FrameBufferDescriptor();
+        orig.textures.clear();
+        orig.renderBuffers.clear();
+        orig.width = 0;
+        orig.height = 0;
+    }
+
+    /**
+     *  Assigns a copy of another frame buffer.
+     *  @param orig the original frame buffer.
+     */
+    FrameBuffer& FrameBuffer::operator=(const FrameBuffer& orig)
+    {
+        Destroy();
+        fbo = 0;
+        isBackbuffer = orig.isBackbuffer;
+        desc = orig.desc;
+        Resize(orig.width, orig.height);
+        return *this;
+    }
+
+    /**
+     *  Assigns another frame buffer by moving its contents.
+     *  @param orig the original frame buffer.
+     */
+    FrameBuffer& FrameBuffer::operator=(FrameBuffer&& orig)
+    {
+        Destroy();
+        fbo = orig.fbo;
+        orig.fbo = 0;
+        isBackbuffer = orig.isBackbuffer;
+        orig.isBackbuffer = false;
+        desc = orig.desc;
+        orig.desc = FrameBufferDescriptor();
+        textures = std::move(orig.textures);
+        orig.textures.clear();
+        renderBuffers = std::move(orig.renderBuffers);
+        orig.renderBuffers.clear();
+        width = orig.width;
+        orig.width = 0;
+        height = orig.height;
+        orig.height = 0;
+        return *this;
+    }
+
+    /**
+     *  Destructor.
+     */
+    FrameBuffer::~FrameBuffer()
+    {
+        Destroy();
+    }
+
+    /**
+     *  Destroys the frame buffer object.
+     */
+    void FrameBuffer::Destroy()
+    {
+        for (auto& tex : textures) {
+            tex.release();
+        }
+        for (GLuint rb : renderBuffers) {
+            if (rb != 0) {
+                OGL_CALL(glDeleteRenderbuffers, 1, &rb);
+            }
+        }
+        textures.clear();
+        renderBuffers.clear();
+
+        if (fbo != 0) {
+            OGL_CALL(glDeleteFramebuffers, 1, &fbo);
+            fbo = 0;
+        }
+    }
+
+    /**
+     * Resizes the frame buffer and re-initializes it if needed.
+     * @param fbWidth the new width
+     * @param fbHeight the new height
+     */
+    void FrameBuffer::Resize(unsigned int fbWidth, unsigned int fbHeight)
+    {
+        width = fbWidth;
+        height = fbHeight;
+
+        this->Destroy();
+
+        if (isBackbuffer) return;
+
+        OGL_CALL(glGenFramebuffers, 1, &fbo);
+        OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
+        unsigned int colorAtt = 0;
+        std::vector<GLenum> drawBuffers;
+        for (const auto& texDesc : desc.texDesc) {
+            GLuint tex;
+            OGL_CALL(glGenTextures, 1, &tex);
+            OGL_CALL(glBindTexture, GL_TEXTURE_2D, tex);
+            OGL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, texDesc.internalFormat, width, height, 0, texDesc.format, texDesc.type, nullptr);
+            std::unique_ptr<GLTexture> texture{ new GLTexture{ tex, GL_TEXTURE_2D, texDesc } };
+
+            GLenum attachment = findAttachment(texDesc.internalFormat, colorAtt, drawBuffers);
+            OGL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, attachment, tex, 0);
+            textures.push_back(std::move(texture));
+        }
+
+
+        for (const auto& rbDesc : desc.rbDesc) {
+            GLuint rb;
+            OGL_CALL(glGenRenderbuffers, 1, &rb);
+            OGL_CALL(glBindRenderbuffer, GL_RENDERBUFFER, rb);
+            OGL_CALL(glRenderbufferStorage, GL_RENDERBUFFER, rbDesc.internalFormat, width, height);
+            GLenum attachment = findAttachment(rbDesc.internalFormat, colorAtt, drawBuffers);
+            OGL_CALL(glFramebufferRenderbuffer, GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rb);
+            renderBuffers.push_back(rb);
+        }
+
+        OGL_CALL(glDrawBuffers, static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
+
+        GLenum fboStatus = OGL_CALL(glCheckFramebufferStatus, GL_FRAMEBUFFER);
+        if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+            throw std::runtime_error("Could not create frame buffer.");
+    }
+
+    /**
+     * Use this frame buffer object as target for rendering.
+     */
+    void FrameBuffer::UseAsRenderTarget()
+    {
+        OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
+        OGL_CALL(glViewport, 0, 0, width, height);
+    }
+
+    unsigned int FrameBuffer::findAttachment(GLenum internalFormat, unsigned int& colorAtt, std::vector<GLenum> &drawBuffers)
+    {
+        GLenum attachment;
+        switch (internalFormat)
+        {
+        case GL_DEPTH_STENCIL:
+            attachment = GL_DEPTH_STENCIL_ATTACHMENT;
             break;
-        case FrameBufferType::BACKBUFFER_CLONE:
-            InitBackBufferClone();
+        case GL_DEPTH_COMPONENT:
+        case GL_DEPTH_COMPONENT16:
+        case GL_DEPTH_COMPONENT32:
+        case GL_DEPTH_COMPONENT24:
+        case GL_DEPTH_COMPONENT32F:
+            attachment = GL_DEPTH_ATTACHMENT;
             break;
-        case FrameBufferType::SHADOWMAP:
-            InitShadowMap();
-            break;
-        case FrameBufferType::POSTPROCESSING:
-            InitPostProcessing();
+        case GL_STENCIL_INDEX:
+        case GL_STENCIL_INDEX1:
+        case GL_STENCIL_INDEX4:
+        case GL_STENCIL_INDEX8:
+        case GL_STENCIL_INDEX16:
+            attachment = GL_STENCIL_ATTACHMENT;
             break;
         default:
-            throw std::runtime_error("FrameBufferType not implemented!");
+            attachment = GL_COLOR_ATTACHMENT0 + colorAtt++;
+            drawBuffers.push_back(attachment);
             break;
+        }
+        return attachment;
     }
+
 }
-
-/**
- * Use this frame buffer object as target for rendering.
- */
-void FrameBuffer::UseAsRenderTarget()
-{
-    OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
-    OGL_CALL(glViewport, 0, 0, width, height);
-}
-
-/**
- * Initialize this frame buffer as a backbuffer clone (color texture + depth buffer).
- */
-void FrameBuffer::InitBackBufferClone()
-{
-    this->FreeTextures();
-
-    OGL_CALL(glGenFramebuffers, 1, &fbo);
-    type = FrameBufferType::BACKBUFFER_CLONE;
-    OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
-    GLuint colorTex;
-    OGL_CALL(glGenTextures, 1, &colorTex);
-    OGL_CALL(glBindTexture, GL_TEXTURE_2D, colorTex);
-    OGL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA32UI, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    GLuint depthBuffer;
-    OGL_CALL(glGenRenderbuffers, 1, &depthBuffer);
-    OGL_CALL(glBindRenderbuffer, GL_RENDERBUFFER, depthBuffer);
-    OGL_CALL(glRenderbufferStorage, GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-    OGL_CALL(glFramebufferRenderbuffer, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-    OGL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTex, 0);
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    OGL_CALL(glDrawBuffers, 1, DrawBuffers);
-
-    GLenum fboStatus = OGL_CALL(glCheckFramebufferStatus, GL_FRAMEBUFFER);
-    if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-        throw std::runtime_error("Could not create Framebuffer.");
-
-    textures.push_back(colorTex);
-    renderBuffers.push_back(depthBuffer);
-}
-
-/**
- * Initialize this frame buffer object as a shadow map.
- */
-void FrameBuffer::InitShadowMap()
-{
-    OGL_CALL(glGenFramebuffers, 1, &fbo);
-    type = FrameBufferType::SHADOWMAP;
-    OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
-    GLuint depthTex;
-    OGL_CALL(glGenTextures, 1, &depthTex);
-    OGL_CALL(glBindTexture, GL_TEXTURE_2D, depthTex);
-    OGL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    OGL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    OGL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTex, 0);
-    OGL_CALL(glDrawBuffer, GL_NONE);
-
-    GLenum fboStatus = OGL_CALL(glCheckFramebufferStatus, GL_FRAMEBUFFER);
-    if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-        throw std::runtime_error("Could not create Framebuffer.");
-
-    textures.push_back(depthTex);
-}
-
-/**
- * Initialize this frame buffer object as target for post processing steps.
- */
-void FrameBuffer::InitPostProcessing()
-{
-    throw std::runtime_error("FrameBufferType not implemented!");
-}
-

@@ -10,22 +10,28 @@
 #include "glrenderer/GLUniformBuffer.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-OrthogonalView::OrthogonalView(float aspectRatio, ShaderBufferBindingPoints* uniformBindingPoints)
-{
-    orthoUBO.reset(new GLUniformBuffer(orthoProjectionUBBName,
-            sizeof (OrthoProjectionBuffer), *uniformBindingPoints));
-    Resize(aspectRatio);
-}
+namespace cgu {
+    OrthogonalView::OrthogonalView(float aspectRatio, ShaderBufferBindingPoints* uniformBindingPoints)
+    {
+        orthoUBO.reset(new GLUniformBuffer(orthoProjectionUBBName,
+            sizeof(OrthoProjectionBuffer), *uniformBindingPoints));
+        Resize(aspectRatio);
+    }
 
-void OrthogonalView::Resize(float aspectRatio)
-{
-    float bottom = SCREEN_Y;
-    float right = SCREEN_Y * aspectRatio;
-    orthoBuffer.orthoMatrix = glm::ortho(0.0f, right, bottom, 0.0f, 1.0f, -1.0f);
-    orthoUBO->UploadData(0, sizeof (OrthoProjectionBuffer), &orthoBuffer);
-}
+    OrthogonalView::~OrthogonalView()
+    {
+    }
 
-void OrthogonalView::SetView()
-{
-    orthoUBO->BindBuffer();
+    void OrthogonalView::Resize(float aspectRatio)
+    {
+        float bottom = SCREEN_Y;
+        float right = SCREEN_Y * aspectRatio;
+        orthoBuffer.orthoMatrix = glm::ortho(0.0f, right, bottom, 0.0f, 1.0f, -1.0f);
+        orthoUBO->UploadData(0, sizeof(OrthoProjectionBuffer), &orthoBuffer);
+    }
+
+    void OrthogonalView::SetView()
+    {
+        orthoUBO->BindBuffer();
+    }
 }

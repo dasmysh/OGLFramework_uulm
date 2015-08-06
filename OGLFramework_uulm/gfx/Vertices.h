@@ -11,82 +11,85 @@
 
 #include "../main.h"
 
-/** Represents a vertex of a line. */
-struct LineVertex
-{
-    /** Holds the vertices position. */
-    glm::vec3 pos;
-    /** Holds the vertices texture coordinates. */
-    glm::vec2 tex;
+namespace cgu {
 
-    /**
-     * Comparison operator for equality.
-     * @param rhs the other LineVertex to compare to
-     * @return whether the vertices are equal
-     */
-    bool operator==(const LineVertex& rhs)
+    /** Represents a vertex of a line. */
+    struct LineVertex
     {
-        return pos == rhs.pos && tex == rhs.tex;
-    }
-};
+        /** Holds the vertices position. */
+        glm::vec3 pos;
+        /** Holds the vertices texture coordinates. */
+        glm::vec2 tex;
 
-/** Represents a vertex of a face. */
-struct FaceVertex
-{
-    /** Holds the vertices position. */
-    glm::vec3 pos;
-    /** Holds the vertices texture coordinates. */
-    glm::vec2 tex;
-    /** Holds the vertices normal. */
-    glm::vec3 normal;
+        /**
+         * Comparison operator for equality.
+         * @param rhs the other LineVertex to compare to
+         * @return whether the vertices are equal
+         */
+        bool operator==(const LineVertex& rhs)
+        {
+            return pos == rhs.pos && tex == rhs.tex;
+        }
+    };
 
-    /**
-     * Comparison operator for equality.
-     * @param rhs the other FaceVertex to compare to
-     * @return whether the vertices are equal
-     */
-    bool operator==(const FaceVertex& rhs)
+    /** Represents a vertex of a face. */
+    struct FaceVertex
     {
-        return pos == rhs.pos && tex == rhs.tex && normal == rhs.normal;
-    }
-};
+        /** Holds the vertices position. */
+        glm::vec3 pos;
+        /** Holds the vertices texture coordinates. */
+        glm::vec2 tex;
+        /** Holds the vertices normal. */
+        glm::vec3 normal;
 
-/** Represents a vertex of a text character. */
-struct FontVertex
-{
-    /** Holds the characters position. */
-    glm::vec3 pos;
-    /** Holds the character index to render. */
-    unsigned int idx;
+        /**
+         * Comparison operator for equality.
+         * @param rhs the other FaceVertex to compare to
+         * @return whether the vertices are equal
+         */
+        bool operator==(const FaceVertex& rhs)
+        {
+            return pos == rhs.pos && tex == rhs.tex && normal == rhs.normal;
+        }
+    };
 
-    /**
-     * Comparison operator for equality.
-     * @param rhs the other FontVertex to compare to
-     * @return whether the vertices are equal
-     */
-    bool operator==(const FontVertex& rhs)
+    /** Represents a vertex of a text character. */
+    struct FontVertex
     {
-        return pos == rhs.pos && idx == rhs.idx;
-    }
-};
+        /** Holds the characters position. */
+        glm::vec3 pos;
+        /** Holds the character index to render. */
+        unsigned int idx;
 
-/** Represents a vertex of a gui element. */
-struct GUIVertex
-{
-    /** Holds the vertices position. */
-    glm::vec3 pos;
-    /** Holds the vertices texture coordinates. */
-    glm::vec2 texCoords;
+        /**
+         * Comparison operator for equality.
+         * @param rhs the other FontVertex to compare to
+         * @return whether the vertices are equal
+         */
+        bool operator==(const FontVertex& rhs)
+        {
+            return pos == rhs.pos && idx == rhs.idx;
+        }
+    };
 
-    /**
-     * Comparison operator for equality.
-     * @param rhs the other GUIVertex to compare to
-     * @return whether the vertices are equal
-     */
-    bool operator==(const GUIVertex& rhs)
+    /** Represents a vertex of a gui element. */
+    struct GUIVertex
     {
-        return pos == rhs.pos && texCoords == rhs.texCoords;
-    }
-};
+        /** Holds the vertices position. */
+        glm::vec3 pos;
+        /** Holds the vertices texture coordinates. */
+        glm::vec2 texCoords;
+
+        /**
+         * Comparison operator for equality.
+         * @param rhs the other GUIVertex to compare to
+         * @return whether the vertices are equal
+         */
+        bool operator==(const GUIVertex& rhs)
+        {
+            return pos == rhs.pos && texCoords == rhs.texCoords;
+        }
+    };
+}
 
 #endif /* VERTICES_H */

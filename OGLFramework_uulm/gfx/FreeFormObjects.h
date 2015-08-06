@@ -9,19 +9,22 @@
 #ifndef FREEFORMOBJECTS_H
 #define FREEFORMOBJECTS_H
 
-/** (NOT IMPLEMENTED) A curve. */
-class curv
-{
-};
+namespace cgu {
 
-/** (NOT IMPLEMENTED) A curve on a surface. */
-class curv2
-{
-};
+    /** (NOT IMPLEMENTED) A curve. */
+    class curv
+    {
+    };
 
-/** (NOT IMPLEMENTED) A surface. */
-class surf
-{
-};
+    /** (NOT IMPLEMENTED) A curve on a surface. */
+    class curv2
+    {
+    };
+
+    /** (NOT IMPLEMENTED) A surface. */
+    class surf
+    {
+    };
+}
 
 #endif /* FREEFORMOBJECTS_H */

@@ -16,34 +16,36 @@
 #include "GLBatchRenderTarget.h"
 #include "FrameBuffer.h"
 
-/**
- * @brief  Represents an OpenGL render target.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
- */
-class GLRenderTarget
-{
-public:
-    GLRenderTarget(unsigned int w, unsigned int h);
-    // GLRenderTarget(FrameBuffer& frameBuffer);
-    virtual ~GLRenderTarget() {};
+namespace cgu {
+    /**
+     * @brief  Represents an OpenGL render target.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   15. Januar 2014
+     */
+    class GLRenderTarget
+    {
+    public:
+        GLRenderTarget(unsigned int w, unsigned int h);
+        // GLRenderTarget(FrameBuffer& frameBuffer);
+        virtual ~GLRenderTarget();
 
-    operator GLBatchRenderTarget&();
-    virtual void Resize(unsigned int width, unsigned int height);
-    void BatchDraw(std::function<void(GLBatchRenderTarget&) > batch);
+        operator GLBatchRenderTarget&();
+        virtual void Resize(unsigned int width, unsigned int height);
+        void BatchDraw(std::function<void(GLBatchRenderTarget&) > batch);
 
-protected:
-    /** Holds the internaly used GLBatchRenderTarget. */
-    GLBatchRenderTarget batchRT;
-    /** Holds the render targets OpenGL name. */
-    FrameBuffer fbo;
-    /** Holds the windows width. */
-    unsigned int width;
-    /** Holds the windows height. */
-    unsigned int height;
+    protected:
+        /** Holds the internaly used GLBatchRenderTarget. */
+        GLBatchRenderTarget batchRT;
+        /** Holds the render targets OpenGL name. */
+        FrameBuffer fbo;
+        /** Holds the windows width. */
+        unsigned int width;
+        /** Holds the windows height. */
+        unsigned int height;
 
-private:
-};
+    private:
+    };
+}
 
 #endif /* GLRENDERTARGET_H */

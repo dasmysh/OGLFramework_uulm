@@ -11,36 +11,39 @@
 
 #include "main.h"
 #include "core/Resource.h"
-#include "GLTexture.h"
 
-/**
- * @brief  2D Texture for the OpenGL implementation.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   31. Dezember 2013
- */
-class GLTexture2D : public Resource
-{
-private:
-    /** Copy constructor deleted. */
-    GLTexture2D(const GLTexture2D& orig) : Resource(orig) {};
-    /** Copy assignment operator deleted. */
-    GLTexture2D& operator=(const GLTexture2D&) { return *this; };
+namespace cgu {
+    class GLTexture;
 
-public:
-    GLTexture2D(const std::string& texFilename, ApplicationBase* app);
-    virtual ~GLTexture2D();
+    /**
+     * @brief  2D Texture for the OpenGL implementation.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   31. Dezember 2013
+     */
+    class GLTexture2D : public Resource
+    {
+    private:
+        /** Copy constructor deleted. */
+        GLTexture2D(const GLTexture2D& orig) = delete;
+        /** Copy assignment operator deleted. */
+        GLTexture2D& operator=(const GLTexture2D&) = delete;
 
-    virtual void Load() override;
-    virtual void Unload() override;
+    public:
+        GLTexture2D(const std::string& texFilename, ApplicationBase* app);
+        virtual ~GLTexture2D();
 
-    GLTexture* GetTexture();
+        virtual void Load() override;
+        virtual void Unload() override;
 
-private:
-    /** Holds the texture. */
-    std::unique_ptr<GLTexture> texture;
+        GLTexture* GetTexture();
 
-    void UnloadLocal();
-};
+    private:
+        /** Holds the texture. */
+        std::unique_ptr<GLTexture> texture;
+
+        void UnloadLocal();
+    };
+}
 
 #endif /* GLTEXTURE2D_H */

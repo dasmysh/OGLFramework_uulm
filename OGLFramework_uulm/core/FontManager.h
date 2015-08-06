@@ -11,43 +11,46 @@
 
 #include "gfx/glrenderer/Font.h"
 
-class ApplicationBase;
+namespace cgu {
 
-/** ResourceManager interface for Font resources. */
-typedef IResourceManager<Font> IFontManager;
+    class ApplicationBase;
 
-/**
- * @brief  ResourceManager implementation for font resources.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   24. Februar 2014
- */
-class FontManager : public IFontManager
-{
-private:
-    /** Deleted copy constructor. */
-    FontManager(const FontManager&) {};
-    /** Deleted copy assignment operator. */
-    FontManager& operator=(const FontManager&) {};
+    /** ResourceManager interface for Font resources. */
+    typedef IResourceManager<Font> IFontManager;
 
-public:
-    /** The font type. */
-    typedef IFontManager::ResourceType FontType;
-    /** The font map type. */
-    typedef IFontManager::ResourceMap FontMap;
+    /**
+     * @brief  ResourceManager implementation for font resources.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   24. Februar 2014
+     */
+    class FontManager : public IFontManager
+    {
+    private:
+        /** Deleted copy constructor. */
+        FontManager(const FontManager&) {};
+        /** Deleted copy assignment operator. */
+        FontManager& operator=(const FontManager&) {};
 
-    FontManager(ApplicationBase* app);
-    virtual ~FontManager() {};
+    public:
+        /** The font type. */
+        typedef IFontManager::ResourceType FontType;
+        /** The font map type. */
+        typedef IFontManager::ResourceMap FontMap;
 
-    FontType* GetResource(const std::string& resId) override;
-    bool HasResource(const std::string& resId) override;
+        FontManager(ApplicationBase* app);
+        virtual ~FontManager();
 
-private:
-    /** Holds the Font objects. */
-    FontMap fonts;
-    /** Holds the application object for dependencies. */
-    ApplicationBase* application;
+        FontType* GetResource(const std::string& resId) override;
+        bool HasResource(const std::string& resId) override;
 
-};
+    private:
+        /** Holds the Font objects. */
+        FontMap fonts;
+        /** Holds the application object for dependencies. */
+        ApplicationBase* application;
+
+    };
+}
 
 #endif /* FONTMANAGER_H */

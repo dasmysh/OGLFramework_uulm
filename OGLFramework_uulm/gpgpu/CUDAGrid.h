@@ -12,32 +12,37 @@
 #include <cuda_runtime_api.h>
 #include <glm/glm.hpp>
 
-class CUDAImage;
+namespace cgu {
+    namespace gpgpu {
 
-/// <summary>
-/// Initilizes a grid in CUDA.
-/// </summary>
-class CUDAGrid
-{
-public:
-    CUDAGrid(unsigned int width, unsigned int height, unsigned int depth, size_t elementSize);
-    ~CUDAGrid();
+        class CUDAImage;
 
-    void InitGrid(int value);
-    void InitGrid(CUDAImage* texture);
-    void CopyToTexture(CUDAImage* texture);
-    void CopyToHost(void* ptr, const glm::uvec3 destSize, size_t elementSize);
+        /// <summary>
+        /// Initilizes a grid in CUDA.
+        /// </summary>
+        class CUDAGrid
+        {
+        public:
+            CUDAGrid(unsigned int width, unsigned int height, unsigned int depth, size_t elementSize);
+            ~CUDAGrid();
 
-    const glm::uvec3& GetDimensions() { return dimensions; };
-    void* GetGridPtr() { return grid; };
+            void InitGrid(int value);
+            void InitGrid(CUDAImage* texture);
+            void CopyToTexture(CUDAImage* texture);
+            void CopyToHost(void* ptr, const glm::uvec3 destSize, size_t elementSize);
 
-private:
-    /** holds the grids size. */
-    cudaExtent size;
-    /** holds the grids address on CUDA. */
-    void* grid;
-    /** holds the grids dimensions. */
-    glm::uvec3 dimensions;
-};
+            const glm::uvec3& GetDimensions() { return dimensions; };
+            void* GetGridPtr() { return grid; };
+
+        private:
+            /** holds the grids size. */
+            cudaExtent size;
+            /** holds the grids address on CUDA. */
+            void* grid;
+            /** holds the grids dimensions. */
+            glm::uvec3 dimensions;
+        };
+    }
+}
 
 #endif /* CUDAGRID_H */

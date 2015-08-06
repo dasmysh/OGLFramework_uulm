@@ -93,12 +93,12 @@ std::string pathSanityFix(std::string path, std::string file_name) {
 }
 
 
-std::string createLogFileName(const std::string& verified_prefix)
+std::string createLogFileName(const std::string& verified_prefix, bool useTimestamp)
 {
   std::stringstream oss_name;
   oss_name.fill('0');
-  oss_name << verified_prefix << ".g2log.";
-  oss_name << g2::localtime_formatted(g2::systemtime_now(), file_name_time_formatted);
+  oss_name << verified_prefix;
+  if (useTimestamp) oss_name << ".g2log." << g2::localtime_formatted(g2::systemtime_now(), file_name_time_formatted);
   oss_name << ".log";
   return oss_name.str();
 }
@@ -147,12 +147,12 @@ std::unique_ptr<std::wofstream> createLogFile(const std::wstring& file_with_full
 * does the actual background thread work */
 struct g2LogWorkerImpl
 {
-  g2LogWorkerImpl(const std::string& log_prefix, const std::string& log_directory);
+  g2LogWorkerImpl(const std::string& log_prefix, const std::string& log_directory, bool useTimestamp);
   ~g2LogWorkerImpl();
 
   void backgroundFileWrite(g2::internal::LogEntry message);
   void backgroundExitFatal(g2::internal::FatalMessage fatal_message);
-  std::string  backgroundChangeLogFile(const std::string& directory);
+  std::string  backgroundChangeLogFile(const std::string& directory, bool useTimestamp);
   std::string  backgroundFileName();
 
   std::string log_file_with_path_;
@@ -171,7 +171,7 @@ private:
 
 //
 // Private API implementation : g2LogWorkerImpl
-g2LogWorkerImpl::g2LogWorkerImpl(const std::string& log_prefix, const std::string& log_directory)
+g2LogWorkerImpl::g2LogWorkerImpl(const std::string& log_prefix, const std::string& log_directory, bool useTimestamp)
 : log_file_with_path_(log_directory)
   , log_prefix_backup_(log_prefix)
   , bg_(kjellkod::Active::createActive())
@@ -186,7 +186,7 @@ g2LogWorkerImpl::g2LogWorkerImpl(const std::string& log_prefix, const std::strin
     abort();
   }
 
-  std::string file_name = createLogFileName(log_prefix_backup_);
+  std::string file_name = createLogFileName(log_prefix_backup_, useTimestamp);
   log_file_with_path_ = pathSanityFix(log_file_with_path_, file_name);
   outptr_ = createLogFile(std::wstring(log_file_with_path_.begin(), log_file_with_path_.end()));
   if(!outptr_) {
@@ -233,9 +233,9 @@ void g2LogWorkerImpl::backgroundExitFatal(FatalMessage fatal_message)
 }
 
 
-std::string g2LogWorkerImpl::backgroundChangeLogFile(const std::string& directory)
+std::string g2LogWorkerImpl::backgroundChangeLogFile(const std::string& directory, bool useTimestamp)
 {
-  std::string file_name = createLogFileName(log_prefix_backup_);
+  std::string file_name = createLogFileName(log_prefix_backup_, useTimestamp);
   std::string prospect_log = directory + file_name;
   std::unique_ptr<std::wofstream> log_stream = createLogFile(std::wstring(prospect_log.begin(), prospect_log.end()));
   if(nullptr == log_stream)
@@ -272,8 +272,8 @@ std::string  g2LogWorkerImpl::backgroundFileName()
 // *****   BELOW g2LogWorker    *****
 // Public API implementation
 //
-g2LogWorker::g2LogWorker(const std::string& log_prefix, const std::string& log_directory)
-  :  pimpl_(new g2LogWorkerImpl(log_prefix, log_directory))
+g2LogWorker::g2LogWorker(const std::string& log_prefix, const std::string& log_directory, bool useTimestamp)
+  :  pimpl_(new g2LogWorkerImpl(log_prefix, log_directory, useTimestamp))
   , log_file_with_path_(pimpl_->log_file_with_path_)
 {
   assert((pimpl_ != nullptr) && "shouild never happen");
@@ -296,11 +296,11 @@ void g2LogWorker::fatal(g2::internal::FatalMessage fatal_message)
   pimpl_->bg_->send(std::bind(&g2LogWorkerImpl::backgroundExitFatal, pimpl_.get(), fatal_message));
 }
 
-std::future<std::string> g2LogWorker::changeLogFile(const std::string& log_directory)
+std::future<std::string> g2LogWorker::changeLogFile(const std::string& log_directory, bool useTimestamp)
 {
   kjellkod::Active* bgWorker = pimpl_->bg_.get();
   //auto future_result = g2::spawn_task(std::bind(&g2LogWorkerImpl::backgroundChangeLogFile, pimpl_.get(), log_directory), bgWorker);
-  auto bg_call =     [this, log_directory]() {return pimpl_->backgroundChangeLogFile(log_directory);};
+  auto bg_call =     [this, log_directory, useTimestamp]() {return pimpl_->backgroundChangeLogFile(log_directory, useTimestamp);};
    auto future_result = g2::spawn_task(bg_call, bgWorker);
   return std::move(future_result);
 }

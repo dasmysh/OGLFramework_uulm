@@ -24,6 +24,7 @@
     <ClCompile Include="app\Configuration.cpp" />
     <ClCompile Include="app\FWApplication.cpp" />
     <ClCompile Include="app\GLWindow.cpp" />
+    <ClCompile Include="core\Arcball.cpp" />
     <ClCompile Include="core\boost_helper.cpp" />
     <ClCompile Include="core\cudaLogger.cpp" />
     <ClCompile Include="core\FontManager.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="core\Resource.cpp" />
     <ClCompile Include="core\ShaderManager.cpp" />
     <ClCompile Include="core\TextureManager.cpp" />
+    <ClCompile Include="gfx\CameraView.cpp" />
     <ClCompile Include="gfx\glrenderer\Font.cpp" />
     <ClCompile Include="gfx\glrenderer\FrameBuffer.cpp" />
     <ClCompile Include="gfx\glrenderer\GLBatchRenderTarget.cpp" />
@@ -52,6 +54,7 @@
     <ClCompile Include="gfx\glrenderer\ScreenText.cpp" />
     <ClCompile Include="gfx\glrenderer\Shader.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderBufferBindingPoints.cpp" />
+    <ClCompile Include="gfx\glrenderer\ShaderBufferObject.cpp" />
     <ClCompile Include="gfx\glrenderer\SimpleQuadRenderable.cpp" />
     <ClCompile Include="gfx\Material.cpp" />
     <ClCompile Include="gfx\MaterialLibrary.cpp" />
@@ -61,6 +64,9 @@
     <ClCompile Include="gfx\SubMesh.cpp" />
     <ClCompile Include="gpgpu\CUDAImage.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="oglErrorHandling.cpp" />
+    <ClCompile Include="scene\ArcballRotatedSceneRenderable.cpp" />
+    <ClCompile Include="scene\SceneRenderable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\ApplicationBase.h" />
@@ -69,6 +75,7 @@
     <ClInclude Include="app\FWApplication.h" />
     <ClInclude Include="app\GLWindow.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="core\Arcball.h" />
     <ClInclude Include="core\boost_helper.h" />
     <ClInclude Include="core\cudaLogger.h" />
     <ClInclude Include="core\FontManager.h" />
@@ -83,12 +90,17 @@
     <ClInclude Include="core\g2log\shared_queue.h" />
     <ClInclude Include="core\GPUProgramManager.h" />
     <ClInclude Include="core\MaterialLibManager.h" />
+    <ClInclude Include="core\math\gte\GteDCPQuery.h" />
+    <ClInclude Include="core\math\gte\GteDistSegmentSegment.h" />
+    <ClInclude Include="core\math\math.h" />
+    <ClInclude Include="core\math\primitives.h" />
     <ClInclude Include="core\regex_helper.h" />
     <ClInclude Include="core\Resource.h" />
     <ClInclude Include="core\ResourceManager.h" />
     <ClInclude Include="core\ShaderManager.h" />
     <ClInclude Include="core\TextureManager.h" />
     <ClInclude Include="cudamain.h" />
+    <ClInclude Include="gfx\CameraView.h" />
     <ClInclude Include="gfx\font_metrics.h" />
     <ClInclude Include="gfx\FreeFormObjects.h" />
     <ClInclude Include="gfx\glrenderer\Font.h" />
@@ -106,6 +118,7 @@
     <ClInclude Include="gfx\glrenderer\ScreenText.h" />
     <ClInclude Include="gfx\glrenderer\Shader.h" />
     <ClInclude Include="gfx\glrenderer\ShaderBufferBindingPoints.h" />
+    <ClInclude Include="gfx\glrenderer\ShaderBufferObject.h" />
     <ClInclude Include="gfx\glrenderer\SimpleQuadRenderable.h" />
     <ClInclude Include="gfx\Material.h" />
     <ClInclude Include="gfx\MaterialLibrary.h" />
@@ -119,6 +132,8 @@
     <ClInclude Include="gpgpu\CUDAGrid.h" />
     <ClInclude Include="gpgpu\CUDAImage.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="scene\ArcballRotatedSceneRenderable.h" />
+    <ClInclude Include="scene\SceneRenderable.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="gpgpu\CUDAAddNoise.cu" />

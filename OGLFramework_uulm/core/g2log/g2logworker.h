@@ -26,7 +26,7 @@ struct g2LogWorkerImpl;
 class g2LogWorker
 {
 public:
-  g2LogWorker(const std::string& log_prefix, const std::string& log_directory);
+  g2LogWorker(const std::string& log_prefix, const std::string& log_directory, bool useTimestamp = true);
   virtual ~g2LogWorker();
 
   /// pushes in background thread (asynchronously) input messages to log file
@@ -39,7 +39,7 @@ public:
 
   /// Attempt to change the current log file to another name/location.
   /// returns filename with full path if successful, else empty string
-  std::future<std::string> changeLogFile(const std::string& log_directory);
+  std::future<std::string> changeLogFile(const std::string& log_directory, bool useTimestamp = true);
 
   /// Probably only needed for unit-testing or specific log management post logging
   /// request to get log name is processed in FIFO order just like any other background job.

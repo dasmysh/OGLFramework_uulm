@@ -11,41 +11,46 @@
 
 #include "gfx/MaterialLibrary.h"
 
-/**
- * @brief IResourceManager for MaterialLibrary resources.
- */
-typedef IResourceManager<MaterialLibrary> IMaterialLibManager;
+namespace cgu {
 
-/**
- * @brief  ResourceManager implementation for Material objects.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   6. Januar 2014
- */
-class MaterialLibManager final : public IMaterialLibManager
-{
-private:
-    /** Copy constructor deleted. */
-    MaterialLibManager(const MaterialLibManager&) {};
-    /** Copy assignment operator deleted. */
-    MaterialLibManager& operator=(const MaterialLibManager&) {};
-public:
-    /** The material library type. */
-    typedef IMaterialLibManager::ResourceType MaterialLibType;
-    /** The material library map type. */
-    typedef IMaterialLibManager::ResourceMap MaterialLibMap;
+    class ApplicationBase;
 
-    MaterialLibManager(ApplicationBase* app);
-    virtual ~MaterialLibManager() {};
+    /**
+     * @brief IResourceManager for MaterialLibrary resources.
+     */
+    typedef IResourceManager<MaterialLibrary> IMaterialLibManager;
 
-    MaterialLibType* GetResource(const std::string& resId) override;
-    bool HasResource(const std::string& resId) override;
+    /**
+     * @brief  ResourceManager implementation for Material objects.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   6. Januar 2014
+     */
+    class MaterialLibManager final : public IMaterialLibManager
+    {
+    private:
+        /** Copy constructor deleted. */
+        MaterialLibManager(const MaterialLibManager&) {};
+        /** Copy assignment operator deleted. */
+        MaterialLibManager& operator=(const MaterialLibManager&) {};
+    public:
+        /** The material library type. */
+        typedef IMaterialLibManager::ResourceType MaterialLibType;
+        /** The material library map type. */
+        typedef IMaterialLibManager::ResourceMap MaterialLibMap;
 
-private:
-    /** Holds the application object. */
-    ApplicationBase* application;
-    /** Holds the loaded material libraries. */
-    MaterialLibMap materialLibs;
-};
+        MaterialLibManager(ApplicationBase* app);
+        virtual ~MaterialLibManager();
+
+        MaterialLibType* GetResource(const std::string& resId) override;
+        bool HasResource(const std::string& resId) override;
+
+    private:
+        /** Holds the application object. */
+        ApplicationBase* application;
+        /** Holds the loaded material libraries. */
+        MaterialLibMap materialLibs;
+    };
+}
 
 #endif /* MATERIALMANAGER_H */

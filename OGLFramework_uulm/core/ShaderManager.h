@@ -11,40 +11,43 @@
 
 #include "gfx/glrenderer/Shader.h"
 
-/** ResourceManager interface for shader resources. */
-typedef IResourceManager<Shader> IShaderManager;
+namespace cgu {
 
-/**
- * @brief  Manages Shader resources.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
- */
-class ShaderManager : public IShaderManager
-{
-private:
-    /** Deleted copy constructor. */
-    ShaderManager(const ShaderManager&) {};
-    /** Deleted copy assignment operator. */
-    ShaderManager& operator=(const ShaderManager&) {};
+    /** ResourceManager interface for shader resources. */
+    typedef IResourceManager<Shader> IShaderManager;
 
-public:
-    /** The material library type. */
-    typedef IShaderManager::ResourceType ShaderType;
-    /** The material library map type. */
-    typedef IShaderManager::ResourceMap ShaderMap;
+    /**
+     * @brief  Manages Shader resources.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   15. Januar 2014
+     */
+    class ShaderManager : public IShaderManager
+    {
+    private:
+        /** Deleted copy constructor. */
+        ShaderManager(const ShaderManager&) {};
+        /** Deleted copy assignment operator. */
+        ShaderManager& operator=(const ShaderManager&) {};
 
-    ShaderManager(ApplicationBase* app);
-    virtual ~ShaderManager() {};
+    public:
+        /** The material library type. */
+        typedef IShaderManager::ResourceType ShaderType;
+        /** The material library map type. */
+        typedef IShaderManager::ResourceMap ShaderMap;
 
-    ShaderType* GetResource(const std::string& resId) override;
-    bool HasResource(const std::string& resId) override;
+        ShaderManager(ApplicationBase* app);
+        virtual ~ShaderManager();
 
-private:
-    /** Holds the loaded shaders. */
-    ShaderMap shaders;
-    /** Holds the window for dependencies. */
-    ApplicationBase* application;
-};
+        ShaderType* GetResource(const std::string& resId) override;
+        bool HasResource(const std::string& resId) override;
+
+    private:
+        /** Holds the loaded shaders. */
+        ShaderMap shaders;
+        /** Holds the window for dependencies. */
+        ApplicationBase* application;
+    };
+}
 
 #endif /* SHADERMANAGER_H */

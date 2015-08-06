@@ -8,23 +8,26 @@
 
 #include "Renderable.h"
 
-/** Default constructor. */
-Renderable::Renderable()
-{
-}
+namespace cgu {
 
-/** Default move constructor. */
-Renderable::Renderable(const Renderable&&)
-{
-}
+    /** Default constructor. */
+    Renderable::Renderable()
+    {
+    }
 
-/** Default move assignment operator. */
-Renderable& Renderable::operator=(const Renderable&&)
-{
-    return *this;
-}
+    /** Default move constructor. */
+    Renderable::Renderable(const Renderable&&)
+    {
+    }
 
-/** Destructor. */
-Renderable::~Renderable()
-{
-};
+    /** Default move assignment operator. */
+    Renderable& Renderable::operator=(const Renderable&&)
+    {
+        return *this;
+    }
+
+    /** Destructor. */
+    Renderable::~Renderable()
+    {
+    };
+}

@@ -1,7 +1,7 @@
 /**
  * @file   FrameBuffer.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   17. Januar 2014
+ * @date   2014.01.17
  *
  * @brief  Contains the definition of FrameBuffer.
  */
@@ -11,58 +11,68 @@
 
 #include <vector>
 #include <GL/glew.h>
+#include "GLTexture.h"
 
-/** The currently initialized frame buffer type. */
-enum class FrameBufferType
-{
-    BACKBUFFER, /**< The rendertarget is the backbuffer. */
-    BACKBUFFER_CLONE, /**< The rendertarget is a buffer for general geometry rendering (with depth buffer, color texture, ...). */
-    SHADOWMAP, /**< The rendertarget is used as a shadow map. */
-    POSTPROCESSING /**< The rendertarget is used for post processing steps. */
-};
+namespace cgu {
 
-/**
- * @brief  Represents frame buffers.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   17. Januar 2014
- */
-class FrameBuffer
-{
-private:
-    /** Deleted copy constructor. */
-    FrameBuffer(const FrameBuffer&) {};
-    /** Deleted copy assignment operator. */
-    FrameBuffer& operator=(const FrameBuffer&) { return *this; };
+    /** Describes a render buffer. */
+    struct RenderBufferDescriptor
+    {
+        /** Holds the internal format of the render buffer. */
+        GLenum internalFormat;
+    };
 
-public:
-    FrameBuffer();
-    FrameBuffer(unsigned int fbWidth, unsigned int fbHeight);
-    virtual ~FrameBuffer();
+    /** Describes a frame buffer. */
+    struct FrameBufferDescriptor
+    {
+        /** Holds descriptions for all textures used. */
+        std::vector<TextureDescriptor> texDesc;
+        /** Holds descriptions for all render buffers used. */
+        std::vector<RenderBufferDescriptor> rbDesc;
+    };
 
-    void UseAsRenderTarget();
-    void Resize(unsigned int fbWidth, unsigned int fbHeight);
-    void InitBackBufferClone();
-    void InitShadowMap();
-    void InitPostProcessing();
+    /**
+     * @brief  Represents frame buffers.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   2014.01.17
+     */
+    class FrameBuffer
+    {
+    public:
+        FrameBuffer();
+        FrameBuffer(unsigned int fbWidth, unsigned int fbHeight, const FrameBufferDescriptor& desc);
+        FrameBuffer(const FrameBuffer& orig);
+        FrameBuffer(FrameBuffer&& orig);
+        FrameBuffer& operator=(const FrameBuffer& orig);
+        FrameBuffer& operator=(FrameBuffer&& orig);
+        ~FrameBuffer();
 
-private:
-    /** Frees all used textures. */
-    void FreeTextures();
+        void UseAsRenderTarget();
+        void Resize(unsigned int fbWidth, unsigned int fbHeight);
 
-    /** holds the frame buffers OpenGL name. */
-    GLuint fbo;
-    /** holds the frame buffer type. */
-    FrameBufferType type;
-    /** holds the frame buffers textures to render to. */
-    std::vector<GLuint> textures;
-    /** holds the frame buffers render buffers to render to. */
-    std::vector<GLuint> renderBuffers;
+        unsigned int GetWidth() const { return width; };
+        unsigned int GetHeight() const { return height; };
 
-public:/** holds the frame buffers width. */
-    unsigned int width;
-    /** holds the frame buffers height. */
-    unsigned int height;
-};
+    private:
+        void Destroy();
 
+        unsigned int findAttachment(GLenum internalFormat, unsigned int& colorAtt, std::vector<GLenum> &drawBuffers);
+
+        /** holds the frame buffers OpenGL name. */
+        GLuint fbo;
+        /** Holds whether this represents the back buffer or not. */
+        bool isBackbuffer;
+        /** holds the frame buffer type. */
+        FrameBufferDescriptor desc;
+        /** holds the frame buffers textures to render to. */
+        std::vector<std::unique_ptr<GLTexture>> textures;
+        /** holds the frame buffers render buffers to render to. */
+        std::vector<GLuint> renderBuffers;
+        /** holds the frame buffers width. */
+        unsigned int width;
+        /** holds the frame buffers height. */
+        unsigned int height;
+    };
+}
 #endif /* FRAMEBUFFER_H */

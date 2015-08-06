@@ -8,173 +8,228 @@
 
 #include "Shader.h"
 #include "app/ApplicationBase.h"
+#include "app/Configuration.h"
+#include "gfx/glrenderer/GLTexture.h"
+#include "gfx/glrenderer/GLUniformBuffer.h"
 
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
+#include <codecvt>
 
-/**
- * Constructor.
- * @param shader the name of the shader the error occurred in
- * @param errors the error string opengl returned
- */
-shader_compiler_error::shader_compiler_error(const std::string& shader, const std::string& errors) :
-shr(shader),
-errs(errors)
-{
-}
+namespace cgu {
 
-/** Returns information about the exception */
-const char* shader_compiler_error::what() const
-{
-    std::string result = "Shader " + shr + " compilation failed!\n";
-    result += "Compiler errors:\n" + errs;
-    return result.c_str();
-}
+    /**
+     * Constructor.
+     * @param shader the name of the shader the error occurred in
+     * @param errors the error string opengl returned
+     */
+    shader_compiler_error::shader_compiler_error(const std::string& shader, const std::string& errors) :
+        shr(new char[shader.size() + 1]),
+        errs(new char[errors.size() + 1]),
+        myWhat(nullptr)
+    {
+        std::string result = "Shader " + shader + " compilation failed!\n";
+        result += "Compiler errors:\n" + errors;
+        myWhat.reset(new char[result.size() + 1]);
 
-/**
- * Constructor.
- * @param shaderFilename the shaders file name
- */
-Shader::Shader(const std::string& shaderFilename, ApplicationBase* app) :
-Resource(shaderFilename, app),
-shader(0),
-type(GL_VERTEX_SHADER),
-strType("vertex")
-{
-    if (boost::ends_with(shaderFilename, ".fp")) {
-        type = GL_FRAGMENT_SHADER;
-        strType = "fragment";
-    } else if (boost::ends_with(shaderFilename, ".gp")) {
-        type = GL_GEOMETRY_SHADER;
-        strType = "geometry";
-    } else if (boost::ends_with(shaderFilename, ".tcp")) {
-        type = GL_TESS_CONTROL_SHADER;
-        strType = "tesselation control";
-    } else if (boost::ends_with(shaderFilename, ".tep")) {
-        type = GL_TESS_EVALUATION_SHADER;
-        strType = "tesselation evaluation";
-    } else if (boost::ends_with(shaderFilename, ".cp")) {
-        type = GL_COMPUTE_SHADER;
-        strType = "compute";
+        std::copy(shader.begin(), shader.end(), shr.get());
+        shr[shader.size()] = '\0';
+        std::copy(errors.begin(), errors.end(), errs.get());
+        errs[errors.size()] = '\0';
+        std::copy(result.begin(), result.end(), myWhat.get());
+        myWhat[result.size()] = '\0';
     }
-}
 
-Shader::Shader(Shader&& orig) :
-Resource(std::move(orig)),
-shader(orig.shader),
-type(orig.type),
-strType(std::move(orig.strType))
-{
-    orig.shader = 0;
-    orig.type = GL_VERTEX_SHADER;
-}
+    shader_compiler_error::shader_compiler_error(const shader_compiler_error& orig) :
+        shader_compiler_error(std::string(orig.shr.get()), std::string(orig.errs.get()))
+    {
+    }
 
-Shader& Shader::operator =(Shader&& orig)
-{
-    Resource* tRes = this;
-    *tRes = static_cast<Resource&&> (std::move(orig));
-    if (this != &orig) {
-        shader = orig.shader;
-        type = orig.type;
-        strType = std::move(orig.strType);
+    shader_compiler_error& shader_compiler_error::operator=(const shader_compiler_error& orig)
+    {
+        shader_compiler_error tmp(std::string(orig.shr.get()), std::string(orig.errs.get()));
+        shr.reset(nullptr);
+        shr.swap(tmp.shr);
+        errs.reset(nullptr);
+        errs.swap(tmp.errs);
+        myWhat.reset(nullptr);
+        myWhat.swap(tmp.myWhat);
+
+        return *this;
+    }
+
+    shader_compiler_error::shader_compiler_error(shader_compiler_error&& orig) :
+        std::exception(std::move(orig)),
+        shr(std::move(orig.shr)),
+        errs(std::move(orig.errs)),
+        myWhat(std::move(orig.myWhat))
+    {
+    }
+
+    shader_compiler_error& shader_compiler_error::operator= (shader_compiler_error&& orig)
+    {
+        std::exception* tExcpt = this;
+        *tExcpt = static_cast<std::exception&&>(std::move(orig));
+        if (this != &orig) {
+            shr = std::move(orig.shr);
+            errs = std::move(orig.errs);
+            myWhat = std::move(orig.myWhat);
+        }
+        return *this;
+    }
+
+    /** Returns information about the exception */
+    const char* shader_compiler_error::what() const
+    {
+        return myWhat.get();
+    }
+
+    /**
+     * Constructor.
+     * @param shaderFilename the shaders file name
+     */
+    Shader::Shader(const std::string& shaderFilename, ApplicationBase* app) :
+        Resource(shaderFilename, app),
+        shader(0),
+        type(GL_VERTEX_SHADER),
+        strType("vertex")
+    {
+        if (boost::ends_with(shaderFilename, ".fp")) {
+            type = GL_FRAGMENT_SHADER;
+            strType = "fragment";
+        } else if (boost::ends_with(shaderFilename, ".gp")) {
+            type = GL_GEOMETRY_SHADER;
+            strType = "geometry";
+        } else if (boost::ends_with(shaderFilename, ".tcp")) {
+            type = GL_TESS_CONTROL_SHADER;
+            strType = "tesselation control";
+        } else if (boost::ends_with(shaderFilename, ".tep")) {
+            type = GL_TESS_EVALUATION_SHADER;
+            strType = "tesselation evaluation";
+        } else if (boost::ends_with(shaderFilename, ".cp")) {
+            type = GL_COMPUTE_SHADER;
+            strType = "compute";
+        }
+    }
+
+    Shader::Shader(Shader&& orig) :
+        Resource(std::move(orig)),
+        shader(orig.shader),
+        type(orig.type),
+        strType(std::move(orig.strType))
+    {
         orig.shader = 0;
         orig.type = GL_VERTEX_SHADER;
     }
-    return *this;
-}
 
-/** Destructor. */
-Shader::~Shader()
-{
-    if (IsLoaded()) UnloadLocal();
-}
-
-void Shader::Load()
-{
-    shader = CompileShader(application->GetConfig().resourceBase + "/" + id, type, strType);
-    Resource::Load();
-}
-
-/**
- * Reset the shader to a new name generated by RecompileShader before.
- * This is used to make sure an old shader is not lost if linking shaders to a program fails.
- * @param newShader the recompiled shader
- */
-void Shader::ResetShader(GLuint newShader)
-{
-    Unload();
-    shader = newShader;
-    Resource::Load();
-}
-
-/**
- * Recompiles the shader.
- * The returned shader name should be set with ResetShader later after linking the program succeeded.
- * If the linking failed the program needs to delete the new shader object.
- * @return the new shader object name
- */
-GLuint Shader::RecompileShader()
-{
-    return CompileShader(application->GetConfig().resourceBase + "/" + id, type, strType);
-}
-
-void Shader::UnloadLocal()
-{
-    if (this->shader != 0) {
-        OGL_CALL(glDeleteShader, shader);
-        shader = 0;
+    Shader& Shader::operator =(Shader&& orig)
+    {
+        Resource* tRes = this;
+        *tRes = static_cast<Resource&&> (std::move(orig));
+        if (this != &orig) {
+            shader = orig.shader;
+            type = orig.type;
+            strType = std::move(orig.strType);
+            orig.shader = 0;
+            orig.type = GL_VERTEX_SHADER;
+        }
+        return *this;
     }
-}
 
-void Shader::Unload()
-{
-    UnloadLocal();
-    Resource::Unload();
-}
-
-/**
- * Loads a shader from file and compiles it.
- * @param filename the shaders file name
- * @param type the shaders type
- * @param strType the shaders type as string
- * @return the compiled shader if successful
- */
-GLuint Shader::CompileShader(const std::string& filename, GLenum type, const std::string& strType)
-{
-    std::ifstream file(filename.c_str(), std::ifstream::in);
-    std::string line;
-    std::stringstream content;
-    while (file.good()) {
-        std::getline(file, line);
-        content << line << std::endl;
+    /** Destructor. */
+    Shader::~Shader()
+    {
+        if (IsLoaded()) UnloadLocal();
     }
-    file.close();
-    std::string shaderText = content.str();
-    GLuint shader = OGL_CALL(glCreateShader, type);
-    if (shader == 0) {
-        LOG(ERROR) << L"Could not create shader!";
-        throw std::runtime_error("Could not create shader!");
+
+    void Shader::Load()
+    {
+        shader = CompileShader(application->GetConfig().resourceBase + "/" + id, type, strType);
+        Resource::Load();
     }
-    const char* shaderTextArray = shaderText.c_str();
-    int shaderLength = static_cast<int>(shaderText.length());
-    OGL_CALL(glShaderSource, shader, 1, &shaderTextArray, &shaderLength);
-    OGL_CALL(glCompileShader, shader);
 
-    GLint status;
-    OGL_CALL(glGetShaderiv, shader, GL_COMPILE_STATUS, &status);
-    if (status == GL_FALSE) {
-        GLint infoLogLength;
-        OGL_CALL(glGetShaderiv, shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+    /**
+     * Reset the shader to a new name generated by RecompileShader before.
+     * This is used to make sure an old shader is not lost if linking shaders to a program fails.
+     * @param newShader the recompiled shader
+     */
+    void Shader::ResetShader(GLuint newShader)
+    {
+        Unload();
+        shader = newShader;
+        Resource::Load();
+    }
 
-        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-        OGL_CALL(glGetShaderInfoLog, shader, infoLogLength, NULL, strInfoLog);
+    /**
+     * Recompiles the shader.
+     * The returned shader name should be set with ResetShader later after linking the program succeeded.
+     * If the linking failed the program needs to delete the new shader object.
+     * @return the new shader object name
+     */
+    GLuint Shader::RecompileShader()
+    {
+        return CompileShader(application->GetConfig().resourceBase + "/" + id, type, strType);
+    }
 
-        LOG(ERROR) << L"Compile failure in " << strType << L" shader ("
+    void Shader::UnloadLocal()
+    {
+        if (this->shader != 0) {
+            OGL_CALL(glDeleteShader, shader);
+            shader = 0;
+        }
+    }
+
+    void Shader::Unload()
+    {
+        UnloadLocal();
+        Resource::Unload();
+    }
+
+    /**
+     * Loads a shader from file and compiles it.
+     * @param filename the shaders file name
+     * @param type the shaders type
+     * @param strType the shaders type as string
+     * @return the compiled shader if successful
+     */
+    GLuint Shader::CompileShader(const std::string& filename, GLenum type, const std::string& strType)
+    {
+        std::ifstream file(filename.c_str(), std::ifstream::in);
+        std::string line;
+        std::stringstream content;
+        while (file.good()) {
+            std::getline(file, line);
+            content << line << std::endl;
+        }
+        file.close();
+        std::string shaderText = content.str();
+        GLuint shader = OGL_CALL(glCreateShader, type);
+        if (shader == 0) {
+            LOG(ERROR) << L"Could not create shader!";
+            throw std::runtime_error("Could not create shader!");
+        }
+        const char* shaderTextArray = shaderText.c_str();
+        int shaderLength = static_cast<int>(shaderText.length());
+        OGL_CALL(glShaderSource, shader, 1, &shaderTextArray, &shaderLength);
+        OGL_CALL(glCompileShader, shader);
+
+        GLint status;
+        OGL_CALL(glGetShaderiv, shader, GL_COMPILE_STATUS, &status);
+        if (status == GL_FALSE) {
+            GLint infoLogLength;
+            OGL_CALL(glGetShaderiv, shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+            GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+            OGL_CALL(glGetShaderInfoLog, shader, infoLogLength, NULL, strInfoLog);
+
+            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+            LOG(ERROR) << L"Compile failure in " << converter.from_bytes(strType) << L" shader ("
                 << filename.c_str() << "): " << std::endl << strInfoLog;
-        std::string infoLog = strInfoLog;
-        delete[] strInfoLog;
-        OGL_CALL(glDeleteShader, shader);
-        throw shader_compiler_error(filename, infoLog);
+            std::string infoLog = strInfoLog;
+            delete[] strInfoLog;
+            OGL_CALL(glDeleteShader, shader);
+            throw shader_compiler_error(filename, infoLog);
+        }
+        return shader;
     }
-    return shader;
 }

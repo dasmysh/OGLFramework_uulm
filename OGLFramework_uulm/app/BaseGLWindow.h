@@ -12,67 +12,89 @@
 #include "gfx/glrenderer/GLRenderTarget.h"
 #include "gfx/glrenderer/FrameBuffer.h"
 
-class TextureManager;
-class MaterialLibManager;
-class ShaderManager;
-class GPUProgramManager;
-class ShaderBufferBindingPoints;
+namespace cgu {
 
-/**
- * @brief The base class for all OpenGL windows.
- *
- * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   19. Dezember 2013
- */
-class BaseGLWindow : public GLRenderTarget
-{
-public:
-    BaseGLWindow(unsigned int w, unsigned int h);
-    virtual ~BaseGLWindow() {};
+    class TextureManager;
+    class MaterialLibManager;
+    class ShaderManager;
+    class GPUProgramManager;
+    class ShaderBufferBindingPoints;
 
     /**
-     * Shows a question message box.
-     * @param title the message boxes title
-     * @param content the message boxes content
-     * @return returns <code>true</code> if the user pressed 'yes' <code>false</code> if 'no'
+     * @brief The base class for all OpenGL windows.
+     *
+     * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
+     * @date   19. Dezember 2013
      */
-    virtual bool MessageBoxQuestion(const std::string& title, const std::string content) = 0;
-    /** Swaps buffers and shows the content rendered since last call of Present(). */
-    virtual void Present() = 0;
-    /** Closes the window. */
-    virtual void CloseWindow() = 0;
-
-    /** Returns the windows width. */
-    unsigned int GetWidth()
+    class BaseGLWindow : public GLRenderTarget
     {
-        return width;
+    public:
+        BaseGLWindow(unsigned int w, unsigned int h);
+        virtual ~BaseGLWindow();
+
+        /**
+         * Shows a question message box.
+         * @param title the message boxes title
+         * @param content the message boxes content
+         * @return returns <code>true</code> if the user pressed 'yes' <code>false</code> if 'no'
+         */
+        virtual bool MessageBoxQuestion(const std::string& title, const std::string& content) = 0;
+        /** Swaps buffers and shows the content rendered since last call of Present(). */
+        virtual void Present() = 0;
+        /** Closes the window. */
+        virtual void CloseWindow() = 0;
+
+        /** Returns the windows width. */
+        unsigned int GetWidth()
+        {
+            return width;
+        };
+
+        /** Returns the windows height. */
+        unsigned int GetHeight()
+        {
+            return height;
+        };
+
+        unsigned int GetMouseButtonState(unsigned int btn) const { return mouseButtonState & btn; };
+        glm::vec2 GetMouseRelative() const { return mouseRelative; };
+        glm::vec2 GetMouseAbsolute() const { return mouseAbsolute; };
+        glm::vec3 GetMouseAbsoluteNDC() const;
+        glm::vec2 GetMouseAbsoluteVScreen() const;
+        glm::vec2 ToMouseAbsoluteVScreen(const glm::vec2& coords) const;
+        unsigned int GetKeyboardModState(unsigned int modKey) const { return keyboardModState & modKey; };
+        bool HadPositionUpdate() const { return hadPositionUpdate; };
+        void HandledPositionUpdate() { hadPositionUpdate = false; };
+
+        TextureManager* GetTextureManager();
+        MaterialLibManager* GetMaterialLibManager();
+        ShaderManager* GetShaderManager();
+        GPUProgramManager* GetGPUProgramaManager();
+        ShaderBufferBindingPoints* GetUBOBindingPoints();
+
+    protected:
+        /** Holds the texture manager. */
+        TextureManager* texManager;
+        /** Holds the material lib manager. */
+        MaterialLibManager* matManager;
+        /** Holds the shader manager. */
+        ShaderManager* shaderManager;
+        /** Holds the gpu program manager. */
+        GPUProgramManager* programManager;
+        /** Holds the uniform binding points. */
+        ShaderBufferBindingPoints* uboBindingPoints;
+        /** holds the current mouse button state. */
+        unsigned int mouseButtonState;
+        /** holds the current relative mouse position. */
+        glm::vec2 mouseRelative;
+        /** holds the current absolute mouse position. */
+        glm::vec2 mouseAbsolute;
+        /** holds the state of keyboard modificators (shift, ctrl, alt). */
+        unsigned int keyboardModState;
+        /** holds whether there was an update to the absolute position. */
+        bool hadPositionUpdate;
+
+    private:
     };
-
-    /** Returns the windows height. */
-    unsigned int GetHeight()
-    {
-        return height;
-    };
-
-    TextureManager* GetTextureManager();
-    MaterialLibManager* GetMaterialLibManager();
-    ShaderManager* GetShaderManager();
-    GPUProgramManager* GetGPUProgramaManager();
-    ShaderBufferBindingPoints* GetUBOBindingPoints();
-
-protected:
-    /** Holds the texture manager. */
-    TextureManager* texManager;
-    /** Holds the material lib manager. */
-    MaterialLibManager* matManager;
-    /** Holds the shader manager. */
-    ShaderManager* shaderManager;
-    /** Holds the gpu program manager. */
-    GPUProgramManager* programManager;
-    /** Holds the uniform binding points. */
-    ShaderBufferBindingPoints* uboBindingPoints;
-
-private:
-};
-
+}
 #endif /* BASEGLWINDOW_H */
