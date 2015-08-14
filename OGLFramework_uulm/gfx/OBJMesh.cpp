@@ -410,9 +410,7 @@ namespace cgu {
             else if (pidx2 == -1)
                 pidx2 = pi;
             else {
-                mesh->trianglePtsIndices.insert(MeshConnectTriangle({ { pidx1, pidx2, pi } }));// faceIndices.push_back(idx1);
-                // mesh->faceIndices.push_back(idx2);
-                // mesh->faceIndices.push_back(idx);
+                mesh->trianglePtsIndices.insert(MeshConnectTriangle({ { pidx1, pidx2, pi } }));
                 pidx2 = pi;
             }
 

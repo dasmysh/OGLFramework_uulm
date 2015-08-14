@@ -395,7 +395,7 @@ namespace cgu {
             Sleep(500);
             return;
         }
-        //    LOG(Log::LogLevel::LL_DEBUG) << L"-----  Begin of frame -" << this->m_frameCount << "-.  -----";
+
         LARGE_INTEGER qwTime;
         QueryPerformanceCounter(&qwTime);
 
@@ -416,8 +416,5 @@ namespace cgu {
         this->RenderScene();
         TwDraw();
         this->win.Present();
-
-        //this->m_dialog.Render(this->m_time, (float)this->m_elapsedTime);
-        //    LOG(Log::LogLevel::LL_DEBUG) << L"-----  End of frame -" << this->m_frameCount++ << "-.  -----";
     }
 }

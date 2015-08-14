@@ -17,6 +17,7 @@
 #include "FrameBuffer.h"
 
 namespace cgu {
+
     /**
      * @brief  Represents an OpenGL render target.
      *
@@ -27,12 +28,13 @@ namespace cgu {
     {
     public:
         GLRenderTarget(unsigned int w, unsigned int h);
-        // GLRenderTarget(FrameBuffer& frameBuffer);
+        GLRenderTarget(unsigned int w, unsigned int h, const FrameBufferDescriptor& desc);
         virtual ~GLRenderTarget();
 
         operator GLBatchRenderTarget&();
         virtual void Resize(unsigned int width, unsigned int height);
         void BatchDraw(std::function<void(GLBatchRenderTarget&) > batch);
+        const std::vector<std::unique_ptr<GLTexture>>& GetTextures() const { return fbo.GetTextures(); };
 
     protected:
         /** Holds the internaly used GLBatchRenderTarget. */

@@ -50,6 +50,7 @@ namespace cgu {
 
         void UseAsRenderTarget();
         void Resize(unsigned int fbWidth, unsigned int fbHeight);
+        const std::vector<std::unique_ptr<GLTexture>>& GetTextures() const { return textures; };
 
         unsigned int GetWidth() const { return width; };
         unsigned int GetHeight() const { return height; };

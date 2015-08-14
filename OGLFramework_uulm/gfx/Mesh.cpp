@@ -76,6 +76,19 @@ namespace cgu {
     }
 
     /**
+     *  Get the number of triangles in this mesh.
+     *  @return the number of triangles.
+     */
+    unsigned int Mesh::GetNumberOfTriangles() const
+    {
+        unsigned int result = numTriangles;
+        for (const auto submesh : subMeshes) {
+            result += submesh->numTriangles;
+        }
+        return result;
+    }
+
+    /**
      *  Creates the meshes geometry information and acceleration structures.
      */
     void Mesh::CreateGeomertyInfo()

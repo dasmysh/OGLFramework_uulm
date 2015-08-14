@@ -14,6 +14,8 @@ namespace cgu {
 
     /**
      * Constructor.
+     * @param w the render targets width.
+     * @param h the render targets height.
      */
     GLRenderTarget::GLRenderTarget(unsigned int w, unsigned int h) :
         batchRT(*this),
@@ -23,11 +25,25 @@ namespace cgu {
     {
     }
 
+    /**
+     * Creates a new render target with given FrameBufferDescriptor.
+     * @param w the render targets width.
+     * @param h the render targets height.
+     * @param desc the frame buffer description.
+     */
+    GLRenderTarget::GLRenderTarget(unsigned int w, unsigned int h, const FrameBufferDescriptor& desc) :
+        batchRT(*this),
+        fbo(w, h, desc),
+        width(w),
+        height(h)
+    {
+    }
+
     GLRenderTarget::~GLRenderTarget()
     {
     }
 
-    /** Implicit convertion to a GLBatchRenderTarget for direct rendering without the lambda expression in BatchDraw. */
+    /** Implicit conversion to a GLBatchRenderTarget for direct rendering without the lambda expression in BatchDraw. */
     GLRenderTarget::operator GLBatchRenderTarget&()
     {
         return batchRT;

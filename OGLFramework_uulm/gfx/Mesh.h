@@ -27,6 +27,7 @@ namespace cgu {
         void createSubMesh(const std::string& subMeshName, ObjCountState& countState);
         void ReserveMesh(ObjCountState& countState);
         unsigned int FindContainingTriangle(const glm::vec3 point);
+        unsigned int GetNumberOfTriangles() const;
 
         /** Holds all the single points used by the mesh (and its sub-meshes) as points or in vertices. */
         std::vector<glm::vec4> vertices;

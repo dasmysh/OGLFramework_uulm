@@ -265,8 +265,6 @@ FatalTrigger::~FatalTrigger()
 
 }
 
-
-#define _CRT_SECURE_NO_WARNINGS
 void LogMessage::messageSave(const char *printf_like_message, ...)
 {
   char finished_message[kMaxMessageSize];

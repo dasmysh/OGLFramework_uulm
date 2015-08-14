@@ -15,7 +15,6 @@
 
 namespace cgu {
     class ShaderBufferBindingPoints;
-    class GLRenderTarget;
     class ApplicationBase;
 
     /**
@@ -62,7 +61,6 @@ namespace cgu {
         void UseProgram() const;
 
     private:
-        friend GLRenderTarget;
         typedef std::unique_ptr<shader_binding_desc> BindingLocationInternal;
         /** Holds the program. */
         GLuint program;
