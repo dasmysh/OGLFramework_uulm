@@ -10,9 +10,11 @@
 #define GLTEXTURE_H
 
 #include "main.h"
+#include "GPUProgram.h"
 
 namespace cgu {
     class GLTexture;
+
     namespace gpgpu {
         class CUDAImage;
     }
@@ -20,6 +22,8 @@ namespace cgu {
     /** Describes the format of a texture. */
     struct TextureDescriptor
     {
+        /** Holds the bytes per pixel of the format. */
+        unsigned int bytesPP;
         /** Holds the internal format. */
         GLint internalFormat;
         /** Holds the format. */
@@ -56,12 +60,17 @@ namespace cgu {
         GLTexture(GLuint texID, GLenum texType, const TextureDescriptor& desc);
         GLTexture(unsigned int width, unsigned int height, unsigned int arraySize, const TextureDescriptor& desc);
         GLTexture(unsigned int width, unsigned int height, const TextureDescriptor& desc, const void* data);
+        GLTexture(unsigned int width, unsigned int height, unsigned int depth, const TextureDescriptor& desc, const void* data);
         virtual ~GLTexture();
 
         void ActivateTexture(GLenum textureUnit) const;
+        void ActivateImage(GLuint imageUnitIndex, GLint mipLevel, GLenum accessType) const;
         void AddTextureToArray(const std::string& file, unsigned int slice);
         void SetData(const void* data);
+        void DownloadData(std::vector<uint8_t>& data);
+        void UploadData(std::vector<uint8_t>& data);
         void GenerateMipMaps();
+        void GenerateMinMaxMaps(GPUProgram* minMaxProgram, const std::vector<BindingLocation>& uniformNames);
 
         void SampleWrapMirror();
         void SampleWrapClamp();
@@ -76,19 +85,12 @@ namespace cgu {
         /** Holds the texture descriptor. */
         TextureDescriptor descriptor;
 
-        //GLuint textureId;
-        /** Holds the type of the open gl texture. */
-        //GLenum textureType;
-        /** Holds the pixel format of the texture. */
-        //GLenum pixelFormat;
-        /** Holds the unsized pixel format of the texture. */
-        //GLenum pixelFormatUnsized;
-        /** Holds the element type of the pixel format. */
-        //GLenum elementType;
         /** Holds the width. */
         unsigned int width;
         /** Holds the height. */
         unsigned int height;
+        /** Holds the depth or number of array slices. */
+        unsigned int depth;
         /** Holds whether the texture has mip maps. */
         bool hasMipMaps;
 

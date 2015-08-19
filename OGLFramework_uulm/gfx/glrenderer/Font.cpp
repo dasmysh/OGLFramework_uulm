@@ -118,6 +118,7 @@ namespace cgu {
         }
 
         TextureDescriptor texDesc;
+        texDesc.bytesPP = 4;
         texDesc.internalFormat = GL_RGBA8;
         texDesc.format = GL_RGBA;
         texDesc.type = GL_UNSIGNED_BYTE;

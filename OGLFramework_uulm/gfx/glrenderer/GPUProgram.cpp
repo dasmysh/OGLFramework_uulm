@@ -284,6 +284,16 @@ namespace cgu {
     }
 
     /**
+    * Sets a uniform with given opengl name/location (int version)
+    * @param name the location of the uniform
+    * @param data the uint vector to set the uniform to
+    */
+    void GPUProgram::SetUniform(BindingLocation name, const glm::uvec3& data)
+    {
+        OGL_CALL(glUniform3ui, name->iBinding, data.x, data.y, data.z);
+    }
+
+    /**
      * Bind a uniform block with given name to a ubo binding point
      * @param uBufferName the ubo name
      * @param bindingPoints the binding points

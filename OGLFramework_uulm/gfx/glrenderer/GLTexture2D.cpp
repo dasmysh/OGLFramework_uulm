@@ -49,6 +49,7 @@ namespace cgu {
         unsigned int height = FreeImage_GetHeight(bitmap32);
         void* data = FreeImage_GetBits(bitmap32);
         TextureDescriptor texDesc;
+        texDesc.bytesPP = 4;
         texDesc.internalFormat = GL_RGBA8;
         texDesc.format = GL_RGBA;
         texDesc.type = GL_UNSIGNED_BYTE;

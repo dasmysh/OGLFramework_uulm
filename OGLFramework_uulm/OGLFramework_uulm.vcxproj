@@ -45,6 +45,7 @@
     <ClCompile Include="gfx\glrenderer\GLRenderTarget.cpp" />
     <ClCompile Include="gfx\glrenderer\GLTexture.cpp" />
     <ClCompile Include="gfx\glrenderer\GLTexture2D.cpp" />
+    <ClCompile Include="gfx\glrenderer\GLTexture3D.cpp" />
     <ClCompile Include="gfx\glrenderer\GLUniformBuffer.cpp" />
     <ClCompile Include="gfx\glrenderer\GLVertexAttributeArray.cpp" />
     <ClCompile Include="gfx\glrenderer\GPUProgram.cpp" />
@@ -62,6 +63,7 @@
     <ClCompile Include="gfx\OBJMesh.cpp" />
     <ClCompile Include="gfx\OrthogonalView.cpp" />
     <ClCompile Include="gfx\SubMesh.cpp" />
+    <ClCompile Include="gfx\volumes\VolumeBrickOctree.cpp" />
     <ClCompile Include="gpgpu\CUDAImage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="oglErrorHandling.cpp" />
@@ -109,6 +111,7 @@
     <ClInclude Include="gfx\glrenderer\GLRenderTarget.h" />
     <ClInclude Include="gfx\glrenderer\GLTexture.h" />
     <ClInclude Include="gfx\glrenderer\GLTexture2D.h" />
+    <ClInclude Include="gfx\glrenderer\GLTexture3D.h" />
     <ClInclude Include="gfx\glrenderer\GLUniformBuffer.h" />
     <ClInclude Include="gfx\glrenderer\GLVertexAttributeArray.h" />
     <ClInclude Include="gfx\glrenderer\GPUProgram.h" />
@@ -128,6 +131,7 @@
     <ClInclude Include="gfx\SubMesh.h" />
     <ClInclude Include="gfx\SubMeshMaterialChunk.h" />
     <ClInclude Include="gfx\Vertices.h" />
+    <ClInclude Include="gfx\volumes\VolumeBrickOctree.h" />
     <ClInclude Include="gpgpu\CUDAAddNoise.h" />
     <ClInclude Include="gpgpu\CUDAGrid.h" />
     <ClInclude Include="gpgpu\CUDAImage.h" />

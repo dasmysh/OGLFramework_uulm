@@ -16,18 +16,19 @@
 #endif
 
 #pragma warning(push, 3)
-#include <string>
-#include <vector>
+#include <array>
+#include <cassert>
+#include <cmath>
 #include <deque>
+#include <exception>
+#include <iterator>
 #include <list>
 #include <map>
-#include <cassert>
-#include <exception>
-#include <stdexcept>
-#include <unordered_map>
-#include <cmath>
 #include <memory>
-#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <vector>
 #pragma warning(pop)
 
 #pragma warning(disable : 4201)
