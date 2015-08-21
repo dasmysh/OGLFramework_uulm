@@ -161,7 +161,7 @@ namespace cgu {
         OGL_CALL(glGenFramebuffers, 1, &fbo);
         OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
         unsigned int colorAtt = 0;
-        std::vector<GLenum> drawBuffers;
+        drawBuffers.clear();
         for (const auto& texDesc : desc.texDesc) {
             GLuint tex;
             OGL_CALL(glGenTextures, 1, &tex);
@@ -198,6 +198,22 @@ namespace cgu {
     void FrameBuffer::UseAsRenderTarget()
     {
         OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
+        if (!isBackbuffer) OGL_CALL(glDrawBuffers, static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
+        OGL_CALL(glViewport, 0, 0, width, height);
+    }
+
+    /**
+    * Use this frame buffer object as target for rendering and select the draw buffers used.
+    * @param drawBufferIndices the indices in the draw buffer to be used.
+    */
+    void FrameBuffer::UseAsRenderTarget(const std::vector<unsigned int> drawBufferIndices)
+    {
+        assert(!isBackbuffer);
+        std::vector<GLenum> drawBuffersReduced(drawBuffers.size());
+        for (unsigned int i = 0; i < drawBufferIndices.size(); ++i) drawBuffersReduced[i] = drawBuffers[drawBufferIndices[i]];
+
+        OGL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
+        OGL_CALL(glDrawBuffers, static_cast<GLsizei>(drawBuffersReduced.size()), drawBuffersReduced.data());        
         OGL_CALL(glViewport, 0, 0, width, height);
     }
 

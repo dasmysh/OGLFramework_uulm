@@ -26,10 +26,10 @@ namespace cgu {
     {
     public:
         GLTexture3D(const std::string& texFilename, ApplicationBase* app);
-        /** Copy constructor deleted. */
         GLTexture3D(const GLTexture3D& orig) = delete;
-        /** Copy assignment operator deleted. */
-        GLTexture3D& operator=(const GLTexture3D&) = delete;
+        GLTexture3D(const GLTexture3D&& orig) = delete;
+        GLTexture3D& operator=(const GLTexture3D& orig) = delete;
+        GLTexture3D& operator=(const GLTexture3D&& orig) = delete;
         virtual ~GLTexture3D();
 
         virtual void Load() override;

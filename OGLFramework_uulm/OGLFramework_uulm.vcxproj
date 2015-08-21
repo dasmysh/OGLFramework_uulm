@@ -64,6 +64,7 @@
     <ClCompile Include="gfx\OrthogonalView.cpp" />
     <ClCompile Include="gfx\SubMesh.cpp" />
     <ClCompile Include="gfx\volumes\VolumeBrickOctree.cpp" />
+    <ClCompile Include="gfx\volumes\VolumeCubeRenderable.cpp" />
     <ClCompile Include="gpgpu\CUDAImage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="oglErrorHandling.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="gfx\SubMeshMaterialChunk.h" />
     <ClInclude Include="gfx\Vertices.h" />
     <ClInclude Include="gfx\volumes\VolumeBrickOctree.h" />
+    <ClInclude Include="gfx\volumes\VolumeCubeRenderable.h" />
     <ClInclude Include="gpgpu\CUDAAddNoise.h" />
     <ClInclude Include="gpgpu\CUDAGrid.h" />
     <ClInclude Include="gpgpu\CUDAImage.h" />

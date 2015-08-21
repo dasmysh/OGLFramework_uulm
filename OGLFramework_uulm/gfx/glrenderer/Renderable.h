@@ -24,16 +24,12 @@ namespace cgu {
      */
     class Renderable
     {
-    private:
-        /** Deleted copy constructor. */
-        Renderable(const Renderable&) {};
-        /** Deleted copy assignment operator. */
-        Renderable& operator=(const Renderable&) { return *this; };
-
     public:
         Renderable();
-        Renderable(const Renderable&& orig);
-        Renderable& operator=(const Renderable&& orig);
+        Renderable(const Renderable&);
+        Renderable(Renderable&& orig);
+        Renderable& operator=(const Renderable&);
+        Renderable& operator=(Renderable&& orig);
         virtual ~Renderable();
 
         /**

@@ -48,11 +48,7 @@ namespace cgu {
         unsigned int width = FreeImage_GetWidth(bitmap32);
         unsigned int height = FreeImage_GetHeight(bitmap32);
         void* data = FreeImage_GetBits(bitmap32);
-        TextureDescriptor texDesc;
-        texDesc.bytesPP = 4;
-        texDesc.internalFormat = GL_RGBA8;
-        texDesc.format = GL_RGBA;
-        texDesc.type = GL_UNSIGNED_BYTE;
+        TextureDescriptor texDesc(4, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
         texture = std::unique_ptr<GLTexture>(new GLTexture(width, height, texDesc, data));
         FreeImage_Unload(bitmap32);
         FreeImage_Unload(bitmap);

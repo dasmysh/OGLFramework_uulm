@@ -21,19 +21,22 @@
 namespace cgu {
 
     /**
-    * Constructor.
-    * @param texFilename the textures file name
-    */
+     * Constructor.
+     * @param texFilename the textures file name
+     * @param app the application object
+     */
     GLTexture3D::GLTexture3D(const std::string& texFilename, ApplicationBase* app) :
         Resource{ texFilename, app },
         texture(),
         volumeSize(0),
         cellSize(1.0f),
         scaleValue(1),
+        texDesc(4, GL_R8, GL_RED, GL_UNSIGNED_BYTE),
         fileStream(nullptr)
     {
     }
 
+    /** Destructor. */
     GLTexture3D::~GLTexture3D()
     {
         if (IsLoaded()) UnloadLocal();

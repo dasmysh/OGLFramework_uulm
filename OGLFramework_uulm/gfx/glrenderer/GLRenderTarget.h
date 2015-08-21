@@ -34,10 +34,11 @@ namespace cgu {
         operator GLBatchRenderTarget&();
         virtual void Resize(unsigned int width, unsigned int height);
         void BatchDraw(std::function<void(GLBatchRenderTarget&) > batch);
+        void BatchDraw(const std::vector<unsigned int> drawBufferIndices, std::function<void(GLBatchRenderTarget&) > batch);
         const std::vector<std::unique_ptr<GLTexture>>& GetTextures() const { return fbo.GetTextures(); };
 
     protected:
-        /** Holds the internaly used GLBatchRenderTarget. */
+        /** Holds the internally used GLBatchRenderTarget. */
         GLBatchRenderTarget batchRT;
         /** Holds the render targets OpenGL name. */
         FrameBuffer fbo;

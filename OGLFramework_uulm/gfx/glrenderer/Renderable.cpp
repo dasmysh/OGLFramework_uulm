@@ -15,13 +15,24 @@ namespace cgu {
     {
     }
 
-    /** Default move constructor. */
-    Renderable::Renderable(const Renderable&&)
+    /** Copy constructor. */
+    Renderable::Renderable(const Renderable& orig)
     {
     }
 
-    /** Default move assignment operator. */
-    Renderable& Renderable::operator=(const Renderable&&)
+    /** Move constructor. */
+    Renderable::Renderable(Renderable&& orig)
+    {
+    }
+
+    /** Copy assignment operator. */
+    Renderable& Renderable::operator=(const Renderable& orig)
+    {
+        return *this;
+    }
+
+    /** Move assignment operator. */
+    Renderable& Renderable::operator=(Renderable&& orig)
     {
         return *this;
     }
@@ -29,5 +40,5 @@ namespace cgu {
     /** Destructor. */
     Renderable::~Renderable()
     {
-    };
+    }
 }

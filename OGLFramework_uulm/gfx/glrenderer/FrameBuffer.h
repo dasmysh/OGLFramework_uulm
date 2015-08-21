@@ -49,6 +49,7 @@ namespace cgu {
         ~FrameBuffer();
 
         void UseAsRenderTarget();
+        void UseAsRenderTarget(const std::vector<unsigned int> drawBufferIndices);
         void Resize(unsigned int fbWidth, unsigned int fbHeight);
         const std::vector<std::unique_ptr<GLTexture>>& GetTextures() const { return textures; };
 
@@ -68,6 +69,8 @@ namespace cgu {
         FrameBufferDescriptor desc;
         /** holds the frame buffers textures to render to. */
         std::vector<std::unique_ptr<GLTexture>> textures;
+        /** Holds the a list of color attachments for the textures. */
+        std::vector<GLenum> drawBuffers;
         /** holds the frame buffers render buffers to render to. */
         std::vector<GLuint> renderBuffers;
         /** holds the frame buffers width. */

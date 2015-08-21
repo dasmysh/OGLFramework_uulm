@@ -106,7 +106,7 @@ namespace cgu {
     {
         std::vector<BindingLocation> loc = program->GetAttributeLocations(
             boost::assign::list_of<std::string>("position")("texCoords"));
-        attribBind.reset(new GLVertexAttributeArray(vBuffer, iBuffer));
+        attribBind = program->CreateVertexAttributeArray(vBuffer, iBuffer);
         attribBind->StartAttributeSetup();
         attribBind->AddVertexAttribute(loc[0], 3, GL_FLOAT, GL_FALSE, sizeof(GUIVertex), 0);
         attribBind->AddVertexAttribute(loc[1], 2, GL_FLOAT, GL_FALSE, sizeof(GUIVertex), sizeof(glm::vec3));

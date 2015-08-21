@@ -25,6 +25,10 @@ namespace cgu {
 
     }
 
+    ArcballRotatedSceneRenderable::~ArcballRotatedSceneRenderable()
+    {
+    }
+
     bool ArcballRotatedSceneRenderable::HandleMouse(unsigned int buttonAction, BaseGLWindow* sender)
     {
         return rotArcball.HandleMouse(buttonAction, sender);

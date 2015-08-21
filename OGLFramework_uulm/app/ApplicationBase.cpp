@@ -53,7 +53,7 @@ namespace cgu {
         float aspectRatio = static_cast<float> (win.GetWidth())
             / static_cast<float> (win.GetHeight());
         orthoView.reset(new OrthogonalView(aspectRatio, &uniformBindingPoints));
-        cameraView.reset(new CameraView(60.0f, aspectRatio, 1.0f, 100.0f, glm::vec3(5.0f, 3.0f, 10.0f), &uniformBindingPoints));
+        cameraView.reset(new CameraView(60.0f, aspectRatio, 1.0f, 100.0f, glm::vec3(0.0f, 0.0f, 10.0f), &uniformBindingPoints));
 
         TwInit(TW_OPENGL_CORE, NULL);
         fontProgram = programManager->GetResource(fontProgramID);

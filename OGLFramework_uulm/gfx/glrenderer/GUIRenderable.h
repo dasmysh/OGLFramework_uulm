@@ -54,7 +54,7 @@ namespace cgu {
         /** Holds the rendering gpu program. */
         GPUProgram* program;
         /** Holds the vertex attribute bindings for the shader. */
-        std::unique_ptr<GLVertexAttributeArray> attribBind;
+        GLVertexAttributeArray* attribBind;
 
         void CreateVBO(const std::vector<GUIVertex>& vertexData);
         void CreateIBO(const std::vector<unsigned int>& indexData);

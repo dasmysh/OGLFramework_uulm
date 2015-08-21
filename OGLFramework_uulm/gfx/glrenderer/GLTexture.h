@@ -14,6 +14,7 @@
 
 namespace cgu {
     class GLTexture;
+    class FrameBuffer;
 
     namespace gpgpu {
         class CUDAImage;
@@ -22,6 +23,8 @@ namespace cgu {
     /** Describes the format of a texture. */
     struct TextureDescriptor
     {
+        TextureDescriptor(unsigned int btsPP, GLint intFmt, GLenum fmt, GLenum tp) : bytesPP(btsPP), internalFormat(intFmt), format(fmt), type(tp) {};
+
         /** Holds the bytes per pixel of the format. */
         unsigned int bytesPP;
         /** Holds the internal format. */
@@ -36,6 +39,7 @@ namespace cgu {
     {
         friend class cgu::gpgpu::CUDAImage;
         friend class cgu::GLTexture;
+        friend class cgu::FrameBuffer;
     private:
         TextureGLIdentifierAccessor(GLuint id, GLenum type) : textureId(id), textureType(type) {};
         GLuint textureId;

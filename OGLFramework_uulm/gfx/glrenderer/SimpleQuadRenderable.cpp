@@ -29,9 +29,8 @@ namespace cgu {
         OGL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, iBuffer);
         OGL_CALL(glBufferData, GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
 
-        std::vector<BindingLocation> loc = program->GetAttributeLocations(
-            boost::assign::list_of<std::string>("position"));
-        attribBind.reset(new GLVertexAttributeArray(vBuffer, iBuffer));
+        std::vector<BindingLocation> loc = program->GetAttributeLocations(boost::assign::list_of<std::string>("position"));
+        attribBind = prog->CreateVertexAttributeArray(vBuffer, iBuffer);
         attribBind->StartAttributeSetup();
         attribBind->AddVertexAttribute(loc[0], 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
         attribBind->EndAttributeSetup();

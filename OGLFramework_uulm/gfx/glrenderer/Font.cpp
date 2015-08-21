@@ -117,11 +117,7 @@ namespace cgu {
             }
         }
 
-        TextureDescriptor texDesc;
-        texDesc.bytesPP = 4;
-        texDesc.internalFormat = GL_RGBA8;
-        texDesc.format = GL_RGBA;
-        texDesc.type = GL_UNSIGNED_BYTE;
+        TextureDescriptor texDesc(4, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
         fontPages.reset(new GLTexture(texWidth, texHeight, static_cast<unsigned int>(fm.pages.size()), texDesc));
 
         for (const font_page& page : fm.pages) {

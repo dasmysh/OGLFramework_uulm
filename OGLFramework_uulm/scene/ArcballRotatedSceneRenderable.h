@@ -18,6 +18,7 @@ namespace cgu {
     {
     public:
         ArcballRotatedSceneRenderable(Renderable* renderable, const glm::vec3& pos);
+        virtual ~ArcballRotatedSceneRenderable();
 
         bool HandleMouse(unsigned int buttonAction, BaseGLWindow* sender);
         void Update(const CameraView& camera);

@@ -1,0 +1,19 @@
+#version 330
+
+layout(location = 0) in vec4 position;
+layout(location = 1) in vec3 texPosition;
+
+layout(std140) uniform perspectiveTransform
+{
+    mat4 mat_m;
+    mat4 mat_mvp;
+    mat4 mat_normal;
+};
+
+out vec3 vTexPosition;
+
+void main()
+{
+    vTexPosition = texPosition;
+    gl_Position = mat_mvp * position;
+}

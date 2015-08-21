@@ -19,6 +19,7 @@ namespace cgu {
         posOffset(pos),
         origSize(size),
         streamFile(nullptr),
+        brickTextureDesc(4, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
         minMaxMapProgram(minMaxProg),
         minMaxMapUniformNames(uniformNames)
     {

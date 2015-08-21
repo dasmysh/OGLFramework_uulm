@@ -72,4 +72,17 @@ namespace cgu {
 
         batch(batchRT);
     }
+
+    /**
+     * Makes multiple rendering calls all using this render target. The rendering calls can be defined
+     * as a lambda expression or any other functor.
+     * @param drawBufferIndices the indices in the draw buffer to be used.
+     * @param batch the rendering calls as a functor to be executed while this render target is set
+     */
+    void GLRenderTarget::BatchDraw(const std::vector<unsigned int> drawBufferIndices, std::function<void(GLBatchRenderTarget&) > batch)
+    {
+        fbo.UseAsRenderTarget(drawBufferIndices);
+
+        batch(batchRT);
+    }
 }

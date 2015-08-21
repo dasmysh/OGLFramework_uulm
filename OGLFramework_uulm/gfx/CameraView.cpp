@@ -24,6 +24,7 @@ namespace cgu {
         nearZ(theNearZ),
         farZ(theFarZ),
         camPos(theCamPos),
+        camOrient(1.0f, 0.0f, 0.0f, 0.0f),
         camUp(0.0f, 1.0f, 0.0f),
         camArcball(RI_MOUSE_LEFT_BUTTON_DOWN, MB_LEFT),
         perspectiveUBO(new GLUniformBuffer(perspectiveProjectionUBBName, sizeof(PerspectiveTransformBuffer), *uniformBindingPoints))
@@ -44,11 +45,11 @@ namespace cgu {
 
     void CameraView::UpdateCamera()
     {
-        camOrient = camArcball.GetWorldRotation(view) *camOrient;
+        camOrient = camArcball.GetWorldRotation(glm::inverse(view)) * camOrient;
         glm::mat3 camOrientMat = glm::mat3_cast(camOrient);
         glm::vec3 target(0.0f);
         glm::vec3 camOffset = camOrientMat * camPos;
-        glm::vec3 pos = target - camOffset;
+        glm::vec3 pos = camOffset - target; // -camOffset;
         glm::vec3 up = camOrientMat * glm::vec3(0.0f, 1.0f, 0.0f);
         // camPos = glm::mat3_cast(camArcball.GetWorldRotation(view)) * camPos;
         view = glm::lookAt(pos, target, up);

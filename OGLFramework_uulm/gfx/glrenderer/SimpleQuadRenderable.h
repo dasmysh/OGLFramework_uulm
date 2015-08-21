@@ -47,7 +47,7 @@ namespace cgu {
         /** Holds the rendering gpu program. */
         GPUProgram* program;
         /** Holds the vertex attribute bindings for the shader. */
-        std::unique_ptr<GLVertexAttributeArray> attribBind;
+        GLVertexAttributeArray* attribBind;
 
     };
 }
