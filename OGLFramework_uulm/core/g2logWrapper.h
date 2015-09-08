@@ -20,7 +20,7 @@
 #ifdef _DEBUG
 
 /** The applications log level. */
-static const int APPLICATION_LOG_LEVEL = DEBUG;
+static const int APPLICATION_LOG_LEVEL = GL_DEBUG;
 
 #else
 

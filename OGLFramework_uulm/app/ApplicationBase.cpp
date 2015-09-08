@@ -43,6 +43,7 @@ namespace cgu {
         guiTexUniform()
     {
         texManager.reset(new TextureManager(this));
+        volManager.reset(new VolumeManager(this));
         matManager.reset(new MaterialLibManager(this));
         shaderManager.reset(new ShaderManager(this));
         programManager.reset(new GPUProgramManager(this));
@@ -52,7 +53,7 @@ namespace cgu {
         win.ShowWindow();
         float aspectRatio = static_cast<float> (win.GetWidth())
             / static_cast<float> (win.GetHeight());
-        orthoView.reset(new OrthogonalView(aspectRatio, &uniformBindingPoints));
+        orthoView.reset(new OrthogonalView(static_cast<float>(win.GetWidth()), static_cast<float>(win.GetHeight()), &uniformBindingPoints));
         cameraView.reset(new CameraView(60.0f, aspectRatio, 1.0f, 100.0f, glm::vec3(0.0f, 0.0f, 10.0f), &uniformBindingPoints));
 
         TwInit(TW_OPENGL_CORE, NULL);
@@ -75,6 +76,15 @@ namespace cgu {
     TextureManager* ApplicationBase::GetTextureManager()
     {
         return texManager.get();
+    }
+
+    /**
+     * Returns the volume manager.
+     * @return  the volume manager
+     */
+    VolumeManager* ApplicationBase::GetVolumeManager()
+    {
+        return volManager.get();
     }
 
     /**
@@ -310,7 +320,7 @@ namespace cgu {
             }
         }
 
-        if (handled == 0) handled = cameraView->HandleKeyboard(vkCode, bKeyDown, sender);
+        if (handled == 0 && IsRunning() && !IsPaused()) handled = cameraView->HandleKeyboard(vkCode, bKeyDown, sender);
 
         return handled == 1;
     }
@@ -340,9 +350,9 @@ namespace cgu {
         static int s_WheelPos = 0;
         s_WheelPos += static_cast<int>(mouseWheelDelta);
         if (handled == 0) handled = TwMouseWheel(s_WheelPos);
-        if (handled == 0) handled = HandleMouseApp(buttonAction, mouseWheelDelta, sender);
+        if (handled == 0 && IsRunning() && !IsPaused()) handled = HandleMouseApp(buttonAction, mouseWheelDelta, sender);
         // if (handledM)
-        if (handled == 0) handled = cameraView->HandleMouse(buttonAction, mouseWheelDelta, sender);
+        if (handled == 0 && IsRunning() && !IsPaused()) handled = cameraView->HandleMouse(buttonAction, mouseWheelDelta, sender);
         return handled == 1;
     }
 
@@ -354,7 +364,7 @@ namespace cgu {
         float aspectRatio = static_cast<float> (width) / static_cast<float> (height);
         TwWindowSize(width, height);
         if (orthoView) {
-            orthoView->Resize(aspectRatio);
+            orthoView->Resize(static_cast<float>(win.GetWidth()), static_cast<float> (win.GetHeight()));
             orthoView->SetView();
         }
         if (cameraView) {

@@ -18,9 +18,6 @@ static unsigned int PTRN_OPENGL_MAJOR_VERSION = 3;
 /** The OpenGL minor version used. */
 static unsigned int PTRN_OPENGL_MINOR_VERSION = 3;
 
-/** Holds the virtual screen size (y) for gui / text rendering. */
-static float SCREEN_Y = 1000.0f;
-
 /** The font program resource id. */
 static const char* fontProgramID = "renderText.vp|renderText.gp|renderText.fp";
 /** The gui program resource id. */

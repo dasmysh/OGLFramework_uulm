@@ -20,8 +20,8 @@ namespace cgu {
         ArcballRotatedSceneRenderable(Renderable* renderable, const glm::vec3& pos);
         virtual ~ArcballRotatedSceneRenderable();
 
-        bool HandleMouse(unsigned int buttonAction, BaseGLWindow* sender);
-        void Update(const CameraView& camera);
+        virtual bool HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender);
+        virtual void Update(const CameraView& camera, float time, float elapsed);
 
     protected:
         /** Constructor used for derivations that create their own renderables. */

@@ -42,7 +42,7 @@ namespace cgu {
         GLsizei, const GLchar* message, const void*)
     {
         std::stringstream str;
-        str << "OpenGL Debug Output message : "; // netbeans console output bug
+        str << "OpenGL Debug Output message : ";
 
         if (source == GL_DEBUG_SOURCE_API_ARB) str << "Source : API; ";
         else if (source == GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB) str << "Source : WINDOW_SYSTEM; ";
@@ -51,7 +51,9 @@ namespace cgu {
         else if (source == GL_DEBUG_SOURCE_APPLICATION_ARB) str << "Source : APPLICATION; ";
         else if (source == GL_DEBUG_SOURCE_OTHER_ARB) str << "Source : OTHER; ";
 
-        if (type == GL_DEBUG_TYPE_ERROR_ARB) str << "Type : ERROR; ";
+        if (type == GL_DEBUG_TYPE_ERROR_ARB) {
+            str << "Type : ERROR; ";
+        }
         else if (type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB) str << "Type : DEPRECATED_BEHAVIOR; ";
         else if (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB) str << "Type : UNDEFINED_BEHAVIOR; ";
         else if (type == GL_DEBUG_TYPE_PORTABILITY_ARB) str << "Type : PORTABILITY; ";
@@ -65,7 +67,7 @@ namespace cgu {
         // You can set a breakpoint here ! Your debugger will stop the program,
         // and the callstack will immediately show you the offending call.
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        LOG(GL_DEBUG) << converter.from_bytes(str.str()) << "Message : " << message << std::endl; // netbeans console output bug ...
+        LOG(GL_DEBUG) << converter.from_bytes(str.str()) << "Message : " << message;
     }
 
     /**
@@ -345,8 +347,8 @@ namespace cgu {
                 glDebugMessageInsert =
                     (PFNGLDEBUGMESSAGEINSERTPROC)wglGetProcAddress("glDebugMessageInsert");
                 LOG(DEBUG) << L"The OpenGL implementation provides debug output.";
-                glDebugMessageCallback(&DebugOutputCallback, nullptr);
                 glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+                glDebugMessageCallback(&DebugOutputCallback, nullptr);
                 GLuint unusedIds = 0;
                 glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, &unusedIds, true);
                 glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION_ARB, GL_DEBUG_TYPE_OTHER_ARB,

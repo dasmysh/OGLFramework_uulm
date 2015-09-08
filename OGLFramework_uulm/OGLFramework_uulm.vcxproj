@@ -38,6 +38,7 @@
     <ClCompile Include="core\Resource.cpp" />
     <ClCompile Include="core\ShaderManager.cpp" />
     <ClCompile Include="core\TextureManager.cpp" />
+    <ClCompile Include="core\VolumeManager.cpp" />
     <ClCompile Include="gfx\CameraView.cpp" />
     <ClCompile Include="gfx\glrenderer\Font.cpp" />
     <ClCompile Include="gfx\glrenderer\FrameBuffer.cpp" />
@@ -70,6 +71,8 @@
     <ClCompile Include="oglErrorHandling.cpp" />
     <ClCompile Include="scene\ArcballRotatedSceneRenderable.cpp" />
     <ClCompile Include="scene\SceneRenderable.cpp" />
+    <ClCompile Include="volumeScene\TransferFunction.cpp" />
+    <ClCompile Include="volumeScene\TransferFunctionGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\ApplicationBase.h" />
@@ -102,6 +105,7 @@
     <ClInclude Include="core\ResourceManager.h" />
     <ClInclude Include="core\ShaderManager.h" />
     <ClInclude Include="core\TextureManager.h" />
+    <ClInclude Include="core\VolumeManager.h" />
     <ClInclude Include="cudamain.h" />
     <ClInclude Include="gfx\CameraView.h" />
     <ClInclude Include="gfx\font_metrics.h" />
@@ -140,6 +144,8 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="scene\ArcballRotatedSceneRenderable.h" />
     <ClInclude Include="scene\SceneRenderable.h" />
+    <ClInclude Include="volumeScene\TransferFunction.h" />
+    <ClInclude Include="volumeScene\TransferFunctionGUI.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="gpgpu\CUDAAddNoise.cu" />

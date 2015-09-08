@@ -32,6 +32,7 @@ namespace cgu {
             LOG(INFO) << L"No resource with id \"" << resId << L"\" found. Creating new one.";
             std::unique_ptr<FontType> fontPtr(new FontType(resId, application));
             FontType* fontRawPtr = fontPtr.get();
+            fontPtr->Load();
             fonts.insert(std::make_pair(resId, std::move(fontPtr)));
             return fontRawPtr;
         }

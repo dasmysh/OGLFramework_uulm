@@ -1,7 +1,7 @@
 /**
  * @file   FWApplication.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   21. Januar 2014
+ * @date   2014.01.21
  *
  * @brief  Contains the definition of FWApplication.
  */
@@ -24,7 +24,7 @@ namespace cguFrameworkApp {
      * @brief Implementation of the framework application.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   21. Januar 2014
+     * @date   2014.01.21
      */
     class FWApplication : public cgu::ApplicationBase
     {
@@ -37,24 +37,8 @@ namespace cguFrameworkApp {
         virtual void OnResize(unsigned int width, unsigned int height) override;
 
     private:
-        /** Holds the shader for simple rendering used. */
-        cgu::GPUProgram* simpleProgram;
-
-        /** Holds the vertex attribute bindings. */
-        cgu::VertexAttributeBindings triangleMeshBind;
-        /** Holds the object mesh used for the triangle. */
-        std::unique_ptr<cgu::OBJMesh> triangleMesh;
-        /** Holds the rendered mesh. */
-        std::unique_ptr<cgu::MeshRenderable> triangleRenderable;
-        /** Holds a uniform buffer containing a color. */
-        std::unique_ptr<cgu::GLUniformBuffer> colorUBuffer;
-
-        /** Holds the shader program used for font rendering. */
-        cgu::GPUProgram* fontProgram;
-        /** Holds the font to use. */
-        std::unique_ptr<cgu::Font> font;
-        /** Holds the screen text to render. */
-        std::unique_ptr<cgu::ScreenText> text;
+        /** Holds the screen text to render fps. */
+        std::unique_ptr<cgu::ScreenText> fpsText;
 
     protected:
         void FrameMove(float time, float elapsed) override;

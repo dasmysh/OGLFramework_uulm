@@ -35,10 +35,10 @@ namespace cgu {
         OrthogonalView& operator=(const OrthogonalView&) = delete;
 
     public:
-        OrthogonalView(float aspectRatio, ShaderBufferBindingPoints* uniformBindingPoints);
+        OrthogonalView(float width, float height, ShaderBufferBindingPoints* uniformBindingPoints);
         virtual ~OrthogonalView();
 
-        void Resize(float aspectRatio);
+        void Resize(float width, float height);
         void SetView();
 
     private:

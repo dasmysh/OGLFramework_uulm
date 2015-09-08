@@ -87,7 +87,7 @@ namespace cgu {
         OGL_CALL(glDeleteBuffers, static_cast<GLsizei>(textVBOs.size()), textVBOs.data());
     }
 
-    /** Initializes the object (workarround for C++98 constructors which can not call other constructors). */
+    /** Initializes the object (workaround for C++98 constructors which can not call other constructors). */
     void ScreenText::Initialize()
     {
         vertexAttribPos = fontProgram->GetAttributeLocations(
@@ -168,8 +168,8 @@ namespace cgu {
     }
 
     /**
-     * Returns the length of the text in virual screen pixels.
-     * @return the length of the text in virual screen pixels
+     * Returns the length of the text in virtual screen pixels.
+     * @return the length of the text in virtual screen pixels
      */
     float ScreenText::GetPixelLength()
     {

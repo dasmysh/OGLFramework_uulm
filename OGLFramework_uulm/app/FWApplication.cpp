@@ -23,40 +23,38 @@ namespace cguFrameworkApp {
      */
     FWApplication::FWApplication(cgu::GLWindow& window) :
         ApplicationBase(window),
-        simpleProgram(nullptr),
-        fontProgram(nullptr)
+        fpsText(new cgu::ScreenText(*fontManager->GetResource("Arial"), programManager->GetResource(fontProgramID),
+            "test", glm::vec2(static_cast<float>(window.GetWidth()) - 100.0f, 10.0f), 30.0f))
     {
-        triangleMesh.reset(new cgu::OBJMesh("simple.obj", this));
-        triangleMesh->Load();
-        triangleRenderable.reset(new cgu::MeshRenderable(*triangleMesh.get()));
-
-        simpleProgram = programManager->GetResource("simple.vp|simple.fp");
-        triangleRenderable->FillVertexAttributeBindings(*simpleProgram, triangleMeshBind);
-        colorUBuffer.reset(new cgu::GLUniformBuffer("colors", sizeof(glm::vec3), uniformBindingPoints));
-        glm::vec3 color(1.0f, 0.0f, 0.0f);
-        colorUBuffer->UploadData(0, sizeof(glm::vec3), &color);
-        simpleProgram->BindUniformBlock("colors", uniformBindingPoints);
-
-        font.reset(new cgu::Font("Arial", this));
-        font->Load();
-        fontProgram = programManager->GetResource(fontProgramID);
-
-        text.reset(new cgu::ScreenText(*font.get(), fontProgram,
-            "Some Text", glm::vec2(200.0f, 600.0f), 300.0f));
-
         // OpenGL stuff
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
+        glFrontFace(GL_CCW);
     }
 
     FWApplication::~FWApplication()
     {
     }
 
-    void FWApplication::FrameMove(float /* time */, float /* elapsed */)
+    void FWApplication::FrameMove(float time, float elapsed)
     {
+        static float fps = 0.0f;
+        static float accumulatedElapsed = 0.0f;
+        static float numAvg = 0;
+
+        accumulatedElapsed += elapsed;
+        numAvg += 1.0f;
+        if (accumulatedElapsed > 0.5f) {
+            fps = numAvg / accumulatedElapsed;
+            accumulatedElapsed = 0.0f;
+            numAvg = 0.0f;
+        }
+        std::stringstream fpsString;
+        fpsString << fps;
+        fpsText->SetText(fpsString.str());
+
         cameraView->UpdateCamera();
     }
 
@@ -69,37 +67,22 @@ namespace cguFrameworkApp {
             glEnable(GL_CULL_FACE);
             float clearColor[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
             rt.Clear(static_cast<unsigned int>(cgu::ClearFlags::CF_RenderTarget) | static_cast<unsigned int>(cgu::ClearFlags::CF_Depth), clearColor, 1.0, 0);
-            orthoView->SetView();
+        });
 
-            // depth of for text / gui
+        win.BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
+            orthoView->SetView();
+            // depth of for text / GUI
             glDepthMask(GL_FALSE);
             glDisable(GL_DEPTH_TEST);
+            fpsText->Draw();
         });
     }
 
     bool FWApplication::HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender)
     {
         if (ApplicationBase::HandleKeyboard(vkCode, bKeyDown, sender)) return true;
+        if (!IsRunning() || IsPaused()) return false;
         bool handled = false;
-        glm::vec3 color;
-        switch (vkCode)
-        {
-        case 'R':
-            color = glm::vec3(1.0f, 0.0f, 0.0f);
-            if (colorUBuffer) colorUBuffer->UploadData(0, sizeof(glm::vec3), &color);
-            handled = true;
-            break;
-        case 'G':
-            color = glm::vec3(0.0f, 1.0f, 0.0f);
-            if (colorUBuffer) colorUBuffer->UploadData(0, sizeof(glm::vec3), &color);
-            handled = true;
-            break;
-        case 'B':
-            color = glm::vec3(0.0f, 0.0f, 1.0f);
-            if (colorUBuffer) colorUBuffer->UploadData(0, sizeof(glm::vec3), &color);
-            handled = true;
-            break;
-        }
         return handled;
     }
 
@@ -111,6 +94,9 @@ namespace cguFrameworkApp {
     void FWApplication::OnResize(unsigned int width, unsigned int height)
     {
         ApplicationBase::OnResize(width, height);
-        float aspectRatio = static_cast<float> (width) / static_cast<float> (height);
+        float fWidth = static_cast<float> (width);
+        float fHeight = static_cast<float> (height);
+        fpsText->SetPosition(glm::vec2(width - 100.0f, 10.0f));
+        float aspectRatio = fWidth / fHeight;
     }
 }

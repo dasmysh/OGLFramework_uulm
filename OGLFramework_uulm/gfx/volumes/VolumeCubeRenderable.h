@@ -22,7 +22,7 @@ namespace cgu {
     class VolumeCubeRenderable : public Renderable
     {
     public:
-        VolumeCubeRenderable(GPUProgram* prog);
+        VolumeCubeRenderable(GPUProgram* backProg, GPUProgram* drawProg);
         VolumeCubeRenderable(const VolumeCubeRenderable& orig);
         VolumeCubeRenderable(VolumeCubeRenderable&& orig);
         VolumeCubeRenderable& operator=(const VolumeCubeRenderable& orig);
@@ -31,6 +31,7 @@ namespace cgu {
 
         virtual void Draw(const VertexAttributeBindings& bindings) const override;
         void Draw() const;
+        void DrawBack() const;
         virtual void FillVertexAttributeBindings(GPUProgram& program, VertexAttributeBindings& bindings) const override;
 
     private:
@@ -38,10 +39,14 @@ namespace cgu {
         GLuint vBuffer;
         /** Holds the index buffer object name. */
         GLuint iBuffer;
-        /** Holds the rendering gpu program. */
-        GPUProgram* program;
-        /** Holds the vertex attribute bindings for the shader. */
-        GLVertexAttributeArray* attribBind;
+        /** Holds the rendering GPU program for back faces. */
+        GPUProgram* backProgram;
+        /** Holds the vertex attribute bindings for the back faces shader. */
+        GLVertexAttributeArray* backAttribBind;
+        /** Holds the rendering GPU program for drawing. */
+        GPUProgram* drawProgram;
+        /** Holds the vertex attribute bindings for the draw shader. */
+        GLVertexAttributeArray* drawAttribBind;
 
         void CreateVertexIndexBuffers();
         void DeleteVertexIndexBuffers();

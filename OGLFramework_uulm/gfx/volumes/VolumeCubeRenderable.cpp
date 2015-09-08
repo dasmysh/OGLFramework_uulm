@@ -12,52 +12,88 @@
 
 namespace cgu {
 
-    VolumeCubeRenderable::VolumeCubeRenderable(GPUProgram* prog) :
+    /**
+     *  Constructor.
+     *  @param backProg the GPU program for rendering the back faces.
+     *  @param drawProg the GPU program for drawing the volume
+     */
+    VolumeCubeRenderable::VolumeCubeRenderable(GPUProgram* backProg, GPUProgram* drawProg) :
         vBuffer(0),
         iBuffer(0),
-        program(prog),
-        attribBind(nullptr)
+        backProgram(backProg),
+        drawProgram(drawProg),
+        backAttribBind(nullptr),
+        drawAttribBind(nullptr)
     {
         CreateVertexIndexBuffers();
     }
 
+    /**
+     *  Copy-Constructor.
+     *  @param orig the original VolumeCubeRenderable
+     */
     VolumeCubeRenderable::VolumeCubeRenderable(const VolumeCubeRenderable& orig) :
         vBuffer(0),
         iBuffer(0),
-        program(orig.program),
-        attribBind(nullptr)
+        backProgram(orig.backProgram),
+        drawProgram(orig.drawProgram),
+        backAttribBind(nullptr),
+        drawAttribBind(nullptr)
     {
         CreateVertexIndexBuffers();
     }
 
+    /**
+     *  Move-Constructor.
+     *  @param orig the original VolumeCubeRenderable
+     */
     VolumeCubeRenderable::VolumeCubeRenderable(VolumeCubeRenderable&& orig) :
         vBuffer(orig.vBuffer),
         iBuffer(orig.iBuffer),
-        program(orig.program),
-        attribBind(std::move(orig.attribBind))
+        backProgram(orig.backProgram),
+        drawProgram(orig.drawProgram),
+        backAttribBind(std::move(orig.backAttribBind)),
+        drawAttribBind(std::move(orig.drawAttribBind))
 
     {
         orig.vBuffer = 0;
         orig.iBuffer = 0;
-        orig.program = nullptr;
+        orig.backProgram = nullptr;
+        orig.drawProgram = nullptr;
     }
 
+    /**
+     *  Assignment operator.
+     *  @param orig the original VolumeCubeRenderable
+     *  @return the newly assigned VolumeCubeRenderable
+     */
     VolumeCubeRenderable& VolumeCubeRenderable::operator=(const VolumeCubeRenderable& orig)
     {
         DeleteVertexIndexBuffers();
-        attribBind = nullptr;
-        program = orig.program;
+        backAttribBind = nullptr;
+        drawAttribBind = nullptr;
+        backProgram = orig.backProgram;
+        drawProgram = orig.drawProgram;
         CreateVertexIndexBuffers();
         return *this;
     }
 
+    /**
+     *  Move-Assignment operator.
+     *  @param orig the original VolumeCubeRenderable
+     *  @return the newly assigned VolumeCubeRenderable
+     */
     VolumeCubeRenderable& VolumeCubeRenderable::operator=(VolumeCubeRenderable&& orig)
     {
         DeleteVertexIndexBuffers();
-        attribBind = orig.attribBind;
-        orig.attribBind = nullptr;
-        program = orig.program;
-        orig.program = nullptr;
+        backAttribBind = orig.backAttribBind;
+        orig.backAttribBind = nullptr;
+        drawAttribBind = orig.drawAttribBind;
+        orig.drawAttribBind = nullptr;
+        backProgram = orig.backProgram;
+        orig.backProgram = nullptr;
+        drawProgram = orig.drawProgram;
+        orig.drawProgram = nullptr;
         vBuffer = orig.vBuffer;
         orig.vBuffer = 0;
         iBuffer = orig.iBuffer;
@@ -65,11 +101,17 @@ namespace cgu {
         return *this;
     }
 
+    /**
+     *  Destructor.
+     */
     VolumeCubeRenderable::~VolumeCubeRenderable()
     {
         DeleteVertexIndexBuffers();
     }
 
+    /**
+     *  Creates the vertex- and index-buffers and their vertex attribute bindings.
+     */
     void VolumeCubeRenderable::CreateVertexIndexBuffers()
     {
         std::vector<VolumeCubeVertex> vertices;
@@ -99,10 +141,16 @@ namespace cgu {
         OGL_CALL(glBufferData, GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
 
         VertexAttributeBindings bindings;
-        FillVertexAttributeBindings(*program, bindings);
-        attribBind = bindings[0];
+        FillVertexAttributeBindings(*backProgram, bindings);
+        backAttribBind = bindings[0];
+        bindings.clear();
+        FillVertexAttributeBindings(*drawProgram, bindings);
+        drawAttribBind = bindings[0];
     }
 
+    /**
+     *  Deletes the vertex- and index-buffers.
+     */
     void VolumeCubeRenderable::DeleteVertexIndexBuffers()
     {
         if (vBuffer != 0) {
@@ -121,19 +169,40 @@ namespace cgu {
         Draw(bindings[0]);
     }
 
-    void VolumeCubeRenderable::Draw() const
+    /**
+     *  Draws the volumes back faces.
+     */
+    void VolumeCubeRenderable::DrawBack() const
     {
-        Draw(attribBind);
+        backProgram->UseProgram();
+        Draw(backAttribBind);
     }
 
+    /**
+     *  Draws the volume.
+     */
+    void VolumeCubeRenderable::Draw() const
+    {
+        drawProgram->UseProgram();
+        Draw(drawAttribBind);
+    }
+
+    /**
+     *  Internal rendering method.
+     *  @param attribBinding the vertex attribute bindings to use.
+     */
     void VolumeCubeRenderable::Draw(const GLVertexAttributeArray* attribBinding) const
     {
-        program->UseProgram();
         attribBinding->EnableVertexAttributeArray();
         OGL_CALL(glDrawElements, GL_TRIANGLES, 36, GL_UNSIGNED_INT, static_cast<char*> (nullptr));
         attribBinding->DisableVertexAttributeArray();
     }
 
+    /**
+     *  Fills the vertex attribute bindings.
+     *  @param prog the program to create bindings for.
+     *  @param bindings the created bindings.
+     */
     void VolumeCubeRenderable::FillVertexAttributeBindings(GPUProgram& prog, VertexAttributeBindings& bindings) const
     {
         assert(bindings.size() == 0);

@@ -39,7 +39,7 @@ namespace cgu {
         isBackbuffer(false),
         desc(d)
     {
-        Resize(fbHeight, fbWidth);
+        Resize(fbWidth, fbHeight);
     }
 
     /**

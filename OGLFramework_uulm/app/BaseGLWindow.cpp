@@ -76,16 +76,4 @@ namespace cgu {
 
         return result;
     }
-
-    glm::vec2 BaseGLWindow::GetMouseAbsoluteVScreen() const
-    {
-        float ratio = SCREEN_Y / static_cast<float>(height);
-        return mouseAbsolute * ratio;
-    }
-
-    glm::vec2 BaseGLWindow::ToMouseAbsoluteVScreen(const glm::vec2& coords) const
-    {
-        float ratio = SCREEN_Y / static_cast<float>(height);
-        return coords / ratio;
-    }
 }

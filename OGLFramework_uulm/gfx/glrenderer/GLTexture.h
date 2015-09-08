@@ -62,6 +62,7 @@ namespace cgu {
 
     public:
         GLTexture(GLuint texID, GLenum texType, const TextureDescriptor& desc);
+        GLTexture(unsigned int size, const TextureDescriptor& desc);
         GLTexture(unsigned int width, unsigned int height, unsigned int arraySize, const TextureDescriptor& desc);
         GLTexture(unsigned int width, unsigned int height, const TextureDescriptor& desc, const void* data);
         GLTexture(unsigned int width, unsigned int height, unsigned int depth, const TextureDescriptor& desc, const void* data);

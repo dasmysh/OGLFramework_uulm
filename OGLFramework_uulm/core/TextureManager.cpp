@@ -30,6 +30,7 @@ namespace cgu {
             LOG(INFO) << L"No resource with id \"" << resId << L"\" found. Creating new one.";
             std::unique_ptr<TextureType> texturePtr(new TextureType(resId, application));
             TextureType* textureRawPtr = texturePtr.get();
+            textureRawPtr->Load();
             textures.insert(std::make_pair(resId, std::move(texturePtr)));
             return textureRawPtr;
         }

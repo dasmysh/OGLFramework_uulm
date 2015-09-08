@@ -113,9 +113,7 @@ namespace cgu {
      */
     int Mesh::FindContainingTriangleSub(const SubMesh* submesh, const glm::vec3 pt)
     {
-        if (pt.x < submesh->aabb[0].x || pt.y < submesh->aabb[0].y || pt.z < submesh->aabb[0].z
-            || pt.x > submesh->aabb[1].x || pt.y > submesh->aabb[1].y || pt.z > submesh->aabb[1].z)
-            return -1;
+        if (!cguMath::pointInAABB3Test(submesh->aabb, pt)) return -1;
 
         std::vector<polyIdxBox> hits;
         namespace bg = boost::geometry;
@@ -168,8 +166,8 @@ namespace cgu {
                 std::set_intersection(verticesConnect[vi0].triangles.begin(), verticesConnect[vi0].triangles.end(),
                     verticesConnect[vi1].triangles.begin(), verticesConnect[vi1].triangles.end(), std::back_inserter(isect));
                 // if the mesh is planar and has borders only ONE triangle may be found!!!
-                // this triangle is the triangle itself not its neighbour
-                assert(isect.size() <= 2); // both this triangle and the neighbour should be found
+                // this triangle is the triangle itself not its neighbor
+                assert(isect.size() <= 2); // both this triangle and the neighbor should be found
                 if (isect.size() == 2) {
                     tri.neighbours[ni] = isect[0] == i ? isect[1] : isect[0];
                 } else {
@@ -186,11 +184,11 @@ namespace cgu {
     void Mesh::CreateAABB(SubMesh* submesh)
     {
         if (trianglePtsIndices.empty()) return;
-        submesh->aabb[0] = submesh->aabb[1] = vertices[trianglePtsIndices.begin()->vertex[0]].xyz();
+        submesh->aabb.minmax[0] = submesh->aabb.minmax[1] = vertices[trianglePtsIndices.begin()->vertex[0]].xyz();
         for (const auto& tri : trianglePtsIndices) {
             for (auto vi : tri.vertex) {
-                submesh->aabb[0] = glm::min(submesh->aabb[0], vertices[vi].xyz());
-                submesh->aabb[1] = glm::max(submesh->aabb[1], vertices[vi].xyz());
+                submesh->aabb.minmax[0] = glm::min(submesh->aabb.minmax[0], vertices[vi].xyz());
+                submesh->aabb.minmax[1] = glm::max(submesh->aabb.minmax[1], vertices[vi].xyz());
             }
         }
     }

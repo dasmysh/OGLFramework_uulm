@@ -12,6 +12,7 @@
 #include "core/Arcball.h"
 #include "main.h"
 #include <glm/gtc/quaternion.hpp>
+#include "core/math/math.h"
 
 namespace cgu {
 
@@ -41,11 +42,16 @@ namespace cgu {
         void Resize(float aspectRatio);
         bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, BaseGLWindow* sender);
         bool HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender);
-        void SetView(const glm::mat4& modelM) const;
+        cguMath::Frustum<float> SetView(const glm::mat4& modelM) const;
         void UpdateCamera();
-        glm::mat4 GetViewMatrix() const { return view; };
+        glm::mat4 GetViewMatrix() const { return view; }
+        cguMath::Frustum<float> GetViewFrustum(const glm::mat4& modelM) const;
+        const glm::vec3 GetPosition() const { return camPos; }
+        float GetSignedDistanceToUnitAABB2(const glm::mat4& world) const;
 
     private:
+        cguMath::Frustum<float> CalcViewFrustum(const glm::mat4& mvp) const;
+
         /** Holds the field of view in y direction. */
         float fovY;
         /** Holds the aspect ratio. */

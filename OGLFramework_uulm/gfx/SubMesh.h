@@ -13,6 +13,7 @@
 #include "FreeFormObjects.h"
 #include <set>
 #include <boost/geometry.hpp>
+#include "core/math/math.h"
 
 namespace cgu {
 
@@ -131,10 +132,10 @@ namespace cgu {
         std::set<MeshConnectTriangle> trianglePtsIndices;
         /** Holds the first triangle index. */
         unsigned int firstTriIndex;
-        /** Holds the number of triangles in this submesh. */
+        /** Holds the number of triangles in this sub-mesh. */
         unsigned int numTriangles;
-        /** Holds the bounding box of this submesh. */
-        std::array<glm::vec3, 2> aabb;
+        /** Holds the bounding box of this sub-mesh. */
+        cguMath::AABB3<float> aabb;
 
     protected:
         typedef boost::geometry::model::point<float, 3, boost::geometry::cs::cartesian> point;

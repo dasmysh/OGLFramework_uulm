@@ -18,6 +18,7 @@
 #include "gfx/OrthogonalView.h"
 #include "gfx/CameraView.h"
 #include "main.h"
+#include "core/VolumeManager.h"
 
 namespace cgu {
 
@@ -51,12 +52,15 @@ namespace cgu {
         /** Called if the application is to end running. */
         void EndRun();
 
+        bool IsPaused() const { return m_pause; };
+
         virtual bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, BaseGLWindow* sender);
         bool HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender);
         virtual bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender) = 0;
         virtual void OnResize(unsigned int width, unsigned int height);
 
         TextureManager* GetTextureManager();
+        VolumeManager* GetVolumeManager();
         MaterialLibManager* GetMaterialLibManager();
         ShaderManager* GetShaderManager();
         GPUProgramManager* GetGPUProgramManager();
@@ -103,6 +107,8 @@ namespace cgu {
         GLWindow& win;
         /** Holds the texture manager. */
         std::unique_ptr<TextureManager> texManager;
+        /** Holds the volume manager. */
+        std::unique_ptr<VolumeManager> volManager;
         /** Holds the material lib manager. */
         std::unique_ptr<MaterialLibManager> matManager;
         /** Holds the shader manager. */

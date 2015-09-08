@@ -11,21 +11,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace cgu {
-    OrthogonalView::OrthogonalView(float aspectRatio, ShaderBufferBindingPoints* uniformBindingPoints)
+    OrthogonalView::OrthogonalView(float width, float height, ShaderBufferBindingPoints* uniformBindingPoints)
     {
         orthoUBO.reset(new GLUniformBuffer(orthoProjectionUBBName,
             sizeof(OrthoProjectionBuffer), *uniformBindingPoints));
-        Resize(aspectRatio);
+        Resize(width, height);
     }
 
     OrthogonalView::~OrthogonalView()
     {
     }
 
-    void OrthogonalView::Resize(float aspectRatio)
+    void OrthogonalView::Resize(float width, float height)
     {
-        float bottom = SCREEN_Y;
-        float right = SCREEN_Y * aspectRatio;
+        float bottom = height;
+        float right = width;
         orthoBuffer.orthoMatrix = glm::ortho(0.0f, right, bottom, 0.0f, 1.0f, -1.0f);
         orthoUBO->UploadData(0, sizeof(OrthoProjectionBuffer), &orthoBuffer);
     }

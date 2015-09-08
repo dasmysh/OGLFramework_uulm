@@ -35,12 +35,15 @@ namespace cgu {
         virtual void Load() override;
         virtual void Unload() override;
 
+        GLTexture* LoadToSingleTexture();
         GLTexture* GetTexture();
+        const glm::vec3& GetScaling() const { return cellSize; }
 
-        std::unique_ptr<VolumeBrickOctree> GetBrickedVolume();
-        void FillRaw(std::vector<uint8_t>& data, const glm::uvec3& pos, const glm::uvec3& size) const;
+        std::unique_ptr<VolumeBrickOctree> GetBrickedVolume(const glm::vec3& scale);
+        void FillRaw(std::vector<uint8_t>& data, const glm::uvec3& pos, const glm::uvec3& dataSize, const glm::uvec3& texSize) const;
         std::unique_ptr<GLTexture> CreateMinMaxTexture(const glm::uvec3& pos, const glm::uvec3& size, TextureDescriptor& minMaxDesc) const;
         const TextureDescriptor& GetTextureDescriptor() const;
+        const glm::uvec3& GetSize() const { return volumeSize; }
 
     private:
         /** Holds the texture. */
@@ -53,6 +56,8 @@ namespace cgu {
         std::string rawFileName;
         /** Holds a scale value for the stored data. */
         unsigned int scaleValue;
+        /** Holds the dimension of the data. */
+        int dataDim;
         /** Holds the texture description. */
         TextureDescriptor texDesc;
         /** Holds the open file stream. */

@@ -60,8 +60,6 @@ namespace cgu {
         glm::vec2 GetMouseRelative() const { return mouseRelative; };
         glm::vec2 GetMouseAbsolute() const { return mouseAbsolute; };
         glm::vec3 GetMouseAbsoluteNDC() const;
-        glm::vec2 GetMouseAbsoluteVScreen() const;
-        glm::vec2 ToMouseAbsoluteVScreen(const glm::vec2& coords) const;
         unsigned int GetKeyboardModState(unsigned int modKey) const { return keyboardModState & modKey; };
         bool HadPositionUpdate() const { return hadPositionUpdate; };
         void HandledPositionUpdate() { hadPositionUpdate = false; };
