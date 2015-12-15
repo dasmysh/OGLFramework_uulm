@@ -11,7 +11,7 @@
 
 namespace cgu {
 
-    ArcballRotatedSceneRenderable::ArcballRotatedSceneRenderable(Renderable* renderable, const glm::vec3& pos) :
+    ArcballRotatedSceneRenderable::ArcballRotatedSceneRenderable(MeshRenderable* renderable, const glm::vec3& pos) :
         SceneRenderable(renderable, pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
         rotArcball(RI_MOUSE_RIGHT_BUTTON_DOWN, MB_RGHT)
     {

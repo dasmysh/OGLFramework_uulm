@@ -17,7 +17,8 @@ namespace cgu {
         minOrientedAlpha(0.0f),
         N_s(1.0f),
         N_i(1.0f),
-        diffuseTex(nullptr)
+        diffuseTex(nullptr),
+        bumpTex(nullptr)
     {
     }
 

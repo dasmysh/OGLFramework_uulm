@@ -1,13 +1,15 @@
 /**
  * @file   MeshRenderable.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   19. Januar 2014
+ * @date   2015.12.15
  *
  * @brief  Contains the implementation of MeshRenderable.
  */
 
 #include "MeshRenderable.h"
 #include "GPUProgram.h"
+#include "GLTexture2D.h"
+#include "GLTexture.h"
 
 #include <boost/assign.hpp>
 
@@ -16,11 +18,13 @@ namespace cgu {
     /**
      * Constructor.
      * @param renderMesh the Mesh to use for rendering.
+     * @param prog the program used for rendering.
      */
-    MeshRenderable::MeshRenderable(const Mesh& renderMesh) :
-        mesh(&renderMesh),
+    MeshRenderable::MeshRenderable(const Mesh* renderMesh, GPUProgram* prog) :
+        mesh(renderMesh),
         vBuffer(0),
-        iBuffer(0)
+        iBuffer(0),
+        program(prog)
     {
         OGL_CALL(glGenBuffers, 1, &vBuffer);
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
@@ -37,6 +41,8 @@ namespace cgu {
         }
 
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
+
+        FillMeshAttributeBindings();
     }
 
     /**
@@ -60,32 +66,50 @@ namespace cgu {
     }
 
     /**
+     * Copy constructor.
+     * @param orig the original object
+     */
+    MeshRenderable::MeshRenderable(const MeshRenderable& orig) :
+        MeshRenderable(orig.mesh, orig.program)
+    {
+    }
+
+    /**
      * Move constructor.
      * @param orig the original object
      */
     MeshRenderable::MeshRenderable(MeshRenderable&& orig) :
-        Renderable(std::move(orig)),
         mesh(orig.mesh),
         vBuffer(orig.vBuffer),
         iBuffer(orig.iBuffer),
-        iBuffers(std::move(orig.iBuffers))
+        iBuffers(std::move(orig.iBuffers)),
+        program(orig.program),
+        attribBinds(std::move(attribBinds))
     {
         orig.mesh = nullptr;
         orig.vBuffer = 0;
         orig.iBuffer = 0;
+        orig.program = nullptr;
     }
 
     /**
-     * Move assignment operator.
+     * Copy assignment operator.
      * @param orig the original object
      */
-    MeshRenderable& MeshRenderable::operator =(MeshRenderable&& orig)
+    MeshRenderable& MeshRenderable::operator=(MeshRenderable orig)
     {
-        if (this != &orig) {
+        std::swap(mesh, orig.mesh);
+        std::swap(vBuffer, orig.vBuffer);
+        std::swap(iBuffer, orig.iBuffer);
+        std::swap(iBuffers, orig.iBuffers);
+        std::swap(program, orig.program);
+        std::swap(attribBinds, orig.attribBinds);
+
+        /*if (this != &orig) {
+            this->~MeshRenderable();
+
             OGL_CALL(glDeleteBuffers, 1, &vBuffer);
             OGL_CALL(glDeleteBuffers, static_cast<GLsizei>(iBuffers.size()), &iBuffers[0]);
-            Renderable* tRes = this;
-            *tRes = static_cast<Renderable&&> (std::move(orig));
             mesh = orig.mesh;
             vBuffer = orig.vBuffer;
             iBuffer = orig.iBuffer;
@@ -93,11 +117,33 @@ namespace cgu {
             orig.mesh = nullptr;
             orig.vBuffer = 0;
             orig.iBuffer = 0;
+        }*/
+        return *this;
+    }
+
+    /**
+     * Move assignment operator.
+     * @param orig the original object
+     */
+    MeshRenderable& MeshRenderable::operator=(MeshRenderable&& orig)
+    {
+        if (this != &orig) {
+            this->~MeshRenderable();
+            mesh = orig.mesh;
+            vBuffer = orig.vBuffer;
+            iBuffer = orig.iBuffer;
+            iBuffers = std::move(orig.iBuffers);
+            program = orig.program;
+            attribBinds = std::move(orig.attribBinds);
+            orig.mesh = nullptr;
+            orig.vBuffer = 0;
+            orig.iBuffer = 0;
+            orig.program = nullptr;
         }
         return *this;
     }
 
-    void MeshRenderable::FillVertexAttributeBindings(GPUProgram& program,
+    /*void MeshRenderable::FillVertexAttributeBindings(GPUProgram& program,
         VertexAttributeBindings& bindings) const
     {
         assert(bindings.size() == 0);
@@ -112,14 +158,33 @@ namespace cgu {
             GenerateVertexAttribute(bindings.back(), mesh->subMeshes[idx], shaderPositions);
         }
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
+    }*/
+
+    void MeshRenderable::FillMeshAttributeBindings()
+    {
+        assert(attribBinds.GetUniformIds().size() == 0);
+        assert(attribBinds.GetVertexAttributes().size() == 0);
+        std::vector<BindingLocation> shaderPositions = program->GetAttributeLocations({ "pos", "tex", "normal" });
+
+        OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
+        attribBinds.GetVertexAttributes().push_back(program->CreateVertexAttributeArray(vBuffer, iBuffer));
+        GenerateVertexAttribute(attribBinds.GetVertexAttributes().back(), mesh, shaderPositions);
+        for (unsigned int idx = 0; idx < mesh->subMeshes.size(); ++idx) {
+            attribBinds.GetVertexAttributes().push_back(program->CreateVertexAttributeArray(vBuffer, iBuffers[idx]));
+            GenerateVertexAttribute(attribBinds.GetVertexAttributes().back(), mesh->subMeshes[idx], shaderPositions);
+        }
+        OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
+
+        attribBinds.GetUniformIds() = program->GetUniformLocations({ "diffuseTex", "bumpTex" });
     }
 
-    void MeshRenderable::Draw(const VertexAttributeBindings& bindings) const
+    void MeshRenderable::Draw() const
     {
+        program->UseProgram();
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
-        DrawSubMesh(bindings[0], mesh);
+        DrawSubMesh(attribBinds.GetVertexAttributes()[0], mesh);
         for (unsigned int idx = 0; idx < iBuffers.size(); ++idx) {
-            DrawSubMesh(bindings[idx + 1], mesh->subMeshes[idx]);
+            DrawSubMesh(attribBinds.GetVertexAttributes()[idx + 1], mesh->subMeshes[idx]);
         }
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
     }
@@ -151,10 +216,19 @@ namespace cgu {
         vao->EndAttributeSetup();
     }
 
-    void MeshRenderable::DrawSubMesh(const GLVertexAttributeArray* vao, const SubMesh* subMesh)
+    void MeshRenderable::DrawSubMesh(const GLVertexAttributeArray* vao, const SubMesh* subMesh) const
     {
         vao->EnableVertexAttributeArray();
         for (const SubMeshMaterialChunk& mtlChunk : subMesh->mtlChunks) {
+            if (mtlChunk.material->diffuseTex && attribBinds.GetUniformIds().size() != 0) {
+                mtlChunk.material->diffuseTex->GetTexture()->ActivateTexture(GL_TEXTURE0);
+                program->SetUniform(attribBinds.GetUniformIds()[0], 0);
+            }
+            if (mtlChunk.material->bumpTex && attribBinds.GetUniformIds().size() >= 2) {
+                mtlChunk.material->diffuseTex->GetTexture()->ActivateTexture(GL_TEXTURE1);
+                program->SetUniform(attribBinds.GetUniformIds()[0], 1);
+            }
+
             // TODO: set material ...
             GLsizei count = mtlChunk.face_seq_num;
             OGL_CALL(glDrawElements, GL_TRIANGLES, count, GL_UNSIGNED_INT,

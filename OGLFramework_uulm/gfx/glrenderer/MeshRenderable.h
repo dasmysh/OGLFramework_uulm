@@ -9,11 +9,10 @@
 #ifndef MESHRENDERABLE_H
 #define MESHRENDERABLE_H
 
-#include "Renderable.h"
 #include "gfx/Mesh.h"
 #include "main.h"
 #include "GPUProgram.h"
-#include "GLVertexAttributeArray.h"
+#include "gfx/glrenderer/ShaderMeshAttributes.h"
 
 namespace cgu {
 
@@ -21,25 +20,19 @@ namespace cgu {
      * @brief  Renderable implementation for triangle meshes.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   19. Januar 2014
+     * @date   2015.12.15
      */
-    class MeshRenderable : public Renderable
+    class MeshRenderable
     {
-    private:
-        /** Deleted copy constructor. */
-        MeshRenderable(const MeshRenderable&) {};
-        /** Deleted copy assignment operator. */
-        MeshRenderable& operator=(const MeshRenderable&) {};
-
     public:
-        MeshRenderable(const Mesh& renderMesh);
+        MeshRenderable(const Mesh* renderMesh, GPUProgram* program);
         virtual ~MeshRenderable();
-        MeshRenderable(MeshRenderable&& orig);
-        MeshRenderable& operator=(MeshRenderable&& orig);
+        MeshRenderable(const MeshRenderable&);
+        MeshRenderable& operator=(MeshRenderable);
+        MeshRenderable(MeshRenderable&&);
+        MeshRenderable& operator=(MeshRenderable&&);
 
-        virtual void Draw(const VertexAttributeBindings& bindings) const override;
-        virtual void FillVertexAttributeBindings(GPUProgram& program,
-            VertexAttributeBindings& bindings) const override;
+        void Draw() const;
 
     private:
         /** Holds the mesh to render. */
@@ -50,11 +43,16 @@ namespace cgu {
         GLuint iBuffer;
         /** Holds the index buffer object names. */
         std::vector<GLuint> iBuffers;
+        /** Holds the rendering GPU program for drawing. */
+        GPUProgram* program;
+        /** Holds the shader attribute bindings for the shader. */
+        ShaderMeshAttributes attribBinds;
 
+        void FillMeshAttributeBindings();
         static void FillIndexBuffer(GLuint iBuffer, const SubMesh* subMesh);
         static void GenerateVertexAttribute(GLVertexAttributeArray* vao, const SubMesh* subMesh,
             const std::vector<BindingLocation>& shaderPositions);
-        static void DrawSubMesh(const GLVertexAttributeArray* vao, const SubMesh* subMesh);
+        void DrawSubMesh(const GLVertexAttributeArray* vao, const SubMesh* subMesh) const;
     };
 }
 

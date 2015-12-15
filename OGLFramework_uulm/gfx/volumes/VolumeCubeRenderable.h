@@ -9,9 +9,12 @@
 #ifndef VOLUMECUBERENDERABLE_H
 #define VOLUMECUBERENDERABLE_H
 
-#include "gfx\glrenderer\Renderable.h"
+#include "main.h"
 
 namespace cgu {
+
+    class GLVertexAttributeArray;
+    class GPUProgram;
 
     struct VolumeCubeVertex
     {
@@ -19,7 +22,7 @@ namespace cgu {
         glm::vec3 posTex;
     };
 
-    class VolumeCubeRenderable : public Renderable
+    class VolumeCubeRenderable
     {
     public:
         VolumeCubeRenderable(GPUProgram* backProg, GPUProgram* drawProg);
@@ -29,10 +32,8 @@ namespace cgu {
         VolumeCubeRenderable& operator=(VolumeCubeRenderable&& orig);
         ~VolumeCubeRenderable();
 
-        virtual void Draw(const VertexAttributeBindings& bindings) const override;
         void Draw() const;
         void DrawBack() const;
-        virtual void FillVertexAttributeBindings(GPUProgram& program, VertexAttributeBindings& bindings) const override;
 
     private:
         /** Holds the vertex buffer object to use. */
@@ -50,6 +51,7 @@ namespace cgu {
 
         void CreateVertexIndexBuffers();
         void DeleteVertexIndexBuffers();
+        void FillVertexAttributeBindings(GPUProgram& program, VertexAttributeBindings& bindings) const;
         void Draw(const GLVertexAttributeArray* attribBinding) const;
     };
 }

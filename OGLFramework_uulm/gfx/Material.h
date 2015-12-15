@@ -42,6 +42,8 @@ namespace cgu {
         float N_i;
         /** Holds the materials diffuse texture. */
         const GLTexture2D* diffuseTex;
+        /** Holds the materials bump texture. */
+        const GLTexture2D* bumpTex;
     private:
 
     };

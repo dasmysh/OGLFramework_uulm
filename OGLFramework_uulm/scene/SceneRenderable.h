@@ -18,22 +18,22 @@ namespace cgu {
 
     class CameraView;
     class GPUProgram;
-    class Renderable;
+    class MeshRenderable;
 
     class SceneRenderable
     {
     public:
-        SceneRenderable(Renderable* renderable, const glm::vec3& pos, const glm::quat& orient);
+        SceneRenderable(MeshRenderable* renderable, const glm::vec3& pos, const glm::quat& orient);
 
         void UpdatePositionOrientation(const glm::vec3& pos, const glm::quat& orient);
-        void Draw(const CameraView& camera, GPUProgram* program, VertexAttributeBindings* vaBindings);
+        void Draw(const CameraView& camera);
 
     protected:
         /** Constructor used for derivations that create their own renderables. */
         SceneRenderable(const glm::vec3& pos, const glm::quat& orient);
 
         /** Holds the renderable used for display. */
-        Renderable* renderable;
+        MeshRenderable* renderable;
         /** Holds the objects position in space. */
         glm::vec3 position;
         /** Holds the objects orientation. */

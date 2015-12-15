@@ -18,7 +18,6 @@ namespace cgu {
     class GPUProgram;
     /** The type for a list of vertex arrays. */
     typedef std::vector<GLVertexAttributeArray*> VertexAttributeBindings;
-    class Renderable;
     class ScreenText;
     class GUIRenderable;
     class Font;
@@ -52,8 +51,6 @@ namespace cgu {
 
         void Clear(unsigned int clflags, const float color[4],
             float depth, unsigned int stencil);
-        void Draw(const GPUProgram* program, const Renderable* renderable,
-            const VertexAttributeBindings* bindings);
         void UseFont(Font* font);
         void DrawScreenText(ScreenText* text);
         void DrawGUIGeometry(GUIRenderable* guiElement);

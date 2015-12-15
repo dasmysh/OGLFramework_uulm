@@ -9,12 +9,12 @@
 #include "SceneRenderable.h"
 #include "gfx/CameraView.h"
 #include "gfx/glrenderer/GPUProgram.h"
-#include "gfx/glrenderer/Renderable.h"
+#include "gfx/glrenderer/MeshRenderable.h"
 #include <glm/glm.hpp>
 
 namespace cgu {
 
-    SceneRenderable::SceneRenderable(Renderable* theRenderable, const glm::vec3& pos, const glm::quat& orient) :
+    SceneRenderable::SceneRenderable(MeshRenderable* theRenderable, const glm::vec3& pos, const glm::quat& orient) :
         renderable(theRenderable),
         position(pos),
         orientation(orient),
@@ -40,10 +40,9 @@ namespace cgu {
         worldMatrix = glm::mat4(matOrient[0], matOrient[1], matOrient[2], glm::vec4(position, 1));
     }
 
-    void SceneRenderable::Draw(const CameraView& camera, GPUProgram* program, VertexAttributeBindings* vaBindings)
+    void SceneRenderable::Draw(const CameraView& camera)
     {
         camera.SetView(worldMatrix);
-        program->UseProgram();
-        renderable->Draw(*vaBindings);
+        renderable->Draw();
     }
 }

@@ -9,7 +9,6 @@
 #include "GLBatchRenderTarget.h"
 #include "main.h"
 #include "GPUProgram.h"
-#include "Renderable.h"
 #include "ScreenText.h"
 #include "GUIRenderable.h"
 #include "GLVertexAttributeArray.h"
@@ -53,19 +52,6 @@ namespace cgu {
         }
 
         OGL_CALL(glClear, clearFlags);
-    }
-
-    /**
-     * Draws a Renderable object to this render target using the GPUProgram and VertexAttributeBindings given.
-     * @param program the gpu program to use for rendering
-     * @param renderable the object to render
-     * @param bindings the vertex attribute bindings for this renderable and program.
-     */
-    void GLBatchRenderTarget::Draw(const GPUProgram* program, const Renderable* renderable,
-        const VertexAttributeBindings* bindings)
-    {
-        program->UseProgram();
-        renderable->Draw(*bindings);
     }
 
     void GLBatchRenderTarget::DrawScreenText(ScreenText* text)

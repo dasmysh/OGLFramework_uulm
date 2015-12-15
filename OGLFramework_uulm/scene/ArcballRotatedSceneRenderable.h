@@ -17,7 +17,7 @@ namespace cgu {
     class ArcballRotatedSceneRenderable : public SceneRenderable
     {
     public:
-        ArcballRotatedSceneRenderable(Renderable* renderable, const glm::vec3& pos);
+        ArcballRotatedSceneRenderable(MeshRenderable* renderable, const glm::vec3& pos);
         virtual ~ArcballRotatedSceneRenderable();
 
         virtual bool HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender);

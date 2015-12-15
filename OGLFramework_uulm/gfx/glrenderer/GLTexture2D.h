@@ -37,6 +37,7 @@ namespace cgu {
         virtual void Unload() override;
 
         GLTexture* GetTexture();
+        const GLTexture* GetTexture() const;
 
     private:
         /** Holds the texture. */

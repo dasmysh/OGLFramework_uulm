@@ -69,6 +69,12 @@ namespace cgu {
         return texture.get();
     }
 
+    /** Returns the texture object. */
+    const GLTexture* GLTexture2D::GetTexture() const
+    {
+        return texture.get();
+    }
+
     void GLTexture2D::Unload()
     {
         UnloadLocal();

@@ -164,11 +164,6 @@ namespace cgu {
         }
     }
 
-    void VolumeCubeRenderable::Draw(const VertexAttributeBindings& bindings) const
-    {
-        Draw(bindings[0]);
-    }
-
     /**
      *  Draws the volumes back faces.
      */
