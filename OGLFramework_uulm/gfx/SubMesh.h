@@ -53,6 +53,8 @@ namespace cgu {
 
         /** Holds the triangles vertices. */
         std::array<unsigned int, 3> vertex;
+        /** Holds the triangles face vertices (not only position). */
+        mutable std::array<unsigned int, 3> faceVertex;
         /** Holds the triangles neighbours. */
         std::array<int, 3> neighbours;
     };

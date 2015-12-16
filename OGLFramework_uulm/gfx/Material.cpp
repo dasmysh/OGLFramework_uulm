@@ -18,7 +18,8 @@ namespace cgu {
         N_s(1.0f),
         N_i(1.0f),
         diffuseTex(nullptr),
-        bumpTex(nullptr)
+        bumpTex(nullptr),
+        bumpMultiplier(1.0f)
     {
     }
 

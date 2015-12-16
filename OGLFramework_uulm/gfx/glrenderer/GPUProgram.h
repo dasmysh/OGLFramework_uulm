@@ -50,6 +50,7 @@ namespace cgu {
         void SetUniform(BindingLocation name, const glm::uvec3& data);
         void SetUniform(BindingLocation name, const std::vector<float>& data);
         void SetUniform(BindingLocation name, int data);
+        void SetUniform(BindingLocation name, float data);
         BindingLocation GetUniformBufferLocation(const std::string& uBufferName);
         void BindUniformBlock(const std::string& uBufferName, ShaderBufferBindingPoints& bindingPoints);
         void BindUniformBlock(const std::string& uBufferName, GLuint bindingPoint);

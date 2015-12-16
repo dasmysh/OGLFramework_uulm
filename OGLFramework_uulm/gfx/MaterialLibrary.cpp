@@ -17,6 +17,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 #include <codecvt>
 
 namespace cgu {
@@ -55,9 +56,8 @@ namespace cgu {
         boost::regex reg_d_halo("^d\\s+-halo\\s+" + regex_help::flt + "$");
         boost::regex reg_Ns("^Ns\\s+" + regex_help::flt + "$");
         boost::regex reg_Ni("^Ni\\s+" + regex_help::flt + "$");
-        boost::regex reg_map_Kd("^map_Kd\\s+(.*\\s+)?(\\w+\\.\\w+)$");
-        boost::regex reg_map_bump("^map_bump\\s+(.*\\s+)?(\\w+\\.\\w+)$");
-        boost::regex reg_bump("^bump\\s+(.*\\s+)?(\\w+\\.\\w+)$");
+        boost::regex reg_map_Kd("^map_Kd\\s+(.*\\s+)?([\\w-]+\\.\\w+)$");
+        boost::regex reg_map_bump("^(map_bump|bump)\\s+(.*\\s+)?([\\w-]+\\.\\w+)$");
 
         boost::smatch lineMatch;
 
@@ -86,11 +86,10 @@ namespace cgu {
             } else if (boost::regex_match(currLine, lineMatch, reg_Ni) && currMat) {
                 currMat->N_i = boost::lexical_cast<float>(lineMatch[1].str());
             } else if (boost::regex_match(currLine, lineMatch, reg_map_Kd) && currMat) {
-                currMat->diffuseTex = parseTexture(lineMatch);
+                currMat->diffuseTex = parseTexture(lineMatch[2].str());
             } else if (boost::regex_match(currLine, lineMatch, reg_map_bump) && currMat) {
-                currMat->diffuseTex = parseTexture(lineMatch);
-            } else if (boost::regex_match(currLine, lineMatch, reg_bump) && currMat) {
-                currMat->diffuseTex = parseTexture(lineMatch);
+                currMat->bumpTex = parseTexture(lineMatch[3].str());
+                currMat->bumpMultiplier = parseFloatParameter("-bm", lineMatch[2].str(), 1.0f);
             } else {
                 notImplemented(currLine);
             }
@@ -165,14 +164,32 @@ namespace cgu {
      * @param matches the regex matcher for the texture lines
      * @return the loaded texture
      */
-    const GLTexture2D* MaterialLibrary::parseTexture(const boost::smatch& matches) const
+    const GLTexture2D* MaterialLibrary::parseTexture(const std::string& matches) const
     {
-        if (matches[1].length() != 0) {
+        boost::filesystem::path mtlFile{ id };
+        std::string texFilename = mtlFile.parent_path().string() + "/" + matches;
+        return application->GetTextureManager()->GetResource(texFilename);
+    }
+
+    /**
+     *  Parses a float parameter.
+     *  @param paramName the name of the parameter.
+     *  @param matches the string containing the parameters.
+     *  @param defaultValue the default value to return if the parameter was not found.
+     */
+    float MaterialLibrary::parseFloatParameter(const std::string& paramName, const std::string& matches, float defaultValue) const
+    {
+        boost::regex reg_bm("^.*-bm\\s+([-+]?[0-9]*\\.?[0-9]+).*$");
+        boost::smatch lineMatch;
+        if (boost::regex_match(matches, lineMatch, reg_bm)) {
+            return boost::lexical_cast<float>(lineMatch[1]);
+        }
+        return defaultValue;
+
+        /*if (matches[1].length() != 0) {
             notImplemented(matches[0].str());
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
             LOG(WARNING) << L"Loading texture without parameters (" << converter.from_bytes(matches[1].str()) << ").";
-        }
-        std::string texFilename = matches[2].str();
-        return application->GetTextureManager()->GetResource(texFilename);
+        }*/
     }
 }

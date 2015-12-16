@@ -53,6 +53,7 @@ namespace cgu {
         std::vector<MeshConnectVertex> verticesConnect;
 
     protected:
+        void CalculateNormals();
         void CreateGeomertyInfo();
         int FindContainingTriangleSub(const SubMesh* submesh, const glm::vec3 point);
         void CreateGeomertyInfoSub(SubMesh* submesh);

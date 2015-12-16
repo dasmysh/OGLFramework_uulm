@@ -57,7 +57,8 @@ namespace cgu {
 
         void UnloadLocal();
         glm::vec3 parseColor(const boost::smatch& matches) const;
-        const GLTexture2D* parseTexture(const boost::smatch& matches) const;
+        const GLTexture2D* parseTexture(const std::string& matches) const;
+        float parseFloatParameter(const std::string& paramName, const std::string& matches, float defaultValue) const;
         void notImplemented(const std::string& feature) const;
     };
 }

@@ -19,6 +19,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 
 namespace cgu {
 
@@ -278,6 +279,7 @@ namespace cgu {
         subMesh->FinishMaterial(mtlChunk);
         loadGroup(subMesh);
         CreateGeomertyInfo();
+        if (!this->faceHasNormal) CalculateNormals();
     }
 
     std::vector<MaterialLibrary*> OBJMesh::getMtlLibraries(const std::string& line)
@@ -287,7 +289,8 @@ namespace cgu {
         boost::sregex_iterator j;
         std::vector<MaterialLibrary*> result;
         while (i != j) {
-            std::string mtllibname = (*i++)[1].str();
+            boost::filesystem::path meshFile{ id };
+            std::string mtllibname = meshFile.parent_path().string() + "/" + (*i++)[1].str();
             result.push_back(application->GetMaterialLibManager()->GetResource(mtllibname));
         }
         return result;
@@ -324,7 +327,7 @@ namespace cgu {
     }
 
     /**
-     * Adds a new vertex to an array of vertices checking if it does alreadt exist.
+     * Adds a new vertex to an array of vertices checking if it does already exist.
      * @tparam VT the vertex type
      * @param[in,out] vertices the vertex array to add the vertex to
      * @param[in] v the vertex to add
@@ -400,6 +403,7 @@ namespace cgu {
         int idx2 = -1;
         int pidx1 = -1;
         int pidx2 = -1;
+        std::set<MeshConnectTriangle>::iterator currentFace = mesh->trianglePtsIndices.end();
         while (i != j) {
             FaceVertex fv;
             int pi = boost::lexical_cast<int>((*i)[2].str());
@@ -410,7 +414,9 @@ namespace cgu {
             else if (pidx2 == -1)
                 pidx2 = pi;
             else {
-                mesh->trianglePtsIndices.insert(MeshConnectTriangle({ { pidx1, pidx2, pi } }));
+                auto insResult = mesh->trianglePtsIndices.insert(MeshConnectTriangle({ { pidx1, pidx2, pi } }));
+                assert(insResult.second || "Check why this happened...");
+                currentFace = insResult.first;
                 pidx2 = pi;
             }
 
@@ -426,10 +432,12 @@ namespace cgu {
                 mesh->faceHasNormal = false;
                 int ti = boost::lexical_cast<int>((*i)[6].str());
                 fv.tex = texCoords[ti > 0 ? static_cast<unsigned int> (ti - 1) : texCoords.size() - ti].xy();
+                fv.normal = glm::vec3(0.0f);
             } else if ((*i)[5].length() > 0) {
                 mesh->faceHasNormal = true;
                 mesh->faceHasTexture = false;
                 int ni = boost::lexical_cast<int>((*i)[5].str());
+                fv.tex = glm::vec2(0.0f);
                 fv.normal = normals[ni > 0 ? static_cast<unsigned int> (ni - 1) : normals.size() - ni];
             }
             i++;
@@ -443,6 +451,10 @@ namespace cgu {
                 mesh->faceIndices.push_back(idx1);
                 mesh->faceIndices.push_back(idx2);
                 mesh->faceIndices.push_back(idx);
+                currentFace->faceVertex[0] = idx1;
+                currentFace->faceVertex[1] = idx2;
+                currentFace->faceVertex[2] = idx;
+
                 idx2 = idx;
             }
         }

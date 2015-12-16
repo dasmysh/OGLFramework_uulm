@@ -175,7 +175,7 @@ namespace cgu {
         }
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 
-        attribBinds.GetUniformIds() = program->GetUniformLocations({ "diffuseTex", "bumpTex" });
+        attribBinds.GetUniformIds() = program->GetUniformLocations({ "diffuseTex", "bumpTex", "bumpMultiplier" });
     }
 
     void MeshRenderable::Draw() const
@@ -225,8 +225,9 @@ namespace cgu {
                 program->SetUniform(attribBinds.GetUniformIds()[0], 0);
             }
             if (mtlChunk.material->bumpTex && attribBinds.GetUniformIds().size() >= 2) {
-                mtlChunk.material->diffuseTex->GetTexture()->ActivateTexture(GL_TEXTURE1);
-                program->SetUniform(attribBinds.GetUniformIds()[0], 1);
+                mtlChunk.material->bumpTex->GetTexture()->ActivateTexture(GL_TEXTURE1);
+                program->SetUniform(attribBinds.GetUniformIds()[1], 1);
+                program->SetUniform(attribBinds.GetUniformIds()[2], mtlChunk.material->bumpMultiplier);
             }
 
             // TODO: set material ...

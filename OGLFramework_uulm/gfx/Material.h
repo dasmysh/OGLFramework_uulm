@@ -44,6 +44,8 @@ namespace cgu {
         const GLTexture2D* diffuseTex;
         /** Holds the materials bump texture. */
         const GLTexture2D* bumpTex;
+        /** Holds the materials bump multiplier. */
+        float bumpMultiplier;
     private:
 
     };

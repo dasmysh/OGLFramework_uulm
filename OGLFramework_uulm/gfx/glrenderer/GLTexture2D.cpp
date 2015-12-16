@@ -47,8 +47,13 @@ namespace cgu {
         FIBITMAP* bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
         unsigned int width = FreeImage_GetWidth(bitmap32);
         unsigned int height = FreeImage_GetHeight(bitmap32);
+        unsigned int redMask = FreeImage_GetRedMask(bitmap32);
+        unsigned int greenMask = FreeImage_GetGreenMask(bitmap32);
+        unsigned int blueMask = FreeImage_GetBlueMask(bitmap32);
         void* data = FreeImage_GetBits(bitmap32);
-        TextureDescriptor texDesc(4, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
+        GLenum fmt = GL_RGBA;
+        if (redMask > greenMask && greenMask > blueMask) fmt = GL_BGRA;
+        TextureDescriptor texDesc(4, GL_RGBA8, fmt, GL_UNSIGNED_BYTE);
         texture = std::unique_ptr<GLTexture>(new GLTexture(width, height, texDesc, data));
         FreeImage_Unload(bitmap32);
         FreeImage_Unload(bitmap);

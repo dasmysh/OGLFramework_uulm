@@ -178,6 +178,28 @@ namespace cgu {
     }
 
     /**
+     *  Calculates the meshes normals.
+     */
+    void Mesh::CalculateNormals()
+    {
+        for (const auto& tc : triangleConnect) {
+            for (unsigned int vi0 = 0; vi0 < 3; ++vi0) {
+                unsigned int vi1 = (vi0 + 1) % 3;
+                unsigned int vi2 = (vi0 + 2) % 3;
+                glm::vec3 v0 = vertices[tc.vertex[vi1]].xyz - vertices[tc.vertex[vi0]].xyz;
+                glm::vec3 v1 = vertices[tc.vertex[vi2]].xyz - vertices[tc.vertex[vi0]].xyz;
+                faceVertices[tc.faceVertex[vi0]].normal += glm::cross(v0, v1);
+            }
+        }
+
+        for (auto& fv : faceVertices) {
+            fv.normal = glm::normalize(fv.normal);
+        }
+
+        faceHasNormal = true;
+    }
+
+    /**
      *  Creates the sub meshes bounding box.
      *  @param submesh the sub mesh to create the bounding box for.
      */

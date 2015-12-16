@@ -235,7 +235,7 @@ namespace cgu {
     }
 
     /**
-     * Returns the opengl location of the ubo with given name.
+     * Returns the OpenGL location of the ubo with given name.
      * @param uBufferName the uniform buffer name
      * @return the ubo location
      */
@@ -254,7 +254,7 @@ namespace cgu {
     }
 
     /**
-     * Sets a uniform with given opengl name/location (vec4 version)
+     * Sets a uniform with given OpenGL name/location (vec4 version)
      * @param name the location of the uniform
      * @param data the vec4 to set the uniform to
      */
@@ -264,7 +264,7 @@ namespace cgu {
     }
 
     /**
-     * Sets a uniform with given opengl name/location (float[] version)
+     * Sets a uniform with given OpenGL name/location (float[] version)
      * @param name the location of the uniform
      * @param data the float[] to set the uniform to
      */
@@ -274,7 +274,7 @@ namespace cgu {
     }
 
     /**
-     * Sets a uniform with given opengl name/location (int version)
+     * Sets a uniform with given OpenGL name/location (int version)
      * @param name the location of the uniform
      * @param data the int to set the uniform to
      */
@@ -284,7 +284,17 @@ namespace cgu {
     }
 
     /**
-    * Sets a uniform with given opengl name/location (int version)
+     * Sets a uniform with given OpenGL name/location (float version)
+     * @param name the location of the uniform
+     * @param data the float to set the uniform to
+     */
+    void GPUProgram::SetUniform(BindingLocation name, float data)
+    {
+        OGL_CALL(glUniform1f, name->iBinding, data);
+    }
+
+    /**
+    * Sets a uniform with given OpenGL name/location (int version)
     * @param name the location of the uniform
     * @param data the uint vector to set the uniform to
     */
@@ -327,7 +337,7 @@ namespace cgu {
     }
 
     /**
-    * Returns the opengl location of the ssbo with given name.
+    * Returns the OpenGL location of the ssbo with given name.
     * @param sBufferName the uniform buffer name
     * @return the ssbo location
     */
@@ -404,8 +414,8 @@ namespace cgu {
     {
         GLuint program = OGL_SCALL(glCreateProgram);
         if (program == 0) {
-            LOG(ERROR) << L"Could not create gpu program!";
-            throw std::runtime_error("Could not create gpu program!");
+            LOG(ERROR) << L"Could not create GPU program!";
+            throw std::runtime_error("Could not create GPU program!");
         }
         for (auto shader : shaders) {
             OGL_CALL(glAttachShader, program, shader);
