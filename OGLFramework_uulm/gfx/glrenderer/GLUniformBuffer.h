@@ -23,18 +23,18 @@ namespace cgu {
      */
     class GLUniformBuffer
     {
-    private:
-        /** Deleted copy constructor. */
-        GLUniformBuffer(const GLUniformBuffer& orig) : bindingPoints(orig.bindingPoints) {};
-        /** Deleted copy assignment operator. */
-        GLUniformBuffer& operator=(const GLUniformBuffer&) { return *this; };
-
     public:
-        GLUniformBuffer(const std::string& name, unsigned int size, ShaderBufferBindingPoints& bindings);
+        GLUniformBuffer(const std::string& name, unsigned int size, ShaderBufferBindingPoints* bindings);
+        GLUniformBuffer(const GLUniformBuffer&);
+        GLUniformBuffer& operator=(GLUniformBuffer);
+        GLUniformBuffer(GLUniformBuffer&&);
+        GLUniformBuffer& operator=(GLUniformBuffer&&);
         virtual ~GLUniformBuffer();
 
         void UploadData(unsigned int offset, unsigned int size, const void* data) const;
         void BindBuffer() const;
+        ShaderBufferBindingPoints* GetBindingPoints() { return bindingPoints; }
+        const std::string& GetUBOName() { return uboName; }
 
     private:
         /** holds the uniform buffer object. */
@@ -42,9 +42,11 @@ namespace cgu {
         /** Holds the size of the buffer. */
         unsigned int bufferSize;
         /** holds the uniform buffer binding points. */
-        ShaderBufferBindingPoints& bindingPoints;
+        ShaderBufferBindingPoints* bindingPoints;
         /** holds the buffer binding point. */
         GLuint bindingPoint;
+        /** Holds the uniform buffers name. */
+        std::string uboName;
 
     };
 }

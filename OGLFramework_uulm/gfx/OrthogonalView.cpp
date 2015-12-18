@@ -13,8 +13,7 @@
 namespace cgu {
     OrthogonalView::OrthogonalView(float width, float height, ShaderBufferBindingPoints* uniformBindingPoints)
     {
-        orthoUBO.reset(new GLUniformBuffer(orthoProjectionUBBName,
-            sizeof(OrthoProjectionBuffer), *uniformBindingPoints));
+        orthoUBO.reset(new GLUniformBuffer(orthoProjectionUBBName, sizeof(OrthoProjectionBuffer), uniformBindingPoints));
         Resize(width, height);
     }
 

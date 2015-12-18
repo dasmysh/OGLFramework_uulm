@@ -30,9 +30,9 @@ namespace cgu {
 
     private:
         /** Holds the action button flag to use. */
-        const unsigned int buttonDownFlag;
+        unsigned int buttonDownFlag;
         /** Holds the button flag to use. */
-        const unsigned int buttonFlag;
+        unsigned int buttonFlag;
         /** Holds whether the arcball is currently rotated. */
         bool arcballOn;
         /** holds the current arcball position in normalized device coordinates. */

@@ -10,8 +10,8 @@
 	<windowHeight>1209</windowHeight>
 	<pauseOnKillFocus>0</pauseOnKillFocus>
 	<resourceBase>resources</resourceBase>
-	<useCUDA>1</useCUDA>
-	<cudaDevice>0</cudaDevice>
+	<useCUDA>0</useCUDA>
+	<cudaDevice>-1</cudaDevice>
 </config>
 </boost_serialization>
 

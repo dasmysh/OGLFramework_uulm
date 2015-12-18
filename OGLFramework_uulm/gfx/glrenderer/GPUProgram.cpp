@@ -71,11 +71,14 @@ namespace cgu {
 
     void GPUProgram::Load()
     {
+        std::vector<std::string> progDefinition;
+        boost::split(progDefinition, id, boost::is_any_of(","));
         std::vector<std::string> programNames;
-        boost::split(programNames, id, boost::is_any_of("|"));
+        boost::split(programNames, progDefinition[0], boost::is_any_of("|"));
         std::vector<GLuint> shaders;
         for (auto& progName : programNames) {
             boost::trim(progName);
+            for (unsigned int i = 1; i < progDefinition.size(); ++i) progName += "," + progDefinition[i];
             // ignore exception and reload whole program
             shaders.push_back(application->GetShaderManager()->GetResource(progName)->shader);
         }
@@ -124,12 +127,15 @@ namespace cgu {
     /** Recompiles the program. */
     void GPUProgram::RecompileProgram()
     {
+        std::vector<std::string> progDefinition;
+        boost::split(progDefinition, id, boost::is_any_of(","));
         std::vector<std::string> programNames;
-        boost::split(programNames, id, boost::is_any_of("|"));
+        boost::split(programNames, progDefinition[0], boost::is_any_of("|"));
         std::vector<Shader*> shaders;
         std::vector<GLuint> newOGLShaders;
         for (auto& progName : programNames) {
             boost::trim(progName);
+            for (unsigned int i = 1; i < progDefinition.size(); ++i) progName += "," + progDefinition[i];
             shaders.push_back(application->GetShaderManager()->GetResource(progName));
         }
         newOGLShaders.resize(shaders.size(), 0);

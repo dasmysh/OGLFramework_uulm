@@ -75,7 +75,8 @@ namespace cgu {
         std::string strType;
 
         void UnloadLocal();
-        static GLuint CompileShader(const std::string& filename, GLenum type, const std::string& strType);
+        static GLuint CompileShader(const std::string& filename, const std::vector<std::string>& defines, GLenum type, const std::string& strType);
+        static std::string LoadShaderFile(const std::string& filename, const std::vector<std::string>& defines, unsigned int& fileId, unsigned int recursionDepth);
     };
 }
 

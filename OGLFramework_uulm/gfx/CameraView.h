@@ -34,20 +34,25 @@ namespace cgu {
     class CameraView
     {
     public:
-        CameraView(float fovY, float aspectRatio, float nearZ, float farZ, glm::vec3 camPos, ShaderBufferBindingPoints* uniformBindingPoints);
+        CameraView(unsigned int theButtonDownFlag, unsigned int theButtonFlag, float fovY, float aspectRatio, float nearZ,
+            float farZ, const glm::vec3& camPos, ShaderBufferBindingPoints* uniformBindingPoints);
+        CameraView(float fovY, float aspectRatio, float nearZ, float farZ, const glm::vec3& camPos, ShaderBufferBindingPoints* uniformBindingPoints);
+        CameraView(const CameraView&);
+        CameraView& operator=(CameraView);
+        CameraView(CameraView&&);
+        CameraView& operator=(CameraView&&);
         virtual ~CameraView();
-        CameraView(const CameraView&) = delete;
-        CameraView& operator=(const CameraView&) = delete;
 
         void Resize(float aspectRatio);
         bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, BaseGLWindow* sender);
         bool HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender);
         cguMath::Frustum<float> SetView(const glm::mat4& modelM) const;
         void UpdateCamera();
-        glm::mat4 GetViewMatrix() const { return view; }
+        const glm::mat4& GetViewMatrix() const { return view; }
         cguMath::Frustum<float> GetViewFrustum(const glm::mat4& modelM) const;
-        const glm::vec3 GetPosition() const { return camPos; }
+        const glm::vec3& GetPosition() const { return camPos; }
         float GetSignedDistanceToUnitAABB2(const glm::mat4& world) const;
+        float GetFOV() const { return fovY; }
 
     private:
         cguMath::Frustum<float> CalcViewFrustum(const glm::mat4& mvp) const;

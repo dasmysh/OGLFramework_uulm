@@ -127,7 +127,7 @@ namespace cgu {
 
         fontMetrics.reset(new GLUniformBuffer(fontMetricsUBBName,
             sizeof(glyph_metrics) * static_cast<unsigned int>(fm.chars.size()),
-            *application->GetUBOBindingPoints()));
+            application->GetUBOBindingPoints()));
         for (unsigned int i = 0; i < fm.chars.size(); ++i) {
             fontMetrics->UploadData(i * sizeof(glyph_metrics),
                 sizeof(glyph_metrics), &fm.chars[i].metrics);

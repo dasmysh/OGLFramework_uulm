@@ -15,6 +15,10 @@
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
 #include <codecvt>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/regex.hpp>
+#include <boost/filesystem.hpp>
 
 namespace cgu {
 
@@ -94,19 +98,21 @@ namespace cgu {
         type(GL_VERTEX_SHADER),
         strType("vertex")
     {
-        if (boost::ends_with(shaderFilename, ".fp")) {
+        std::vector<std::string> shaderDefinition;
+        boost::split(shaderDefinition, shaderFilename, boost::is_any_of(","));
+        if (boost::ends_with(shaderDefinition[0], ".fp")) {
             type = GL_FRAGMENT_SHADER;
             strType = "fragment";
-        } else if (boost::ends_with(shaderFilename, ".gp")) {
+        } else if (boost::ends_with(shaderDefinition[0], ".gp")) {
             type = GL_GEOMETRY_SHADER;
             strType = "geometry";
-        } else if (boost::ends_with(shaderFilename, ".tcp")) {
+        } else if (boost::ends_with(shaderDefinition[0], ".tcp")) {
             type = GL_TESS_CONTROL_SHADER;
             strType = "tesselation control";
-        } else if (boost::ends_with(shaderFilename, ".tep")) {
+        } else if (boost::ends_with(shaderDefinition[0], ".tep")) {
             type = GL_TESS_EVALUATION_SHADER;
             strType = "tesselation evaluation";
-        } else if (boost::ends_with(shaderFilename, ".cp")) {
+        } else if (boost::ends_with(shaderDefinition[0], ".cp")) {
             type = GL_COMPUTE_SHADER;
             strType = "compute";
         }
@@ -144,7 +150,7 @@ namespace cgu {
 
     void Shader::Load()
     {
-        shader = CompileShader(application->GetConfig().resourceBase + "/" + id, type, strType);
+        shader = RecompileShader();
         Resource::Load();
     }
 
@@ -168,7 +174,10 @@ namespace cgu {
      */
     GLuint Shader::RecompileShader()
     {
-        return CompileShader(application->GetConfig().resourceBase + "/" + id, type, strType);
+        std::vector<std::string> shaderDefinition;
+        boost::split(shaderDefinition, id, boost::is_any_of(","));
+        std::vector<std::string> defines(shaderDefinition.begin() + 1, shaderDefinition.end());
+        return CompileShader(application->GetConfig().resourceBase + "/" + shaderDefinition[0], defines, type, strType);
     }
 
     void Shader::UnloadLocal()
@@ -186,23 +195,113 @@ namespace cgu {
     }
 
     /**
+     *  Loads a shader from file and recursively adds all includes.
+     *  @param filename the name of the file to load.
+     *  @param defines the defines to add at the beginning.
+     *  @param fileId the id of the current file.
+     */
+    std::string Shader::LoadShaderFile(const std::string& filename, const std::vector<std::string>& defines, unsigned int& fileId, unsigned int recursionDepth)
+    {
+        if (recursionDepth > 32) {
+            LOG(ERROR) << L"Header inclusion depth limit reached! Cyclic header inclusion?";
+            throw std::runtime_error("Header inclusion depth limit reached! Cyclic header inclusion?");
+        }
+        boost::filesystem::path sdrFile{ filename };
+        std::string currentPath = sdrFile.parent_path().string() + "/";
+        std::ifstream file(filename.c_str(), std::ifstream::in);
+        std::string line;
+        std::stringstream content;
+        unsigned int lineCount = 1;
+        unsigned int nextFileId = fileId + 1;
+
+        while (file.good()) {
+            std::getline(file, line);
+            std::string trimedLine = line;
+            boost::trim(trimedLine);
+
+            static const boost::regex re("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
+            boost::smatch matches;
+            if (boost::regex_search(line, matches, re)) {
+                std::string includeFile = currentPath + matches[1];
+                if (!boost::filesystem::exists(includeFile)) {
+                    LOG(ERROR) << filename.c_str() << L"(" << lineCount << ") : fatal error: cannot open include file \"" << includeFile.c_str() << "\".";
+                    std::stringstream errorStr;
+                    errorStr << fileId << "(" << lineCount - 1 << ") : fatal error : cannot open include file \"" << includeFile.c_str() << "\"." << std::endl;
+                    throw shader_compiler_error(filename, errorStr.str());
+                }
+                content << "#line " << 1 << " " << nextFileId << std::endl;
+                content << LoadShaderFile(includeFile, std::vector<std::string>(), nextFileId, recursionDepth + 1);
+                content << "#line " << lineCount + 1 << " " << fileId << std::endl;
+            } else {
+                content << line << std::endl;
+            }
+
+            if (boost::starts_with(trimedLine, "#version")) {
+                for (auto& def : defines) {
+                    std::string trimedDefine = def;
+                    boost::trim(trimedDefine);
+                    content << "#define " << trimedDefine << std::endl;
+                }
+                content << "#line " << lineCount + 1 << " " << fileId << std::endl;
+            }
+            ++lineCount;
+        }
+
+        file.close();
+        fileId = nextFileId;
+        return content.str();
+    }
+
+    /**
      * Loads a shader from file and compiles it.
      * @param filename the shaders file name
      * @param type the shaders type
      * @param strType the shaders type as string
      * @return the compiled shader if successful
      */
-    GLuint Shader::CompileShader(const std::string& filename, GLenum type, const std::string& strType)
+    GLuint Shader::CompileShader(const std::string& filename, const std::vector<std::string>& defines, GLenum type, const std::string& strType)
     {
+        unsigned int firstFileId = 0;
+        if (!boost::filesystem::exists(filename)) {
+            LOG(ERROR) << "Cannot open shader file \"" << filename.c_str() << "\".";
+            throw std::runtime_error("Cannot open shader file.");
+        }
+        std::string shaderText = LoadShaderFile(filename, defines, firstFileId, 0);
+        /*boost::filesystem::path sdrFile{ filename };
+        std::string currentPath = sdrFile.parent_path().string() + "/";
         std::ifstream file(filename.c_str(), std::ifstream::in);
         std::string line;
         std::stringstream content;
+
+        unsigned int mainFileLineCount = 1;
+        unsigned int fileId = 0;
+
         while (file.good()) {
             std::getline(file, line);
-            content << line << std::endl;
+            std::string trimedLine = line;
+            boost::trim(trimedLine);
+
+            static const boost::regex re("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
+            boost::smatch matches;
+            if (boost::regex_search(line, matches, re)) {
+                std::string includeFile = currentPath + matches[1];
+                content << LoadShaderFile(includeFile, );
+            } else {
+                content << line << std::endl;
+            }
+
+            if (boost::starts_with(trimedLine, "#version")) {
+                for (auto& def : defines) {
+                    boost::trim(def);
+                    content << "#define " << def << std::endl;
+                }
+                content << "#line " << mainFileLineCount << " " << fileId << std::endl;
+            }
+            ++mainFileLineCount;
         }
+
         file.close();
-        std::string shaderText = content.str();
+        std::string shaderText = content.str();*/
         GLuint shader = OGL_CALL(glCreateShader, type);
         if (shader == 0) {
             LOG(ERROR) << L"Could not create shader!";

@@ -28,7 +28,7 @@ namespace cgu {
         draggingSelection(false),
         lastButtonAction(0),
         tfProgram(nullptr),
-        orthoUBO(new GLUniformBuffer("tfOrthoProjection", sizeof(OrthoProjectionBuffer), *app->GetUBOBindingPoints())),
+        orthoUBO(new GLUniformBuffer("tfOrthoProjection", sizeof(OrthoProjectionBuffer), app->GetUBOBindingPoints())),
         tfVBO(0)
     {
         screenAlignedProg = app->GetGPUProgramManager()->GetResource("tfRenderGUI.vp|tfRenderGUI.fp");

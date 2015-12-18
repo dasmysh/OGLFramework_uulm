@@ -104,20 +104,6 @@ namespace cgu {
         std::swap(iBuffers, orig.iBuffers);
         std::swap(program, orig.program);
         std::swap(attribBinds, orig.attribBinds);
-
-        /*if (this != &orig) {
-            this->~MeshRenderable();
-
-            OGL_CALL(glDeleteBuffers, 1, &vBuffer);
-            OGL_CALL(glDeleteBuffers, static_cast<GLsizei>(iBuffers.size()), &iBuffers[0]);
-            mesh = orig.mesh;
-            vBuffer = orig.vBuffer;
-            iBuffer = orig.iBuffer;
-            iBuffers = std::move(orig.iBuffers);
-            orig.mesh = nullptr;
-            orig.vBuffer = 0;
-            orig.iBuffer = 0;
-        }*/
         return *this;
     }
 
@@ -142,23 +128,6 @@ namespace cgu {
         }
         return *this;
     }
-
-    /*void MeshRenderable::FillVertexAttributeBindings(GPUProgram& program,
-        VertexAttributeBindings& bindings) const
-    {
-        assert(bindings.size() == 0);
-        std::vector<BindingLocation> shaderPositions =
-            program.GetAttributeLocations(boost::assign::list_of<std::string>("pos")("tex")("normal"));
-
-        OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
-        bindings.push_back(program.CreateVertexAttributeArray(vBuffer, iBuffer));
-        GenerateVertexAttribute(bindings.back(), mesh, shaderPositions);
-        for (unsigned int idx = 0; idx < mesh->subMeshes.size(); ++idx) {
-            bindings.push_back(program.CreateVertexAttributeArray(vBuffer, iBuffers[idx]));
-            GenerateVertexAttribute(bindings.back(), mesh->subMeshes[idx], shaderPositions);
-        }
-        OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
-    }*/
 
     void MeshRenderable::FillMeshAttributeBindings()
     {
