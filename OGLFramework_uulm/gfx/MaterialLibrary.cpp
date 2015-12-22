@@ -86,9 +86,9 @@ namespace cgu {
             } else if (boost::regex_match(currLine, lineMatch, reg_Ni) && currMat) {
                 currMat->N_i = boost::lexical_cast<float>(lineMatch[1].str());
             } else if (boost::regex_match(currLine, lineMatch, reg_map_Kd) && currMat) {
-                currMat->diffuseTex = parseTexture(lineMatch[2].str());
+                currMat->diffuseTex = parseTexture(lineMatch[2].str(), "sRGB");
             } else if (boost::regex_match(currLine, lineMatch, reg_map_bump) && currMat) {
-                currMat->bumpTex = parseTexture(lineMatch[3].str());
+                currMat->bumpTex = parseTexture(lineMatch[3].str(), "");
                 currMat->bumpMultiplier = parseFloatParameter("-bm", lineMatch[2].str(), 1.0f);
             } else {
                 notImplemented(currLine);
@@ -164,10 +164,10 @@ namespace cgu {
      * @param matches the regex matcher for the texture lines
      * @return the loaded texture
      */
-    const GLTexture2D* MaterialLibrary::parseTexture(const std::string& matches) const
+    const GLTexture2D* MaterialLibrary::parseTexture(const std::string& matches, const std::string& params) const
     {
         boost::filesystem::path mtlFile{ id };
-        std::string texFilename = mtlFile.parent_path().string() + "/" + matches;
+        std::string texFilename = mtlFile.parent_path().string() + "/" + matches + (params.size() > 0 ? "," + params : "");
         return application->GetTextureManager()->GetResource(texFilename);
     }
 

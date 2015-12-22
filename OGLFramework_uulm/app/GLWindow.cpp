@@ -274,19 +274,22 @@ namespace cgu {
         }
 
         unsigned int nPixCount = 0;
+        int pixAttribs[64];
+        int index = 0;
         // Specify the important attributes we care about
-        int pixAttribs[] = {
-            WGL_SUPPORT_OPENGL_ARB, 1, // Must support OGL rendering
-            WGL_DRAW_TO_WINDOW_ARB, 1, // pf that can run a window
-            WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB, // must be HW accelerated
-            WGL_COLOR_BITS_ARB, 24, // 8 bits of each R, G and B
-            WGL_DEPTH_BITS_ARB, 16, // 16 bits of depth precision for window
-            WGL_DOUBLE_BUFFER_ARB, GL_TRUE, // Double buffered context
-            WGL_SAMPLE_BUFFERS_ARB, GL_TRUE, // MSAA on
-            WGL_SAMPLES_ARB, 8, // 8x MSAA
-            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB, // pf should be RGBA type
-            0 // NULL termination
-        };
+        pixAttribs[index++] = WGL_SUPPORT_OPENGL_ARB; pixAttribs[index++] = 1; // Must support OGL rendering
+        pixAttribs[index++] = WGL_DRAW_TO_WINDOW_ARB; pixAttribs[index++] = 1; // pf that can run a window
+        pixAttribs[index++] = WGL_ACCELERATION_ARB; pixAttribs[index++] = WGL_FULL_ACCELERATION_ARB; // must be HW accelerated
+        pixAttribs[index++] = WGL_COLOR_BITS_ARB; pixAttribs[index++] = 24; // 8 bits of each R, G and B
+        pixAttribs[index++] = WGL_DEPTH_BITS_ARB; pixAttribs[index++] = 16; // 16 bits of depth precision for window
+        pixAttribs[index++] = WGL_DOUBLE_BUFFER_ARB; pixAttribs[index++] = GL_TRUE; // Double buffered context
+        pixAttribs[index++] = WGL_SAMPLE_BUFFERS_ARB; pixAttribs[index++] = GL_TRUE; // MSAA on
+        pixAttribs[index++] = WGL_SAMPLES_ARB; pixAttribs[index++] = 8; // 8x MSAA
+        pixAttribs[index++] = WGL_PIXEL_TYPE_ARB; pixAttribs[index++] = WGL_TYPE_RGBA_ARB; // pf should be RGBA type
+        if (config.useSRGB) {
+            pixAttribs[index++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB; pixAttribs[index++] = GL_TRUE;
+        }
+        pixAttribs[index++] = 0; // NULL termination
         // Ask OpenGL to find the most relevant format matching our attribs
         // Only get one format back.
         int nPF;
@@ -365,6 +368,10 @@ namespace cgu {
 
         if (!GLEW_ARB_vertex_array_object) {
             LOG(WARNING) << L"VAOs not supported ...";
+        }
+
+        if (config.useSRGB) {
+            glEnable(GL_FRAMEBUFFER_SRGB);
         }
     }
 

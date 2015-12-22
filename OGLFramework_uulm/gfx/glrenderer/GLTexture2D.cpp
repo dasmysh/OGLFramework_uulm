@@ -10,6 +10,8 @@
 #include "GLTexture.h"
 #include <GL/gl.h>
 #include <FreeImage.h>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include "app/ApplicationBase.h"
 #include "app/Configuration.h"
@@ -33,7 +35,10 @@ namespace cgu {
 
     void GLTexture2D::Load()
     {
-        std::string filename = application->GetConfig().resourceBase + "/" + id;
+        std::vector<std::string> fileOptions;
+        boost::split(fileOptions, id, boost::is_any_of(","));
+        boost::trim(fileOptions[0]);
+        std::string filename = application->GetConfig().resourceBase + "/" + fileOptions[0];
         FREE_IMAGE_FORMAT format = FreeImage_GetFileType(filename.c_str());
         int flags = 0;
 
@@ -53,7 +58,12 @@ namespace cgu {
         void* data = FreeImage_GetBits(bitmap32);
         GLenum fmt = GL_RGBA;
         if (redMask > greenMask && greenMask > blueMask) fmt = GL_BGRA;
-        TextureDescriptor texDesc(4, GL_RGBA8, fmt, GL_UNSIGNED_BYTE);
+        GLint internalFmt = GL_RGBA8;
+        for (unsigned int i = 1; i < fileOptions.size(); ++i) {
+            boost::trim(fileOptions[i]);
+            if (fileOptions[i] == "sRGB" && application->GetConfig().useSRGB) internalFmt = GL_SRGB8_ALPHA8;
+        }
+        TextureDescriptor texDesc(4, internalFmt, fmt, GL_UNSIGNED_BYTE);
         texture = std::unique_ptr<GLTexture>(new GLTexture(width, height, texDesc, data));
         FreeImage_Unload(bitmap32);
         FreeImage_Unload(bitmap);

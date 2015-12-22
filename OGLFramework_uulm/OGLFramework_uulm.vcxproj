@@ -52,12 +52,12 @@
     <ClCompile Include="gfx\glrenderer\GPUProgram.cpp" />
     <ClCompile Include="gfx\glrenderer\GUIRenderable.cpp" />
     <ClCompile Include="gfx\glrenderer\MeshRenderable.cpp" />
+    <ClCompile Include="gfx\glrenderer\ScreenQuadRenderable.cpp" />
     <ClCompile Include="gfx\glrenderer\ScreenText.cpp" />
     <ClCompile Include="gfx\glrenderer\Shader.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderBufferBindingPoints.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderBufferObject.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderMeshAttributes.cpp" />
-    <ClCompile Include="gfx\glrenderer\SimpleQuadRenderable.cpp" />
     <ClCompile Include="gfx\Material.cpp" />
     <ClCompile Include="gfx\MaterialLibrary.cpp" />
     <ClCompile Include="gfx\Mesh.cpp" />
@@ -122,12 +122,12 @@
     <ClInclude Include="gfx\glrenderer\GPUProgram.h" />
     <ClInclude Include="gfx\glrenderer\GUIRenderable.h" />
     <ClInclude Include="gfx\glrenderer\MeshRenderable.h" />
+    <ClInclude Include="gfx\glrenderer\ScreenQuadRenderable.h" />
     <ClInclude Include="gfx\glrenderer\ScreenText.h" />
     <ClInclude Include="gfx\glrenderer\Shader.h" />
     <ClInclude Include="gfx\glrenderer\ShaderBufferBindingPoints.h" />
     <ClInclude Include="gfx\glrenderer\ShaderBufferObject.h" />
     <ClInclude Include="gfx\glrenderer\ShaderMeshAttributes.h" />
-    <ClInclude Include="gfx\glrenderer\SimpleQuadRenderable.h" />
     <ClInclude Include="gfx\Material.h" />
     <ClInclude Include="gfx\MaterialLibrary.h" />
     <ClInclude Include="gfx\Mesh.h" />

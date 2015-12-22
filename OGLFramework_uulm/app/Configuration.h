@@ -45,7 +45,9 @@ namespace cgu {
         int windowWidth;
         /** Holds the windows height. */
         int windowHeight;
-        /** Holds if the application should pause on focus loss. */
+        /** Holds whether the back buffer should use sRGB. */
+        bool useSRGB;
+        /** Holds whether the application should pause on focus loss. */
         bool pauseOnKillFocus;
         /** Holds the resource base directory. */
         std::string resourceBase;
@@ -73,6 +75,9 @@ namespace cgu {
             ar & BOOST_SERIALIZATION_NVP(windowTop);
             ar & BOOST_SERIALIZATION_NVP(windowWidth);
             ar & BOOST_SERIALIZATION_NVP(windowHeight);
+            if (version >= 4) {
+                ar & BOOST_SERIALIZATION_NVP(useSRGB);
+            }
             if (version >= 3) {
                 ar & BOOST_SERIALIZATION_NVP(pauseOnKillFocus);
             }
@@ -87,6 +92,6 @@ namespace cgu {
     };
 }
 
-BOOST_CLASS_VERSION(cgu::Configuration, 3)
+BOOST_CLASS_VERSION(cgu::Configuration, 4)
 
 #endif /* CONFIGURATION_H */

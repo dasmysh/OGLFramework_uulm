@@ -117,8 +117,12 @@ log_ogl_err(__FILE__, __LINE__, __func__, OGL_FUNCTION_STR(call))
 namespace cgu {
     class GLVertexAttributeArray;
     class Material;
+    struct shader_binding_desc;
+
     /** The type for a list of vertex arrays. */
     typedef std::vector<GLVertexAttributeArray*> VertexAttributeBindings;
+    /** The location of a general shader binding point. */
+    typedef shader_binding_desc* BindingLocation;
 }
 
 static const unsigned int VK_NUMRETURN  = 0x100;

@@ -18,10 +18,11 @@ namespace cgu {
         windowTop(0),
         windowWidth(800),
         windowHeight(600),
+        useSRGB(false),
+        pauseOnKillFocus(false),
         resourceBase("resources"),
         useCUDA(true),
-        cudaDevice(-1),
-        pauseOnKillFocus(false)
+        cudaDevice(-1)
     {
     }
 
@@ -39,7 +40,7 @@ namespace cgu {
     std::ostream & operator<<(std::ostream &os, const Configuration &config)
     {
         return os << config.fullscreen << config.backbufferBits << config.windowLeft << config.windowTop
-            << config.windowWidth << config.windowHeight << config.pauseOnKillFocus << config.resourceBase
-            << config.useCUDA << config.cudaDevice;
+            << config.windowWidth << config.windowHeight << config.useSRGB << config.pauseOnKillFocus
+            << config.resourceBase << config.useCUDA << config.cudaDevice;
     }
 }
