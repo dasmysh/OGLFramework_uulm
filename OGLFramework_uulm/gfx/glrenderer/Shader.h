@@ -1,7 +1,7 @@
 /**
  * @file   Shader.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
+ * @date   2014.01.15
  *
  * @brief  Contains the definition of Shader.
  */
@@ -12,12 +12,29 @@
 #include "main.h"
 
 namespace cgu {
+
     class GPUProgram;
+
+    using compiler_error_info = boost::error_info<struct tag_compiler_error, std::string>;
+    using fileid_info = boost::error_info<struct tag_fileid, unsigned int>;
+    using lineno_info = boost::error_info<struct tag_lineno, unsigned int>;
 
     /**
      * Exception class for shader compiler errors.
      */
-    class shader_compiler_error : public std::exception
+    struct shader_compiler_error : virtual resource_loading_error { };
+    /*class shader_compiler_error : public virtual resource_loading_error
+    {
+    public:
+        shader_compiler_error() : resource_loading_error() {}
+        shader_compiler_error(const shader_compiler_error&) = default;
+        shader_compiler_error operator=(const shader_compiler_error&) = delete;
+        shader_compiler_error(shader_compiler_error&& rhs) : resource_loading_error(std::move(rhs)) {}
+        shader_compiler_error operator=(shader_compiler_error&&) = delete;
+        virtual ~shader_compiler_error() = default;
+    };*/
+
+    /*class shader_compiler_error : public std::exception
     {
     public:
         shader_compiler_error(const std::string& shader, const std::string& errors);
@@ -25,44 +42,38 @@ namespace cgu {
         shader_compiler_error& operator=(const shader_compiler_error&);
         shader_compiler_error(shader_compiler_error&&);
         shader_compiler_error& operator=(shader_compiler_error&&);
-        virtual const char* what() const;
+        virtual const char* what() const override;
 
-    private:
+    private:/*
         /** Holds the shader name. */
-        std::unique_ptr<char[]> shr;
+        //std::unique_ptr<char[]> shr;
         /** Holds the errors. */
-        std::unique_ptr<char[]> errs;
+        //std::unique_ptr<char[]> errs;
         /** holds the error message. */
-        std::unique_ptr<char[]> myWhat;
-    };
+        //std::unique_ptr<char[]> myWhat;
+    //};
 
     /**
      * @brief  The resource type for shaders.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   15. Januar 2014
+     * @date   2014.01.15
      */
     class Shader : public Resource
     {
-    private:
-        /** Deleted copy constructor. */
-        Shader(const Shader& orig) : Resource(orig) {};
-        /** Deleted copy assignment operator. */
-        Shader& operator=(const Shader&) {};
-
     public:
         Shader(const std::string& shaderFilename, ApplicationBase* app);
+        Shader(const Shader&);
+        Shader& operator=(const Shader&);
+        Shader(Shader&&);
+        Shader& operator=(Shader&&);
         virtual ~Shader();
-        /** Move constructor. */
-        Shader(Shader&& orig);
-        /** Move assignment operator. */
-        Shader& operator=(Shader&& orig);
 
-        virtual void Load() override;
-        virtual void Unload() override;
+        void Load() override;
+        void Unload() override;
         void ResetShader(GLuint newShader);
 
-        GLuint RecompileShader();
+        GLuint RecompileShader() const;
 
     private:
         friend GPUProgram;
@@ -75,8 +86,8 @@ namespace cgu {
         std::string strType;
 
         void UnloadLocal();
-        static GLuint CompileShader(const std::string& filename, const std::vector<std::string>& defines, GLenum type, const std::string& strType);
-        static std::string LoadShaderFile(const std::string& filename, const std::vector<std::string>& defines, unsigned int& fileId, unsigned int recursionDepth);
+        GLuint CompileShader(const std::string& filename, const std::vector<std::string>& defines, GLenum type, const std::string& strType) const;
+        std::string LoadShaderFile(const std::string& filename, const std::vector<std::string>& defines, unsigned int& fileId, unsigned int recursionDepth) const;
     };
 }
 

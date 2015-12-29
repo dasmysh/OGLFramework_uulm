@@ -1,7 +1,7 @@
 /**
  * @file   Font.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   6. Februar 2014
+ * @date   2014.02.06
  *
  * @brief  Contains the implementation of Font.
  */
@@ -12,6 +12,7 @@
 
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/filesystem.hpp>
 
 #include "../../core/boost_helper.h"
 #include "app/ApplicationBase.h"
@@ -24,7 +25,7 @@ namespace cgu {
     /**
      * Constructor.
      * @param fontName the name of the font to load
-     * @param uniformBufferBindingPoints the ubo binding points
+     * @param uniformBufferBindingPoints the UBO binding points
      */
     Font::Font(const std::string& fontName, ApplicationBase* app) :
         Resource(fontName, app),
@@ -36,11 +37,32 @@ namespace cgu {
         fm.sizeNormalization = 1.0f;
     }
 
+    /** Destructor. */
     Font::~Font()
     {
         if (IsLoaded()) UnloadLocal();
     }
 
+    /** Copy constructor. */
+    Font::Font(const Font& rhs) : Font(rhs.id, rhs.application)
+    {
+        if (rhs.IsLoaded()) Font::Load();
+    }
+
+    /** Copy assignment operator. */
+    Font& Font::operator=(const Font& rhs)
+    {
+        Resource* tRes = this;
+        *tRes = static_cast<const Resource&>(rhs);
+        Font tmp{ rhs };
+        std::swap(fontPages, tmp.fontPages);
+        std::swap(fm, tmp.fm);
+        std::swap(fontMetrics, tmp.fontMetrics);
+        std::swap(fontMetricsBindingPoint, tmp.fontMetricsBindingPoint);
+        return *this;
+    }
+
+    /** Move constructor. */
     Font::Font(Font&& orig) :
         Resource(std::move(orig)),
         fontPages(std::move(orig.fontPages)),
@@ -50,7 +72,8 @@ namespace cgu {
     {
     }
 
-    Font& Font::operator =(Font&& orig)
+    /** Move assignment operator. */
+    Font& Font::operator=(Font&& orig)
     {
         Resource* tRes = this;
         *tRes = static_cast<Resource&&> (std::move(orig));
@@ -68,10 +91,17 @@ namespace cgu {
         using boost::property_tree::ptree;
         ptree pt;
 
-        boost::property_tree::read_xml(application->GetConfig().resourceBase + "/" + id + ".fnt", pt);
+        auto filename = application->GetConfig().resourceBase + "/" + GetParameters()[0] + ".fnt";
+        if (!boost::filesystem::exists(filename)) {
+            LOG(ERROR) << L"File \"" << filename.c_str() << L"\" does not exist.";
+            throw resource_loading_error() << ::boost::errinfo_file_name(filename) << resid_info(id)
+                << errdesc_info("Cannot open file.");
+        }
+
+        boost::property_tree::read_xml(filename, pt);
         unsigned int texWidth = 0, texHeight = 0;
-        float fTexWidth = 0.0f, fTexHeight = 0.0f;
-        float fontSize = 0.0f;
+        auto fTexWidth = 0.0f, fTexHeight = 0.0f;
+        auto fontSize = 0.0f;
 
         FloatTranslator ft;
         for (const ptree::value_type& v : pt.get_child("font")) {
@@ -120,9 +150,9 @@ namespace cgu {
         TextureDescriptor texDesc(4, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
         fontPages.reset(new GLTexture(texWidth, texHeight, static_cast<unsigned int>(fm.pages.size()), texDesc));
 
-        for (const font_page& page : fm.pages) {
-            std::string filename = application->GetConfig().resourceBase + "/" + page.filename;
-            fontPages->AddTextureToArray(filename, page.id);
+        for (const auto& page : fm.pages) {
+            auto texFilename = application->GetConfig().resourceBase + "/" + page.filename;
+            fontPages->AddTextureToArray(texFilename, page.id);
         }
 
         fontMetrics.reset(new GLUniformBuffer(fontMetricsUBBName,
@@ -141,7 +171,7 @@ namespace cgu {
      * @param character the character to get the id for
      * @return the characters id
      */
-    unsigned int Font::GetCharacterId(char character) const
+    unsigned int Font::GetCharacterId(char character)
     {
         if (character < ' ' || character > '~') {
             return 0;

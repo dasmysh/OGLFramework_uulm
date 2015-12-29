@@ -7,6 +7,12 @@
 */
 
 #include "Resource.h"
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/regex.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 namespace cgu {
     /**
@@ -15,27 +21,17 @@ namespace cgu {
      * @param app the application object for dependencies
      */
     Resource::Resource(const std::string& resourceId, ApplicationBase* app) :
-        id(resourceId),
+        id(GetNormalizedResourceId(resourceId)),
         application(app),
         loaded(false)
     {
     };
 
     /** Default copy constructor. */
-    Resource::Resource(const Resource& orig) :
-        id(orig.id),
-        application(orig.application)
-    {
-        if (orig.loaded) Load();
-    }
+    Resource::Resource(const Resource&) = default;
 
     /** Default assignment operator. */
-    Resource& Resource::operator=(const Resource& orig)
-    {
-        id = orig.id;
-        application = orig.application;
-        return *this;
-    }
+    Resource& Resource::operator=(const Resource&) = default;
 
     /** Move constructor. */
     Resource::Resource(Resource&& orig) :
@@ -61,10 +57,7 @@ namespace cgu {
         return *this;
     };
 
-    Resource::~Resource()
-    {
-        if (loaded) this->Unload();
-    };
+    Resource::~Resource() = default;
 
     /**
     * Accessor to the resources id.
@@ -96,8 +89,53 @@ namespace cgu {
     * Checks if the resource is loaded.
     * @return <code>true</code> if resource is currently loaded
     */
-    bool Resource::IsLoaded()
+    bool Resource::IsLoaded() const
     {
         return loaded;
+    }
+
+    /**
+     *  Returns the normalized resource id (no global parameters).
+     *  @param the resource id.
+     *  @return the normalized resource id.
+     */
+    std::string Resource::GetNormalizedResourceId(const std::string& resId)
+    {
+        std::vector<std::string> subresourcesAndGlobalParams;
+        boost::split_regex(subresourcesAndGlobalParams, resId, boost::regex("\\|,"));
+        for (auto& sr : subresourcesAndGlobalParams) boost::trim(sr);
+
+        SubResourceList subresources;
+        boost::split(subresources, subresourcesAndGlobalParams[0], boost::is_any_of("|"));
+        for (auto& sr : subresources) {
+            boost::trim(sr);
+            if (subresourcesAndGlobalParams.size() > 1) sr += "," + subresourcesAndGlobalParams[1];
+        }
+        return boost::join(subresources, "|");
+    }
+
+    /**
+     *  Returns the list of sub-resources.
+     *  @return a list of sub-resource ids.
+     */
+    Resource::SubResourceList Resource::GetSubresources() const
+    {
+        SubResourceList subresources;
+        boost::split(subresources, id, boost::is_any_of("|"));
+        for (auto& sr : subresources) boost::trim(sr);
+        return subresources;
+    }
+
+    /**
+     *  Returns a list of parameters for this resource.
+     *  @return a list of parameter strings.
+     */
+    Resource::ParameterList Resource::GetParameters() const
+    {
+        assert(GetSubresources().size() == 1);
+        ParameterList parameters;
+        boost::split(parameters, id, boost::is_any_of(","));
+        for (auto& param : parameters) boost::trim(param);
+        return parameters;
     }
 }

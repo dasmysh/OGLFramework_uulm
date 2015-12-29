@@ -1,7 +1,7 @@
 /**
  * @file   Mesh.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   13. Januar 2014
+ * @date   2014.01.13
  *
  * @brief  Contains the implementation of the Mesh class.
  */
@@ -21,6 +21,46 @@
 
 
 namespace cgu {
+
+    /** Default constructor. */
+    Mesh::Mesh() : SubMesh() {}
+
+    /** Default move constructor. */
+    Mesh::Mesh(Mesh&& rhs) :
+        SubMesh(std::move(rhs)),
+        vertices(std::move(rhs.vertices)),
+        texCoords(std::move(rhs.texCoords)),
+        normals(std::move(rhs.normals)),
+        paramVertices(std::move(rhs.paramVertices)),
+        lineVertices(std::move(rhs.lineVertices)),
+        faceVertices(std::move(rhs.faceVertices)),
+        subMeshMap(std::move(rhs.subMeshMap)),
+        subMeshes(std::move(rhs.subMeshes)),
+        triangleConnect(std::move(rhs.triangleConnect)),
+        verticesConnect(std::move(rhs.verticesConnect))
+    {
+    }
+
+    /** Default move assignment operator. */
+    Mesh& Mesh::operator=(Mesh&& rhs)
+    {
+        SubMesh* tMesh = this;
+        *tMesh = static_cast<SubMesh&&>(std::move(rhs));
+        vertices = std::move(rhs.vertices);
+        texCoords = std::move(rhs.texCoords);
+        normals = std::move(rhs.normals);
+        paramVertices = std::move(rhs.paramVertices);
+        lineVertices = std::move(rhs.lineVertices);
+        faceVertices = std::move(rhs.faceVertices);
+        subMeshMap = std::move(rhs.subMeshMap);
+        subMeshes = std::move(rhs.subMeshes);
+        triangleConnect = std::move(rhs.triangleConnect);
+        verticesConnect = std::move(rhs.verticesConnect);
+        return *this;
+    }
+
+    /** Default destructor. */
+    Mesh::~Mesh() = default;
 
     /**
      * Creates a new SubMesh in the mesh.
@@ -169,9 +209,9 @@ namespace cgu {
                 // this triangle is the triangle itself not its neighbor
                 assert(isect.size() <= 2); // both this triangle and the neighbor should be found
                 if (isect.size() == 2) {
-                    tri.neighbours[ni] = isect[0] == i ? isect[1] : isect[0];
+                    tri.neighbors[ni] = isect[0] == i ? isect[1] : isect[0];
                 } else {
-                    tri.neighbours[ni] = -1;
+                    tri.neighbors[ni] = -1;
                 }
             }
         }

@@ -1,48 +1,36 @@
 /**
  * @file   FontManager.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   24. Februar 2014
+ * @date   2014.02.24
  *
  * @brief  Contains the implementation of FontManager.
  */
 
 #include "FontManager.h"
 #include "app/ApplicationBase.h"
-#include "gfx/glrenderer/GLTexture.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 
 namespace cgu {
 
+    /**
+     * Constructor.
+     * @param app the application object for resolving dependencies.
+     */
     FontManager::FontManager(ApplicationBase* app) :
-        application(app),
-        fonts()
+        ResourceManagerBase(app)
     {
     }
 
-    FontManager::~FontManager()
+    /** Default move constructor. */
+    FontManager::FontManager(FontManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
+
+    /** Default move assignment operator. */
+    FontManager& FontManager::operator=(FontManager&& rhs)
     {
+        ResourceManagerBase* tResMan = this;
+        *tResMan = static_cast<ResourceManagerBase&&>(std::move(rhs));
+        return *this;
     }
 
-    FontManager::FontType* FontManager::GetResource(const std::string& resId)
-    {
-        try {
-            return fonts.at(resId).get();
-        }
-        catch (std::out_of_range e) {
-            LOG(INFO) << L"No resource with id \"" << resId << L"\" found. Creating new one.";
-            std::unique_ptr<FontType> fontPtr(new FontType(resId, application));
-            FontType* fontRawPtr = fontPtr.get();
-            fontPtr->Load();
-            fonts.insert(std::make_pair(resId, std::move(fontPtr)));
-            return fontRawPtr;
-        }
-    }
-
-    bool FontManager::HasResource(const std::string& resId)
-    {
-        auto got = fonts.find(resId);
-        if (got == fonts.end())
-            return false;
-        return true;
-    }
+    /** Default destructor. */
+    FontManager::~FontManager() = default;
 }

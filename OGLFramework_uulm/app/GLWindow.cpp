@@ -12,7 +12,6 @@
 #include "GLWindow.h"
 #include "gfx/glrenderer/FrameBuffer.h"
 #include "ApplicationBase.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 
 #include <cuda_runtime_api.h>
 #include <cuda_gl_interop.h>
@@ -290,10 +289,10 @@ namespace cgu {
             pixAttribs[index++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB; pixAttribs[index++] = GL_TRUE;
         }
         pixAttribs[index++] = 0; // NULL termination
-        // Ask OpenGL to find the most relevant format matching our attribs
+        // Ask OpenGL to find the most relevant format matching our pixAttribs
         // Only get one format back.
         int nPF;
-        if (FALSE == wglChoosePixelFormatARB(hDC, pixAttribs, NULL, 1, &nPF, &nPixCount) || nPF == -1) {
+        if (FALSE == wglChoosePixelFormatARB(hDC, pixAttribs, nullptr, 1, &nPF, &nPixCount) || nPF == -1) {
             this->ReleaseOpenGL();
             LOG(ERROR) << L"Can't find a suitable PixelFormat.";
             throw std::runtime_error("Can't find a suitable PixelFormat.");

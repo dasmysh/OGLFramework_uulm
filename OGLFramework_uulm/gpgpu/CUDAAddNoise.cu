@@ -15,11 +15,11 @@
 #include <glm/glm.hpp>
 
 #pragma warning (disable : 4505)
+#define __CUDACC__
 #include <curand_kernel.h>
+#include <device_launch_parameters.h>
+#include <device_functions.h>
 #pragma warning (default : 4505)
-
-#include <stdio.h>
-
 
 namespace cgu {
     namespace gpgpu {
@@ -46,7 +46,7 @@ namespace cgu {
             dim3 blocks(static_cast<unsigned int>(grid->GetDimensions().y),
                 static_cast<unsigned int>(grid->GetDimensions().z));
             dim3 threads(static_cast<unsigned int>(grid->GetDimensions().x));
-            initKernel << <blocks, threads >> >(grid->GetDimensions(), grid->GetGridPtr(), seed, resolution, strength, color);
+            initKernel<<<blocks, threads >>>(grid->GetDimensions(), grid->GetGridPtr(), seed, resolution, strength, color);
             CudaCheckError();
         }
 

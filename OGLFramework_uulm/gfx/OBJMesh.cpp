@@ -1,7 +1,7 @@
 /**
  * @file   OBJMesh.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   8. Januar 2014
+ * @date   2014.01.08
  *
  * @brief  Contains the implementation of OBJMesh.
  */
@@ -10,12 +10,9 @@
 #include "OBJMesh.h"
 #include "app/ApplicationBase.h"
 #include "app/Configuration.h"
-#include "gfx/glrenderer/GLTexture.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 
 #include <fstream>
 #include <codecvt>
-#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
@@ -23,53 +20,53 @@
 
 namespace cgu {
 
-    /** Regex string for a lines vertex index. */
+    /** RegEx string for a lines vertex index. */
     const std::string regstr_lindex = "\\s+(" + regex_help::integ
         + "(/" + regex_help::integ + ")?)";
-    /** Regex string for a faces vertex index. */
+    /** RegEx string for a faces vertex index. */
     const std::string regstr_findex = "\\s+(" + regex_help::integ
         + "(/" + regex_help::integ + "?/" + regex_help::integ + "|/" + regex_help::integ + ")?)";
-    /** Regex string for a vertex index list. */
+    /** RegEx string for a vertex index list. */
     const std::string regstr_vlist = "(\\s+" + regex_help::integ + ")+";
-    /** Regex string for a faces index list. */
+    /** RegEx string for a faces index list. */
     const std::string regstr_fidxlist = "(" + regstr_findex + ")+";
 
-    /** Regex for parsing the <code>o</code> statement. */
+    /** RegEx for parsing the <code>o</code> statement. */
     const boost::regex reg_o("^o\\s+(\\w+)$");
 
-    /** Regex for parsing the <code>v</code> statement. */
+    /** RegEx for parsing the <code>v</code> statement. */
     const boost::regex reg_v("^v\\s+(" + regex_help::flt3 + "|" + regex_help::flt4 + ")$");
-    /** Regex for parsing the <code>vt</code> statement. */
+    /** RegEx for parsing the <code>vt</code> statement. */
     const boost::regex reg_vt("^vt\\s+(" + regex_help::flt2 + "|" + regex_help::flt3 + ")$");
-    /** Regex for parsing the <code>vn</code> statement. */
+    /** RegEx for parsing the <code>vn</code> statement. */
     const boost::regex reg_vn("^vn\\s+" + regex_help::flt3 + "$");
-    /** Regex for parsing the <code>vp</code> statement. */
+    /** RegEx for parsing the <code>vp</code> statement. */
     const boost::regex reg_vp("^vp\\s+(" + regex_help::flt2 + "|" + regex_help::flt3 + ")$");
 
-    /** Regex for parsing the <code>p</code> statement. */
+    /** RegEx for parsing the <code>p</code> statement. */
     const boost::regex reg_p("^p" + regstr_vlist + "$");
-    /** Regex for parsing the <code>l</code> statement. */
+    /** RegEx for parsing the <code>l</code> statement. */
     const boost::regex reg_l("^l(" + regstr_lindex + ")+$");
-    /** Regex for parsing the <code>f</code> statement. */
+    /** RegEx for parsing the <code>f</code> statement. */
     const boost::regex reg_f("^f" + regstr_fidxlist + "$");
 
-    /** Regex for parsing the <code>curv</code> statement. */
+    /** RegEx for parsing the <code>curv</code> statement. */
     const boost::regex reg_curv("^curv\\s+" + regex_help::flt2 + regstr_vlist + "$");
-    /** Regex for parsing the <code>curv2</code> statement. */
+    /** RegEx for parsing the <code>curv2</code> statement. */
     const boost::regex reg_curv2("^curv2" + regstr_vlist + "$");
-    /** Regex for parsing the <code>surf</code> statement. */
+    /** RegEx for parsing the <code>surf</code> statement. */
     const boost::regex reg_surf("^surf\\s+" + regex_help::flt4 + regstr_fidxlist + "$");
 
-    /** Regex for parsing the <code>mtllib</code> statement. */
+    /** RegEx for parsing the <code>mtllib</code> statement. */
     const boost::regex reg_mtllib("^mtllib\\s+(\\w+\\.mtl)$");
-    /** Regex for parsing the <code>usemtl</code> statement. */
+    /** RegEx for parsing the <code>usemtl</code> statement. */
     const boost::regex reg_usemtl("^usemtl\\s+(\\w+)$");
 
-    /** Regex for counting/parsing point indices. */
+    /** RegEx for counting/parsing point indices. */
     const boost::regex reg_pcount(regex_help::integ);
-    /** Regex for counting/parsing line vertices. */
+    /** RegEx for counting/parsing line vertices. */
     const boost::regex reg_lcount(regstr_lindex);
-    /** Regex for counting/parsing faces vertices. */
+    /** RegEx for counting/parsing faces vertices. */
     const boost::regex reg_fcount(regstr_findex);
 
     /**
@@ -81,7 +78,7 @@ namespace cgu {
         /** Default constructor. */
         CacheEntry() : index(-1), next(nullptr) {};
 
-        /** Holds the vertices index in der vertex buffer. */
+        /** Holds the vertices index in the vertex buffer. */
         int index;
         /** Holds the next cache entry for vertices with this position. */
         std::unique_ptr<CacheEntry> next;
@@ -97,10 +94,21 @@ namespace cgu {
     {
     }
 
-    OBJMesh::~OBJMesh()
+    /** Default move constructor. */
+    OBJMesh::OBJMesh(OBJMesh&& rhs) : Resource(std::move(rhs)), Mesh(std::move(rhs)) {}
+
+    /** Default move assignment operator. */
+    OBJMesh& OBJMesh::operator=(OBJMesh&& rhs)
     {
-        if (IsLoaded()) UnloadLocal();
+        Resource* tRes = this;
+        *tRes = static_cast<Resource&&>(std::move(rhs));
+        Mesh* tMesh = this;
+        *tMesh = static_cast<Mesh&&>(std::move(rhs));
+        return *this;
     }
+
+    /** Destructor. */
+    OBJMesh::~OBJMesh() = default;
 
     void OBJMesh::Load()
     {
@@ -128,14 +136,8 @@ namespace cgu {
         Resource::Load();
     }
 
-    void OBJMesh::UnloadLocal()
-    {
-
-    }
-
     void OBJMesh::Unload()
     {
-        UnloadLocal();
         Resource::Unload();
     }
 
@@ -157,7 +159,7 @@ namespace cgu {
 
             if (currLine.length() == 0 || boost::starts_with(currLine, "#"))
                 continue; // comment or empty line
-            else if (boost::regex_match(currLine, lineMatch, reg_o)) {
+            if (boost::regex_match(currLine, lineMatch, reg_o)) {
                 createSubMesh(currGroup, countState);
                 currGroup = lineMatch[1].str();
             } else if (boost::regex_match(currLine, lineMatch, reg_v)) {
@@ -282,7 +284,7 @@ namespace cgu {
         if (!this->faceHasNormal) CalculateNormals();
     }
 
-    std::vector<MaterialLibrary*> OBJMesh::getMtlLibraries(const std::string& line)
+    std::vector<MaterialLibrary*> OBJMesh::getMtlLibraries(const std::string& line) const
     {
         boost::regex reg_mtllibname("\\s+(\\w+\\.mtl)");
         boost::sregex_iterator i(line.begin(), line.end(), reg_mtllibname);
@@ -315,7 +317,7 @@ namespace cgu {
         return SubMeshMaterialChunk(oldChunk, newMat);
     }
 
-    void OBJMesh::addPointsToMesh(SubMesh* mesh, const std::string& line)
+    void OBJMesh::addPointsToMesh(SubMesh* mesh, const std::string& line) const
     {
         boost::sregex_token_iterator i(line.begin(), line.end(), reg_pcount);
         boost::sregex_token_iterator j;
@@ -369,24 +371,24 @@ namespace cgu {
     {
         boost::sregex_iterator i(line.begin(), line.end(), reg_lcount);
         boost::sregex_iterator j;
-        bool first = true;
+        auto first = true;
         while (i != j) {
             LineVertex lv;
-            int pi = boost::lexical_cast<int>((*i)[2].str());
+            auto pi = boost::lexical_cast<int>((*i)[2].str());
             pi = pi > 0 ? static_cast<unsigned int> (pi - 1) : static_cast<int>(vertices.size() - pi);
             lv.pos = vertices[pi].xyz();
             if ((*i)[4].length() > 0) {
                 mesh->lineHasTexture = true;
-                int ti = boost::lexical_cast<int>((*i)[4].str());
+                auto ti = boost::lexical_cast<int>((*i)[4].str());
                 lv.tex = texCoords[ti > 0 ? static_cast<unsigned int> (ti - 1)
                     : static_cast<int>(texCoords.size() - ti)].xy();
             }
-            i++;
+            ++i;
 
-            unsigned int idx = addVertex(lineVertices, lv, pi, cache);
+            auto idx = addVertex(lineVertices, lv, pi, cache);
             mesh->lineIndices.push_back(idx);
-            boost::sregex_iterator ti = i;
-            ti++;
+            auto ti = i;
+            ++ti;
             if (first || ti == j) {
                 first = false;
             } else {
@@ -440,9 +442,9 @@ namespace cgu {
                 fv.tex = glm::vec2(0.0f);
                 fv.normal = normals[ni > 0 ? static_cast<unsigned int> (ni - 1) : normals.size() - ni];
             }
-            i++;
+            ++i;
 
-            unsigned int idx = addVertex(faceVertices, fv, pi, cache);
+            auto idx = addVertex(faceVertices, fv, pi, cache);
             if (idx1 == -1)
                 idx1 = idx;
             else if (idx2 == -1)

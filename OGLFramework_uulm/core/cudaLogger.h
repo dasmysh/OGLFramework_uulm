@@ -9,7 +9,6 @@
 #ifndef CUDALOGGER_H
 #define CUDALOGGER_H
 
-#include <string>
 #include <ostream>
 
 namespace cudaLog {

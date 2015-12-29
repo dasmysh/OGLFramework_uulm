@@ -1,7 +1,7 @@
 /**
  * @file   MaterialLibrary.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   4. Januar 2014
+ * @date   2014.01.
  *
  * @brief  Contains the implementation of the MaterialLibrary.
  */
@@ -9,8 +9,6 @@
 #include "MaterialLibrary.h"
 #include "app/ApplicationBase.h"
 #include "app/Configuration.h"
-#include "gfx/glrenderer/GLTexture.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 
 #include <fstream>
 #include <string>
@@ -24,28 +22,40 @@ namespace cgu {
 
     /**
      * Constructor.
-     * @param mtlFilename the material library file name
-     * @param app the application object for resolving dependencies
+     * @param mtlFilename the material library file name.
+     * @param app the application object for resolving dependencies.
      */
     MaterialLibrary::MaterialLibrary(const std::string& mtlFilename, ApplicationBase* app) :
         Resource(mtlFilename, app),
-        materials()
+        ResourceManagerBase(app)
     {
     }
 
-    MaterialLibrary::~MaterialLibrary()
+    /** Default move constructor. */
+    MaterialLibrary::MaterialLibrary(MaterialLibrary&& rhs) : Resource(std::move(rhs)), ResourceManagerBase(std::move(rhs)) {}
+
+    /** Default move assignment operator. */
+    MaterialLibrary& MaterialLibrary::operator=(MaterialLibrary&& rhs)
     {
-        if (IsLoaded()) UnloadLocal();
+        Resource* tRes = this;
+        *tRes = static_cast<Resource&&>(std::move(rhs));
+        ResourceManagerBase* tResMan = this;
+        *tResMan = static_cast<ResourceManagerBase&&>(std::move(rhs));
+        return *this;
     }
+
+    /** Default destructor. */
+    MaterialLibrary::~MaterialLibrary() = default;
 
     void MaterialLibrary::Load()
     {
-        MaterialType* currMat = nullptr;
+        ResourceType* currMat = nullptr;
         std::string currLine;
-        std::ifstream inFile(application->GetConfig().resourceBase + "/" + this->id.c_str());
+        auto filename = Resource::application->GetConfig().resourceBase + "/" + GetParameters()[0];
+        std::ifstream inFile(filename);
 
         if (!inFile.is_open()) {
-            throw std::runtime_error("Could not open file: " + this->id);
+            throw resource_loading_error() << ::boost::errinfo_file_name(filename) << resid_info(id) << errdesc_info("Cannot open file.");
         }
 
         boost::regex reg_newmtl("^newmtl\\s+(\\w+)$");
@@ -68,9 +78,8 @@ namespace cgu {
             if (currLine.length() == 0 || boost::starts_with(currLine, "#"))
                 continue; // comment or empty line
             else if (boost::regex_match(currLine, lineMatch, reg_newmtl)) {
-                std::string mtlName = lineMatch[1].str();
-                this->materials[mtlName] = std::unique_ptr<Material>(new Material());
-                currMat = this->materials[mtlName].get();
+                auto mtlName = lineMatch[1].str();
+                currMat = SetResource(mtlName, std::move(std::make_unique<Material>()));
             } else if (boost::regex_match(currLine, lineMatch, reg_Ka) && currMat) {
                 currMat->ambient = parseColor(lineMatch);
             } else if (boost::regex_match(currLine, lineMatch, reg_Kd) && currMat) {
@@ -101,46 +110,14 @@ namespace cgu {
 
     void MaterialLibrary::Unload()
     {
-        UnloadLocal();
         Resource::Unload();
-    }
-
-    /**
-     * Unloads the local resources.
-     */
-    void MaterialLibrary::UnloadLocal()
-    {
-
-    }
-
-    MaterialLibrary::MaterialType* MaterialLibrary::GetResource(const std::string & resId)
-    {
-        try {
-            return materials.at(resId).get();
-        }
-        catch (std::out_of_range e) {
-            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            LOG(INFO) << L"No resource with id \"" << converter.from_bytes(resId) << L"\" found. Creating new one.";
-            std::unique_ptr<Material> matPtr(new Material());
-            MaterialType* matRawPtr = matPtr.get();
-            materials.insert(std::make_pair(resId, std::move(matPtr)));
-            return matRawPtr;
-        }
-    }
-
-    bool MaterialLibrary::HasResource(const std::string& resId)
-    {
-        MaterialMap::const_iterator got = materials.find(resId);
-        if (got == materials.end())
-            return false;
-        return true;
     }
 
     /**
      * Logs a warning this feature is not implemented.
      * @param feature the line with the feature to log
      */
-    void MaterialLibrary::notImplemented(const std::string & feature) const
+    void MaterialLibrary::notImplemented(const std::string & feature)
     {
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
         LOG(WARNING) << L"Feature not implemented: " << converter.from_bytes(feature);
@@ -153,9 +130,9 @@ namespace cgu {
      */
     glm::vec3 MaterialLibrary::parseColor(const boost::smatch & matches) const
     {
-        float r = boost::lexical_cast<float>(matches[1].str());
-        float g = boost::lexical_cast<float>(matches[2].str());
-        float b = boost::lexical_cast<float>(matches[3].str());
+        auto r = boost::lexical_cast<float>(matches[1].str());
+        auto g = boost::lexical_cast<float>(matches[2].str());
+        auto b = boost::lexical_cast<float>(matches[3].str());
         return glm::vec3(r, g, b);
     }
 
@@ -167,8 +144,8 @@ namespace cgu {
     const GLTexture2D* MaterialLibrary::parseTexture(const std::string& matches, const std::string& params) const
     {
         boost::filesystem::path mtlFile{ id };
-        std::string texFilename = mtlFile.parent_path().string() + "/" + matches + (params.size() > 0 ? "," + params : "");
-        return application->GetTextureManager()->GetResource(texFilename);
+        auto texFilename = mtlFile.parent_path().string() + "/" + matches + (params.size() > 0 ? "," + params : "");
+        return Resource::application->GetTextureManager()->GetResource(texFilename);
     }
 
     /**

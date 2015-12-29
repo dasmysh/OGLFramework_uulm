@@ -1,7 +1,7 @@
 /**
  * @file   GPUProgram.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
+ * @date   2014.01.15
  *
  * @brief  Contains the definition of GPUProgram.
  */
@@ -10,32 +10,28 @@
 #define GPUPROGRAM_H
 
 #include "main.h"
-#include "core/ShaderManager.h"
 #include "GLVertexAttributeArray.h"
 
 namespace cgu {
+
     class ShaderBufferBindingPoints;
     class ApplicationBase;
 
     /**
-     * @brief  Complete gpu program with multiple Shader objects working together.
+     * @brief  Complete GPU program with multiple Shader objects working together.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   15. Januar 2014
+     * @date   2014.01.15
      */
     class GPUProgram : public Resource
     {
-    private:
-        /** Deleted copy constructor. */
-        GPUProgram(const GPUProgram& orig) : Resource(orig) {};
-        /** Deleted copy assignment operator. */
-        GPUProgram& operator=(const GPUProgram&) { return *this; };
-
     public:
         GPUProgram(const std::string programName, ApplicationBase* app);
+        GPUProgram(const GPUProgram&);
+        GPUProgram& operator=(const GPUProgram&);
+        GPUProgram(GPUProgram&&);
+        GPUProgram& operator=(GPUProgram&&);
         virtual ~GPUProgram();
-        GPUProgram(GPUProgram&& orig);
-        GPUProgram& operator=(GPUProgram&& orig);
 
         void Load() override final;
         void Unload() override final;
@@ -46,19 +42,22 @@ namespace cgu {
         std::vector<BindingLocation> GetAttributeLocations(const std::vector<std::string>& attribNames);
         BindingLocation GetUniformLocation(const std::string& uniformName);
         std::vector<BindingLocation> GetUniformLocations(const std::vector<std::string>& uniformNames);
-        void SetUniform(BindingLocation name, const glm::vec4& data);
-        void SetUniform(BindingLocation name, const glm::uvec3& data);
-        void SetUniform(BindingLocation name, const std::vector<float>& data);
-        void SetUniform(BindingLocation name, int data);
-        void SetUniform(BindingLocation name, float data);
+        void SetUniform(BindingLocation name, float data) const;
+        void SetUniform(BindingLocation name, const glm::vec2& data) const;
+        void SetUniform(BindingLocation name, const glm::vec3& data) const;
+        void SetUniform(BindingLocation name, const glm::vec4& data) const;
+        void SetUniform(BindingLocation name, const std::vector<float>& data) const;
+        void SetUniform(BindingLocation name, int data) const;
+        void SetUniform(BindingLocation name, const std::vector<int>& data) const;
+        void SetUniform(BindingLocation name, const glm::uvec3& data) const;
         BindingLocation GetUniformBufferLocation(const std::string& uBufferName);
         void BindUniformBlock(const std::string& uBufferName, ShaderBufferBindingPoints& bindingPoints);
         void BindUniformBlock(const std::string& uBufferName, GLuint bindingPoint);
-        void BindUniformBlock(BindingLocation name, GLuint bindingPoint);
+        void BindUniformBlock(BindingLocation name, GLuint bindingPoint) const;
         BindingLocation GetShaderBufferLocation(const std::string& sBufferName);
         void BindShaderBuffer(const std::string& sBufferName, ShaderBufferBindingPoints& bindingPoints);
         void BindShaderBuffer(const std::string& sBufferName, GLuint bindingPoint);
-        void BindShaderBuffer(BindingLocation name, GLuint bindingPoint);
+        void BindShaderBuffer(BindingLocation name, GLuint bindingPoint) const;
 
         void UseProgram() const;
 
@@ -74,16 +73,16 @@ namespace cgu {
         std::unordered_map<std::string, BindingLocationInternal> knownUBBindings;
         /** holds the bound uniform blocks. */
         std::unordered_map<std::string, GLuint> boundUBlocks;
-        /** holds the known ssbo locations. */
+        /** holds the known SSBO locations. */
         std::unordered_map<std::string, BindingLocationInternal> knownSSBOBindings;
-        /** holds the bound ssbos. */
+        /** holds the bound SSBO. */
         std::unordered_map<std::string, GLuint> boundSSBOs;
-        /** holds the vertex attribute arrays associated with this gpu program. */
+        /** holds the vertex attribute arrays associated with this GPU program. */
         std::vector<std::unique_ptr<GLVertexAttributeArray> > vaos;
 
         void UnloadLocal();
         void LoadInternal(GLuint newProgram);
-        static GLuint LinkNewProgram(const std::string& name, const std::vector<GLuint>& shaders);
+        GLuint LinkNewProgram(const std::string& name, const std::vector<GLuint>& shaders) const;
         static void ReleaseShaders(const std::vector<GLuint>& shaders);
     };
 }

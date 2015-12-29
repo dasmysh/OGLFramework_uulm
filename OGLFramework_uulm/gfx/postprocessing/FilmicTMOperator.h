@@ -49,7 +49,7 @@ namespace cgu {
         /** Holds the shader used for tone-mapping. */
         GPUProgram* tmProgram;
         /** Holds the screen renderable for the tone-mapping. */
-        std::unique_ptr<cgu::ScreenQuadRenderable> renderable;
+        cgu::ScreenQuadRenderable* renderable;
         /** Holds the shader uniform ids. */
         std::vector<BindingLocation> uniformIds;
         /** Holds the parameters for the tone-mapping. */

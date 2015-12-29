@@ -1,7 +1,7 @@
 /**
  * @file   Material.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   31. Dezember 2013
+ * @date   2013.12.31
  *
  * @brief  Contains the material class
  */
@@ -12,18 +12,23 @@
 #include "main.h"
 
 namespace cgu {
+
     class GLTexture2D;
 
     /**
      * @brief  Class describing materials.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   31. Dezember 2013
+     * @date   2013.12.31
      */
     class Material
     {
     public:
         Material();
+        Material(const Material&);
+        Material& operator=(const Material&);
+        Material(Material&&);
+        Material& operator=(Material&&);
         ~Material();
 
         /** Holds the materials ambient color. */
@@ -46,8 +51,6 @@ namespace cgu {
         const GLTexture2D* bumpTex;
         /** Holds the materials bump multiplier. */
         float bumpMultiplier;
-    private:
-
     };
 }
 

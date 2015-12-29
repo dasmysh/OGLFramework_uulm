@@ -1,7 +1,7 @@
 /**
  * @file   SubMesh.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   13. Januar 2014
+ * @date   2014.01.13
  *
  * @brief  Implementation of the SubMesh.
  */
@@ -40,27 +40,78 @@ namespace cgu {
         numMtls = 0;
     }
 
+    /** Constructor. */
     SubMesh::SubMesh() :
         objectName(""),
         lineHasTexture(false),
         faceHasTexture(false),
-        faceHasNormal(false)
-    {
-    }
-
-    SubMesh::~SubMesh()
-    {
-    }
-
-    /**
-     * Constructor.
-     * @param name the submeshes name
-     */
-    SubMesh::SubMesh(const std::string& name) :
-        objectName(name),
+        faceHasNormal(false),
         firstTriIndex(0),
         numTriangles(0)
     {
+    }
+
+    /** Default destructor. */
+    SubMesh::~SubMesh() = default;
+
+    /**
+     * Constructor.
+     * @param name the sub-meshes name
+     */
+    SubMesh::SubMesh(const std::string& name) :
+        objectName(name),
+        lineHasTexture(false),
+        faceHasTexture(false),
+        faceHasNormal(false),
+        firstTriIndex(0),
+        numTriangles(0)
+    {
+    }
+
+    /** Default copy constructor. */
+    SubMesh::SubMesh(const SubMesh&) = default;
+    /** Default copy assignment operator. */
+    SubMesh& SubMesh::operator=(const SubMesh&) = default;
+
+    /** Default move constructor. */
+    SubMesh::SubMesh(SubMesh&& rhs) :
+        objectName(std::move(rhs.objectName)),
+        mtlChunks(std::move(rhs.mtlChunks)),
+        lineHasTexture(rhs.lineHasTexture),
+        faceHasTexture(rhs.faceHasTexture),
+        faceHasNormal(rhs.faceHasNormal),
+        pointIndices(std::move(rhs.pointIndices)),
+        lineIndices(std::move(rhs.lineIndices)),
+        curves(std::move(rhs.curves)),
+        curv2es(std::move(rhs.curv2es)),
+        surfaces(std::move(rhs.surfaces)),
+        trianglePtsIndices(std::move(rhs.trianglePtsIndices)),
+        firstTriIndex(rhs.firstTriIndex),
+        numTriangles(rhs.numTriangles),
+        aabb(std::move(rhs.aabb)),
+        fastFindTree(std::move(rhs.fastFindTree))
+    {
+    }
+
+    /** Default move assignment operator. */
+    SubMesh& SubMesh::operator=(SubMesh&& rhs)
+    {
+        objectName = std::move(rhs.objectName);
+        mtlChunks = std::move(rhs.mtlChunks);
+        lineHasTexture = rhs.lineHasTexture;
+        faceHasTexture = rhs.faceHasTexture;
+        faceHasNormal = rhs.faceHasNormal;
+        pointIndices = std::move(rhs.pointIndices);
+        lineIndices = std::move(rhs.lineIndices);
+        curves = std::move(rhs.curves);
+        curv2es = std::move(rhs.curv2es);
+        surfaces = std::move(rhs.surfaces);
+        trianglePtsIndices = std::move(rhs.trianglePtsIndices);
+        firstTriIndex = rhs.firstTriIndex;
+        numTriangles = rhs.numTriangles;
+        aabb = std::move(rhs.aabb);
+        fastFindTree = std::move(rhs.fastFindTree);
+        return *this;
     }
 
     /**

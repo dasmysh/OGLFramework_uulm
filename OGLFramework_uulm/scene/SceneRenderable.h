@@ -9,8 +9,6 @@
 #ifndef SCENEOBJECT_H
 #define SCENEOBJECT_H
 
-#include "main.h"
-#include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 

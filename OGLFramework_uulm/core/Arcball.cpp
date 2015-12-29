@@ -8,9 +8,7 @@
 
 #include "Arcball.h"
 #include "app/BaseGLWindow.h"
-#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <limits>
 
 #undef min
 #undef max

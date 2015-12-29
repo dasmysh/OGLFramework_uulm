@@ -1,7 +1,7 @@
 /**
  * @file   TextureManager.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   24. Februar 2014
+ * @date   2014.02.24
  *
  * @brief  Contains the definition of TextureManager.
  */
@@ -12,40 +12,22 @@
 #include "../gfx/glrenderer/GLTexture2D.h"
 
 namespace cgu {
-    /** IResourceManager for GLTexture2D resources. */
-    typedef IResourceManager<GLTexture2D> ITextureManager;
 
     /**
      * @brief  ResourceManager implementation for GLTexture2D resources.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   24. Februar 2014
+     * @date   2014.02.24
      */
-    class TextureManager : public ITextureManager
+    class TextureManager final : public ResourceManager<GLTexture2D>
     {
-    private:
-        /** Deleted copy constructor. */
-        TextureManager(const TextureManager&) = delete;
-        /** Deleted copy assignment operator. */
-        TextureManager& operator=(const TextureManager&) = delete;
-
     public:
-        /** The font type. */
-        typedef ITextureManager::ResourceType TextureType;
-        /** The font map type. */
-        typedef ITextureManager::ResourceMap TextureMap;
-
-        TextureManager(ApplicationBase* app);
+        explicit TextureManager(ApplicationBase* app);
+        TextureManager(const TextureManager&) = delete;
+        TextureManager& operator=(const TextureManager&) = delete;
+        TextureManager(TextureManager&&);
+        TextureManager& operator=(TextureManager&&);
         virtual ~TextureManager();
-
-        TextureType* GetResource(const std::string& resId) override;
-        bool HasResource(const std::string& resId) override;
-
-    private:
-        /** Holds the GLTexture2D objects. */
-        TextureMap textures;
-        /** Holds the application object for dependencies. */
-        ApplicationBase* application;
     };
 }
 

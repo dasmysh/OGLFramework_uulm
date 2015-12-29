@@ -1,7 +1,7 @@
 /**
  * @file   Shader.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
+ * @date   2014.01.15
  *
  * @brief  Contains the implementation of Shader.
  */
@@ -9,14 +9,11 @@
 #include "Shader.h"
 #include "app/ApplicationBase.h"
 #include "app/Configuration.h"
-#include "gfx/glrenderer/GLTexture.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
 #include <codecvt>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
 
@@ -27,7 +24,7 @@ namespace cgu {
      * @param shader the name of the shader the error occurred in
      * @param errors the error string opengl returned
      */
-    shader_compiler_error::shader_compiler_error(const std::string& shader, const std::string& errors) :
+    /*shader_compiler_error::shader_compiler_error(const std::string& shader, const std::string& errors) :
         shr(new char[shader.size() + 1]),
         errs(new char[errors.size() + 1]),
         myWhat(nullptr)
@@ -80,13 +77,13 @@ namespace cgu {
             myWhat = std::move(orig.myWhat);
         }
         return *this;
-    }
+    }*/
 
     /** Returns information about the exception */
-    const char* shader_compiler_error::what() const
+    /*const char* shader_compiler_error::what() const
     {
         return myWhat.get();
-    }
+    }*/
 
     /**
      * Constructor.
@@ -98,8 +95,7 @@ namespace cgu {
         type(GL_VERTEX_SHADER),
         strType("vertex")
     {
-        std::vector<std::string> shaderDefinition;
-        boost::split(shaderDefinition, shaderFilename, boost::is_any_of(","));
+        std::vector<std::string> shaderDefinition = GetParameters();
         if (boost::ends_with(shaderDefinition[0], ".fp")) {
             type = GL_FRAGMENT_SHADER;
             strType = "fragment";
@@ -118,26 +114,46 @@ namespace cgu {
         }
     }
 
-    Shader::Shader(Shader&& orig) :
-        Resource(std::move(orig)),
-        shader(orig.shader),
-        type(orig.type),
-        strType(std::move(orig.strType))
+    /** Copy constructor. */
+    Shader::Shader(const Shader& rhs) : Shader(rhs.id, rhs.application)
     {
-        orig.shader = 0;
-        orig.type = GL_VERTEX_SHADER;
+        if (rhs.IsLoaded()) Shader::Load();
     }
 
-    Shader& Shader::operator =(Shader&& orig)
+    /** Copy assignment operator. */
+    Shader& Shader::operator=(const Shader& rhs)
     {
         Resource* tRes = this;
-        *tRes = static_cast<Resource&&> (std::move(orig));
-        if (this != &orig) {
-            shader = orig.shader;
-            type = orig.type;
-            strType = std::move(orig.strType);
-            orig.shader = 0;
-            orig.type = GL_VERTEX_SHADER;
+        *tRes = static_cast<const Resource&>(rhs);
+        Shader tmp{ rhs };
+        std::swap(shader, tmp.shader);
+        std::swap(type, tmp.type);
+        std::swap(strType, tmp.strType);
+        return *this;
+    }
+
+    /** Move constructor. */
+    Shader::Shader(Shader&& rhs) :
+        Resource(std::move(rhs)),
+        shader(rhs.shader),
+        type(rhs.type),
+        strType(std::move(rhs.strType))
+    {
+        rhs.shader = 0;
+        rhs.type = GL_VERTEX_SHADER;
+    }
+
+    /** Move assignment operator. */
+    Shader& Shader::operator =(Shader&& rhs)
+    {
+        Resource* tRes = this;
+        *tRes = static_cast<Resource&&> (std::move(rhs));
+        if (this != &rhs) {
+            shader = rhs.shader;
+            type = rhs.type;
+            strType = std::move(rhs.strType);
+            rhs.shader = 0;
+            rhs.type = GL_VERTEX_SHADER;
         }
         return *this;
     }
@@ -172,10 +188,9 @@ namespace cgu {
      * If the linking failed the program needs to delete the new shader object.
      * @return the new shader object name
      */
-    GLuint Shader::RecompileShader()
+    GLuint Shader::RecompileShader() const
     {
-        std::vector<std::string> shaderDefinition;
-        boost::split(shaderDefinition, id, boost::is_any_of(","));
+        auto shaderDefinition = GetParameters();
         std::vector<std::string> defines(shaderDefinition.begin() + 1, shaderDefinition.end());
         return CompileShader(application->GetConfig().resourceBase + "/" + shaderDefinition[0], defines, type, strType);
     }
@@ -200,34 +215,36 @@ namespace cgu {
      *  @param defines the defines to add at the beginning.
      *  @param fileId the id of the current file.
      */
-    std::string Shader::LoadShaderFile(const std::string& filename, const std::vector<std::string>& defines, unsigned int& fileId, unsigned int recursionDepth)
+    std::string Shader::LoadShaderFile(const std::string& filename, const std::vector<std::string>& defines, unsigned int& fileId, unsigned int recursionDepth) const
     {
         if (recursionDepth > 32) {
             LOG(ERROR) << L"Header inclusion depth limit reached! Cyclic header inclusion?";
-            throw std::runtime_error("Header inclusion depth limit reached! Cyclic header inclusion?");
+            throw resource_loading_error() << ::boost::errinfo_file_name(filename) << fileid_info(fileId) << resid_info(id)
+                << errdesc_info("Header inclusion depth limit reached! Cyclic header inclusion?");
         }
         boost::filesystem::path sdrFile{ filename };
-        std::string currentPath = sdrFile.parent_path().string() + "/";
+        auto currentPath = sdrFile.parent_path().string() + "/";
         std::ifstream file(filename.c_str(), std::ifstream::in);
         std::string line;
         std::stringstream content;
         unsigned int lineCount = 1;
-        unsigned int nextFileId = fileId + 1;
+        auto nextFileId = fileId + 1;
 
         while (file.good()) {
             std::getline(file, line);
-            std::string trimedLine = line;
+            auto trimedLine = line;
             boost::trim(trimedLine);
 
             static const boost::regex re("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
             boost::smatch matches;
             if (boost::regex_search(line, matches, re)) {
-                std::string includeFile = currentPath + matches[1];
+                auto includeFile = currentPath + matches[1];
                 if (!boost::filesystem::exists(includeFile)) {
-                    LOG(ERROR) << filename.c_str() << L"(" << lineCount << ") : fatal error: cannot open include file \"" << includeFile.c_str() << "\".";
-                    std::stringstream errorStr;
-                    errorStr << fileId << "(" << lineCount - 1 << ") : fatal error : cannot open include file \"" << includeFile.c_str() << "\"." << std::endl;
-                    throw shader_compiler_error(filename, errorStr.str());
+                    LOG(ERROR) << filename.c_str() << L"(" << lineCount << ") : fatal error: cannot open include file \""
+                        << includeFile.c_str() << "\".";
+                    throw resource_loading_error() << ::boost::errinfo_file_name(includeFile) << fileid_info(fileId)
+                        << lineno_info(lineCount - 1) << resid_info(id)
+                        << errdesc_info("Cannot open include file.");
                 }
                 content << "#line " << 1 << " " << nextFileId << std::endl;
                 content << LoadShaderFile(includeFile, std::vector<std::string>(), nextFileId, recursionDepth + 1);
@@ -238,7 +255,7 @@ namespace cgu {
 
             if (boost::starts_with(trimedLine, "#version")) {
                 for (auto& def : defines) {
-                    std::string trimedDefine = def;
+                    auto trimedDefine = def;
                     boost::trim(trimedDefine);
                     content << "#define " << trimedDefine << std::endl;
                 }
@@ -259,56 +276,23 @@ namespace cgu {
      * @param strType the shaders type as string
      * @return the compiled shader if successful
      */
-    GLuint Shader::CompileShader(const std::string& filename, const std::vector<std::string>& defines, GLenum type, const std::string& strType)
+    GLuint Shader::CompileShader(const std::string& filename, const std::vector<std::string>& defines, GLenum type, const std::string& strType) const
     {
         unsigned int firstFileId = 0;
         if (!boost::filesystem::exists(filename)) {
             LOG(ERROR) << "Cannot open shader file \"" << filename.c_str() << "\".";
-            throw std::runtime_error("Cannot open shader file.");
+            throw resource_loading_error() << ::boost::errinfo_file_name(filename) << fileid_info(firstFileId) << resid_info(id)
+                << errdesc_info("Cannot open shader file.");
         }
-        std::string shaderText = LoadShaderFile(filename, defines, firstFileId, 0);
-        /*boost::filesystem::path sdrFile{ filename };
-        std::string currentPath = sdrFile.parent_path().string() + "/";
-        std::ifstream file(filename.c_str(), std::ifstream::in);
-        std::string line;
-        std::stringstream content;
+        auto shaderText = LoadShaderFile(filename, defines, firstFileId, 0);
 
-        unsigned int mainFileLineCount = 1;
-        unsigned int fileId = 0;
-
-        while (file.good()) {
-            std::getline(file, line);
-            std::string trimedLine = line;
-            boost::trim(trimedLine);
-
-            static const boost::regex re("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
-            boost::smatch matches;
-            if (boost::regex_search(line, matches, re)) {
-                std::string includeFile = currentPath + matches[1];
-                content << LoadShaderFile(includeFile, );
-            } else {
-                content << line << std::endl;
-            }
-
-            if (boost::starts_with(trimedLine, "#version")) {
-                for (auto& def : defines) {
-                    boost::trim(def);
-                    content << "#define " << def << std::endl;
-                }
-                content << "#line " << mainFileLineCount << " " << fileId << std::endl;
-            }
-            ++mainFileLineCount;
-        }
-
-        file.close();
-        std::string shaderText = content.str();*/
-        GLuint shader = OGL_CALL(glCreateShader, type);
+        auto shader = OGL_CALL(glCreateShader, type);
         if (shader == 0) {
             LOG(ERROR) << L"Could not create shader!";
             throw std::runtime_error("Could not create shader!");
         }
-        const char* shaderTextArray = shaderText.c_str();
-        int shaderLength = static_cast<int>(shaderText.length());
+        auto shaderTextArray = shaderText.c_str();
+        auto shaderLength = static_cast<int>(shaderText.length());
         OGL_CALL(glShaderSource, shader, 1, &shaderTextArray, &shaderLength);
         OGL_CALL(glCompileShader, shader);
 
@@ -318,7 +302,7 @@ namespace cgu {
             GLint infoLogLength;
             OGL_CALL(glGetShaderiv, shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-            GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+            auto strInfoLog = new GLchar[infoLogLength + 1];
             OGL_CALL(glGetShaderInfoLog, shader, infoLogLength, NULL, strInfoLog);
 
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
@@ -327,7 +311,9 @@ namespace cgu {
             std::string infoLog = strInfoLog;
             delete[] strInfoLog;
             OGL_CALL(glDeleteShader, shader);
-            throw shader_compiler_error(filename, infoLog);
+            throw shader_compiler_error() << ::boost::errinfo_file_name(filename)
+                << compiler_error_info(infoLog) << resid_info(id)
+                << errdesc_info("Shader compilation failed.");
         }
         return shader;
     }

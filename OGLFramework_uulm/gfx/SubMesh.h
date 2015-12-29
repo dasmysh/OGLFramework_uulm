@@ -1,7 +1,7 @@
 /**
  * @file   SubMesh.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   13. Januar 2014
+ * @date   2014.01.13
  *
  * @brief  Contains the sub-mesh class.
  */
@@ -29,9 +29,9 @@ namespace cgu {
     /** Contains indices for triangles vertices and connectivity. */
     struct MeshConnectTriangle
     {
-        MeshConnectTriangle(const std::array<unsigned int, 3>& v) :
+        explicit MeshConnectTriangle(const std::array<unsigned int, 3>& v) :
             vertex({ { v[0], v[1], v[2] } }),
-            neighbours({ { -1, -1, -1 } })
+            neighbors({ { -1, -1, -1 } })
         {};
 
         bool operator<(const MeshConnectTriangle& rhs) const {
@@ -55,8 +55,8 @@ namespace cgu {
         std::array<unsigned int, 3> vertex;
         /** Holds the triangles face vertices (not only position). */
         mutable std::array<unsigned int, 3> faceVertex;
-        /** Holds the triangles neighbours. */
-        std::array<int, 3> neighbours;
+        /** Holds the triangles neighbors. */
+        std::array<int, 3> neighbors;
     };
 
     /**
@@ -78,17 +78,17 @@ namespace cgu {
         unsigned int numParameterVerts;
         /** Holds the number of points. */
         unsigned int numPoints;
-        /** Holds the number of line indices (per submesh). */
+        /** Holds the number of line indices (per sub-mesh). */
         unsigned int numLineIndices;
-        /** Holds the number of face indices (per submesh). */
+        /** Holds the number of face indices (per sub-mesh). */
         unsigned int numFaceIndices;
-        /** Holds the number of curves on a surface (per submesh). */
+        /** Holds the number of curves on a surface (per sub-mesh). */
         unsigned int numCurv2;
-        /** Holds the number of curves (per submesh). */
+        /** Holds the number of curves (per sub-mesh). */
         unsigned int numCurv;
-        /** Holds the number of surfaces (per submesh). */
+        /** Holds the number of surfaces (per sub-mesh). */
         unsigned int numSurf;
-        /** Holds the number of materials (per submesh). */
+        /** Holds the number of materials (per sub-mesh). */
         unsigned int numMtls;
     };
 
@@ -100,7 +100,11 @@ namespace cgu {
     {
     public:
         SubMesh();
-        SubMesh(const std::string& name);
+        explicit SubMesh(const std::string& name);
+        SubMesh(const SubMesh&);
+        SubMesh& operator=(const SubMesh&);
+        SubMesh(SubMesh&&);
+        SubMesh& operator=(SubMesh&&);
         virtual ~SubMesh();
 
         void ReserveSubMesh(ObjCountState& countState);
@@ -142,7 +146,7 @@ namespace cgu {
     protected:
         typedef boost::geometry::model::point<float, 3, boost::geometry::cs::cartesian> point;
         typedef boost::geometry::model::box<point> box;
-        typedef boost::geometry::model::polygon<point, false, false> polygon; // ccw, open polygon
+        typedef boost::geometry::model::polygon<point, false, false> polygon; // CCW, open polygon
         typedef std::pair<box, unsigned> polyIdxBox;
 
         typedef boost::geometry::index::rtree<polyIdxBox, boost::geometry::index::quadratic<16>> RTreeType;

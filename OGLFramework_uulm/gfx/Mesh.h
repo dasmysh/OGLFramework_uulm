@@ -1,7 +1,7 @@
 /**
  * @file   Mesh.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   13. Januar 2014
+ * @date   2014.01.13
  *
  * @brief  Contains the definition of the Mesh class.
  */
@@ -11,7 +11,6 @@
 
 #include "Vertices.h"
 #include "SubMesh.h"
-#include <boost/geometry.hpp>
 
 namespace cgu {
 
@@ -19,11 +18,18 @@ namespace cgu {
      * @brief  Base class for all meshes.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   13. Januar 2014
+     * @date   2014.01.13
      */
     class Mesh : public SubMesh
     {
     public:
+        Mesh();
+        Mesh(const Mesh&) = delete;
+        Mesh& operator=(const Mesh&) = delete;
+        Mesh(Mesh&&);
+        Mesh& operator=(Mesh&&);
+        ~Mesh();
+
         void createSubMesh(const std::string& subMeshName, ObjCountState& countState);
         void ReserveMesh(ObjCountState& countState);
         unsigned int FindContainingTriangle(const glm::vec3 point);

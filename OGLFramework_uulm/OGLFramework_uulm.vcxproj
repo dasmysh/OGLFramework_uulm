@@ -40,7 +40,9 @@
     <ClCompile Include="core\TextureManager.cpp" />
     <ClCompile Include="core\VolumeManager.cpp" />
     <ClCompile Include="gfx\CameraView.cpp" />
-    <ClCompile Include="gfx\glrenderer\Font.cpp" />
+    <ClCompile Include="gfx\glrenderer\Font.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="gfx\glrenderer\FrameBuffer.cpp" />
     <ClCompile Include="gfx\glrenderer\GLBatchRenderTarget.cpp" />
     <ClCompile Include="gfx\glrenderer\GLRenderTarget.cpp" />
@@ -52,18 +54,27 @@
     <ClCompile Include="gfx\glrenderer\GPUProgram.cpp" />
     <ClCompile Include="gfx\glrenderer\GUIRenderable.cpp" />
     <ClCompile Include="gfx\glrenderer\MeshRenderable.cpp" />
-    <ClCompile Include="gfx\glrenderer\ScreenQuadRenderable.cpp" />
     <ClCompile Include="gfx\glrenderer\ScreenText.cpp" />
     <ClCompile Include="gfx\glrenderer\Shader.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderBufferBindingPoints.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderBufferObject.cpp" />
     <ClCompile Include="gfx\glrenderer\ShaderMeshAttributes.cpp" />
+    <ClCompile Include="gfx\glrenderer\ScreenQuadRenderable.cpp" />
     <ClCompile Include="gfx\Material.cpp" />
     <ClCompile Include="gfx\MaterialLibrary.cpp" />
-    <ClCompile Include="gfx\Mesh.cpp" />
-    <ClCompile Include="gfx\OBJMesh.cpp" />
+    <ClCompile Include="gfx\Mesh.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="gfx\OBJMesh.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="gfx\OrthogonalView.cpp" />
-    <ClCompile Include="gfx\SubMesh.cpp" />
+    <ClCompile Include="gfx\postprocessing\BloomEffect.cpp" />
+    <ClCompile Include="gfx\postprocessing\FilmicTMOperator.cpp" />
+    <ClCompile Include="gfx\SpotLight.cpp" />
+    <ClCompile Include="gfx\SubMesh.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="gfx\volumes\VolumeBrickOctree.cpp" />
     <ClCompile Include="gfx\volumes\VolumeCubeRenderable.cpp" />
     <ClCompile Include="gpgpu\CUDAImage.cpp" />
@@ -133,6 +144,9 @@
     <ClInclude Include="gfx\Mesh.h" />
     <ClInclude Include="gfx\OBJMesh.h" />
     <ClInclude Include="gfx\OrthogonalView.h" />
+    <ClInclude Include="gfx\postprocessing\BloomEffect.h" />
+    <ClInclude Include="gfx\postprocessing\FilmicTMOperator.h" />
+    <ClInclude Include="gfx\SpotLight.h" />
     <ClInclude Include="gfx\SubMesh.h" />
     <ClInclude Include="gfx\SubMeshMaterialChunk.h" />
     <ClInclude Include="gfx\Vertices.h" />

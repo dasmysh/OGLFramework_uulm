@@ -17,6 +17,7 @@
 
 #pragma warning(push, 3)
 #include <array>
+// ReSharper disable CppUnusedIncludeDirective
 #include <cassert>
 #include <cmath>
 #include <deque>
@@ -50,6 +51,8 @@ class ApplicationBase;
 
 #include "core/g2logWrapper.h"
 #include "constants.h"
+
+// ReSharper restore CppUnusedIncludeDirective
 
 #ifdef _OGL_DEBUG_MSGS
 

@@ -1,7 +1,7 @@
 /**
  * @file   OBJMesh.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   8. Januar 2014
+ * @date   2014.01.08
  *
  * @brief  Contains the definition of OBJMesh.
  */
@@ -13,7 +13,6 @@
 #include "core/MaterialLibManager.h"
 #include "Mesh.h"
 
-#include <boost/regex.hpp>
 namespace cgu {
 
     struct ObjCountState;
@@ -24,41 +23,37 @@ namespace cgu {
      * This is used to generate renderable meshes from .obj files.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   8. Januar 2014
+     * @date   2014.01.08
      */
     class OBJMesh : public Resource, public Mesh
     {
-    private:
-        /** Deleted copy constructor. */
-        OBJMesh(const OBJMesh& orig) : Resource(orig) {};
-        /** Deleted assignment operator. */
-        OBJMesh& operator=(const OBJMesh&) {};
-
     public:
         OBJMesh(const std::string& objFilename, ApplicationBase* app);
+        OBJMesh(const OBJMesh&) = delete;
+        OBJMesh& operator=(const OBJMesh&) = delete;
+        OBJMesh(OBJMesh&&);
+        OBJMesh& operator=(OBJMesh&&);
         virtual ~OBJMesh();
 
-        virtual void Load() override;
-        virtual void Unload() override;
+        void Load() override;
+        void Unload() override;
 
     private:
-        void UnloadLocal();
-
         void createMeshData(std::ifstream& file);
         void loadMeshData(std::ifstream& file);
 
         static void loadGroup(SubMesh* oldMesh);
 
-        std::vector<MaterialLibrary*> getMtlLibraries(const std::string& line);
-        SubMeshMaterialChunk addMtlChunkToMesh(SubMesh* mesh, SubMeshMaterialChunk& oldChunk,
+        std::vector<MaterialLibrary*> getMtlLibraries(const std::string& line) const;
+        static SubMeshMaterialChunk addMtlChunkToMesh(SubMesh* mesh, SubMeshMaterialChunk& oldChunk,
             std::vector<MaterialLibrary*> matLibs, const std::string& newMtl);
 
-        void addPointsToMesh(SubMesh* mesh, const std::string& line);
+        void addPointsToMesh(SubMesh* mesh, const std::string& line) const;
         void addLineToMesh(SubMesh* mesh, std::vector<std::unique_ptr<CacheEntry> >& cache, const std::string& line);
         void addFaceToMesh(SubMesh* mesh, std::vector<std::unique_ptr<CacheEntry> >& cache, const std::string& line);
-        void addCurvToMesh(SubMesh* mesh, const std::string& line);
-        void addCurv2ToMesh(SubMesh* mesh, const std::string& line);
-        void addSurfToMesh(SubMesh* mesh, const std::string& line);
+        static void addCurvToMesh(SubMesh* mesh, const std::string& line);
+        static void addCurv2ToMesh(SubMesh* mesh, const std::string& line);
+        static void addSurfToMesh(SubMesh* mesh, const std::string& line);
 
         static void notImplemented(const std::string & feature);
     };

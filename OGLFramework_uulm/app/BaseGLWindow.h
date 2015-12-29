@@ -91,8 +91,6 @@ namespace cgu {
         unsigned int keyboardModState;
         /** holds whether there was an update to the absolute position. */
         bool hadPositionUpdate;
-
-    private:
     };
 }
 #endif /* BASEGLWINDOW_H */

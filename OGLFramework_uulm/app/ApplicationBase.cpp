@@ -7,10 +7,10 @@
  */
 
 #include "ApplicationBase.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 #include "gfx/OrthogonalView.h"
 #include "core/FontManager.h"
 #include "app/GLWindow.h"
+#include "gfx/glrenderer/ScreenQuadRenderable.h"
 
 #include <anttweakbar/AntTweakBar.h>
 
@@ -19,7 +19,7 @@ namespace cgu {
      * Construct a new application.
      * @param window the applications main window
      */
-    ApplicationBase::ApplicationBase(GLWindow& window) :
+    ApplicationBase::ApplicationBase(GLWindow& window, const glm::vec3& camPos) :
         m_pause(true),
         m_stopped(false),
         m_time(0.0),
@@ -40,6 +40,7 @@ namespace cgu {
         cameraView(),
         fontProgram(nullptr),
         guiProgram(nullptr),
+        screenQuadRenderable(nullptr),
         guiTexUniform()
     {
         texManager.reset(new TextureManager(this));
@@ -54,14 +55,15 @@ namespace cgu {
         float aspectRatio = static_cast<float> (win.GetWidth())
             / static_cast<float> (win.GetHeight());
         orthoView.reset(new OrthogonalView(static_cast<float>(win.GetWidth()), static_cast<float>(win.GetHeight()), &uniformBindingPoints));
-        cameraView.reset(new CameraView(60.0f, aspectRatio, 1.0f, 100.0f, glm::vec3(0.0f, 0.0f, 10.0f), &uniformBindingPoints));
+        cameraView.reset(new CameraView(60.0f, aspectRatio, 1.0f, 100.0f, camPos, &uniformBindingPoints));
 
-        TwInit(TW_OPENGL_CORE, NULL);
+        TwInit(TW_OPENGL_CORE, nullptr);
         fontProgram = programManager->GetResource(fontProgramID);
         fontProgram->BindUniformBlock(orthoProjectionUBBName, uniformBindingPoints);
         guiProgram = programManager->GetResource(guiProgramID);
         guiTexUniform = guiProgram->GetUniformLocation("guiTex");
         guiProgram->BindUniformBlock(orthoProjectionUBBName, uniformBindingPoints);
+        screenQuadRenderable.reset(new ScreenQuadRenderable());
     }
 
     ApplicationBase::~ApplicationBase()
@@ -106,8 +108,8 @@ namespace cgu {
     }
 
     /**
-     * Returns the gpu program manager.
-     * @return the gpu program manager
+     * Returns the GPU program manager.
+     * @return the GPU program manager
      */
     GPUProgramManager* ApplicationBase::GetGPUProgramManager()
     {
@@ -151,8 +153,8 @@ namespace cgu {
     }
 
     /**
-     * Returns the gui theme manager.
-     * @return the gui theme manager
+     * Returns the GUI theme manager.
+     * @return the GUI theme manager
      */
     //GUIThemeManager* ApplicationBase::GetGUIThemeManager()
     //{
@@ -169,7 +171,7 @@ namespace cgu {
     }
 
     /**
-     * Returns the gpu program for font rendering.
+     * Returns the GPU program for font rendering.
      * @return the font rendering program
      */
     GPUProgram* ApplicationBase::GetFontProgram()
@@ -178,12 +180,21 @@ namespace cgu {
     }
 
     /**
-     * Returns the gpu program for gui rendering.
-     * @return the gui rendering program
+     * Returns the GPU program for GUI rendering.
+     * @return the GUI rendering program
      */
     GPUProgram* ApplicationBase::GetGUIProgram()
     {
         return guiProgram;
+    }
+
+    /**
+     *  Returns the screen quad renderable.
+     *  @return the screen quad renderable.
+     */
+    ScreenQuadRenderable* ApplicationBase::GetScreenQuadRenderable()
+    {
+        return screenQuadRenderable.get();
     }
 
     /**
@@ -352,7 +363,7 @@ namespace cgu {
         if (handled == 0) handled = TwMouseWheel(s_WheelPos);
         if (handled == 0 && IsRunning() && !IsPaused()) handled = HandleMouseApp(buttonAction, mouseWheelDelta, sender);
         // if (handledM)
-        if (handled == 0 && IsRunning() && !IsPaused()) handled = cameraView->HandleMouse(buttonAction, mouseWheelDelta, sender);
+        if (handled == 0 && handledMovement == 0 && IsRunning() && !IsPaused()) handled = cameraView->HandleMouse(buttonAction, mouseWheelDelta, sender);
         return handled == 1;
     }
 

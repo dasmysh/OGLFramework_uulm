@@ -10,36 +10,26 @@
 
 namespace cgu {
 
+    /**
+     * Constructor.
+     * @param app the application object for resolving dependencies.
+     */
     VolumeManager::VolumeManager(ApplicationBase* app) :
-        volumes(),
-        application(app)
+        ResourceManagerBase(app)
     {
     }
 
-    VolumeManager::~VolumeManager()
+    /** Default move constructor. */
+    VolumeManager::VolumeManager(VolumeManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
+
+    /** Default move assignment operator. */
+    VolumeManager& VolumeManager::operator=(VolumeManager&& rhs)
     {
+        ResourceManagerBase* tResMan = this;
+        *tResMan = static_cast<ResourceManagerBase&&>(std::move(rhs));
+        return *this;
     }
 
-    VolumeManager::VolumeType* VolumeManager::GetResource(const std::string& resId)
-    {
-        try {
-            return volumes.at(resId).get();
-        }
-        catch (std::out_of_range e) {
-            LOG(INFO) << L"No resource with id \"" << resId << L"\" found. Creating new one.";
-            std::unique_ptr<VolumeType> volumePtr(new VolumeType(resId, application));
-            VolumeType* volumeRawPtr = volumePtr.get();
-            volumeRawPtr->Load();
-            volumes.insert(std::make_pair(resId, std::move(volumePtr)));
-            return volumeRawPtr;
-        }
-    }
-
-    bool VolumeManager::HasResource(const std::string & resId)
-    {
-        auto got = volumes.find(resId);
-        if (got == volumes.end())
-            return false;
-        return true;
-    }
+    /** Default destructor. */
+    VolumeManager::~VolumeManager() = default;
 }

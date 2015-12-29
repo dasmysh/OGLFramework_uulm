@@ -1,7 +1,7 @@
 /**
  * @file   Font.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   6. Februar 2014
+ * @date   2014.02.06
  *
  * @brief  Contains the definition of Font.
  */
@@ -10,7 +10,6 @@
 #define FONT_H
 
 #include "../font_metrics.h"
-#include "GLVertexAttributeArray.h"
 
 namespace cgu {
 
@@ -24,30 +23,24 @@ namespace cgu {
      * The fonts used need to be converted into signed distance fields.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   6. Februar 2014
+     * @date   2014.02.06
      */
     class Font : public Resource
     {
-    private:
-        /** Deleted copy constructor. */
-        Font(const Font& orig) = delete;
-        /** Deleted copy assignment operator. */
-        Font& operator=(const Font&) = delete;
-
     public:
         Font(const std::string& fontName, ApplicationBase* app);
+        Font(const Font&);
+        Font& operator=(const Font&);
+        Font(Font&&);
+        Font& operator=(Font&&);
         virtual ~Font();
-        /** Default move constructor. */
-        Font(Font&& orig);
-        /** Default move assignment operator. */
-        Font& operator=(Font&& orig);
 
-        virtual void Load() override;
-        virtual void Unload() override;
+        void Load() override;
+        void Unload() override;
 
         void UseFont(GPUProgram* fontProgram, BindingLocation fontMetricsLocation) const;
         const font_metrics& GetFontMetrics() const;
-        unsigned int GetCharacterId(char character) const;
+        static unsigned int GetCharacterId(char character);
 
     private:
         /** Holds the font texture. */

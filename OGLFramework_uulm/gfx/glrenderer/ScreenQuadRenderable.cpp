@@ -14,9 +14,8 @@
 
 namespace cgu {
 
-    ScreenQuadRenderable::ScreenQuadRenderable(GPUProgram* prog) :
-        vBuffer(0),
-        program(prog)
+    ScreenQuadRenderable::ScreenQuadRenderable() :
+        vBuffer(0)
     {
         std::array<glm::vec2, 4> vertexData;
         OGL_CALL(glGenBuffers, 1, &vBuffer);
@@ -28,21 +27,20 @@ namespace cgu {
     }
 
     ScreenQuadRenderable::ScreenQuadRenderable(const ScreenQuadRenderable& rhs) :
-        ScreenQuadRenderable(rhs.program)
+        ScreenQuadRenderable()
     {
     }
 
     ScreenQuadRenderable& ScreenQuadRenderable::operator=(ScreenQuadRenderable rhs)
     {
         std::swap(vBuffer, rhs.vBuffer);
-        std::swap(program, rhs.program);
-        attribBinds = rhs.attribBinds;
+        std::swap(vertexAttribs, rhs.vertexAttribs);
         return *this;
     }
 
     ScreenQuadRenderable::ScreenQuadRenderable(ScreenQuadRenderable&& rhs) :
         vBuffer(rhs.vBuffer),
-        attribBinds(std::move(rhs.attribBinds))
+        vertexAttribs(std::move(rhs.vertexAttribs))
     {
         rhs.vBuffer = 0;
     }
@@ -52,8 +50,7 @@ namespace cgu {
         if (this != &rhs) {
             this->~ScreenQuadRenderable();
             vBuffer = rhs.vBuffer;
-            program = rhs.program;
-            attribBinds = std::move(rhs.attribBinds);
+            vertexAttribs = std::move(rhs.vertexAttribs);
             rhs.vBuffer = 0;
         }
         return *this;
@@ -68,26 +65,18 @@ namespace cgu {
 
     void ScreenQuadRenderable::FillAttributeBindings()
     {
-        assert(attribBinds.GetUniformIds().size() == 0);
-        assert(attribBinds.GetVertexAttributes().size() == 0);
-        std::vector<BindingLocation> shaderPositions = program->GetAttributeLocations({ "pos" });
-
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
-        attribBinds.GetVertexAttributes().push_back(program->CreateVertexAttributeArray(vBuffer, 0));
+        vertexAttribs.reset(new GLVertexAttributeArray(vBuffer, 0));
 
-        attribBinds.GetVertexAttributes().back()->StartAttributeSetup();
-        // pos
-        if (shaderPositions[0]->iBinding >= 0) {
-            attribBinds.GetVertexAttributes().back()->AddVertexAttribute(shaderPositions[0], 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
-        }
-        attribBinds.GetVertexAttributes().back()->EndAttributeSetup();
+        vertexAttribs->StartAttributeSetup();
+        vertexAttribs->EndAttributeSetup();
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
     }
 
-    void ScreenQuadRenderable::Draw() const
+    void ScreenQuadRenderable::Draw(GPUProgram* program) const
     {
-        attribBinds.GetVertexAttributes()[0]->EnableVertexAttributeArray();
+        vertexAttribs->EnableVertexAttributeArray();
         OGL_CALL(glDrawArrays, GL_TRIANGLE_STRIP, 0, 4);
-        attribBinds.GetVertexAttributes()[0]->DisableVertexAttributeArray();
+        vertexAttribs->DisableVertexAttributeArray();
     }
 }

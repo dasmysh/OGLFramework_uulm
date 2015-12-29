@@ -41,11 +41,11 @@ std::string signalName(int signal_number)
 {
   switch(signal_number)
   {
-  case SIGABRT: return "SIGABRT";break;
-  case SIGFPE:  return "SIGFPE"; break;
-  case SIGSEGV: return "SIGSEGV"; break;
-  case SIGILL:  return "SIGILL"; break;
-  case SIGTERM: return "SIGTERM"; break;
+  case SIGABRT: return "SIGABRT";
+  case SIGFPE:  return "SIGFPE";
+  case SIGSEGV: return "SIGSEGV";
+  case SIGILL:  return "SIGILL";
+  case SIGTERM: return "SIGTERM";
 default:
     std::ostringstream oss;
     oss << "UNKNOWN SIGNAL(" << signal_number << ")";

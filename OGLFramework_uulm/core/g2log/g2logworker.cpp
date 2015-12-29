@@ -31,9 +31,9 @@ using namespace g2::internal;
 
 namespace
 {
-static const std::string date_formatted =  "%Y/%m/%d";
-static const std::string time_formatted = "%H:%M:%S";
-static const std::string file_name_time_formatted =  "%Y%m%d-%H%M%S";
+const std::string date_formatted =  "%Y/%m/%d";
+const std::string time_formatted = "%H:%M:%S";
+const std::string file_name_time_formatted =  "%Y%m%d-%H%M%S";
 
 // check for filename validity -  filename should not be part of PATH
 bool isValidFilename(const std::string prefix_filename)

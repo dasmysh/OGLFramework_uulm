@@ -16,7 +16,7 @@ namespace cgu {
 
     FilmicTMOperator::FilmicTMOperator(ApplicationBase* app) :
         tmProgram(app->GetGPUProgramManager()->GetResource("shader/screenQuad.vp|shader/tm/filmic.fp")),
-        renderable(new ScreenQuadRenderable(tmProgram)),
+        renderable(app->GetScreenQuadRenderable()),
         uniformIds(tmProgram->GetUniformLocations({ "sourceTex" })),
         filmicUBO(new GLUniformBuffer("filmicBuffer", sizeof(FilmicTMParameters), app->GetUBOBindingPoints()))
     {
@@ -66,7 +66,7 @@ namespace cgu {
             tmProgram->UseProgram();
             sourceRT->GetTextures()[0]->ActivateTexture(GL_TEXTURE0);
             tmProgram->SetUniform(uniformIds[0], 0);
-            renderable->Draw();
+            renderable->Draw(tmProgram);
         });
     }
 }

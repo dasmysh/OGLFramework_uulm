@@ -1,7 +1,7 @@
 /**
  * @file   ApplicationBase.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   17. Dezember 2013
+ * @date   2013.12.17
  *
  * @brief  Declares the application base class.
  */
@@ -19,6 +19,7 @@
 #include "gfx/CameraView.h"
 #include "main.h"
 #include "core/VolumeManager.h"
+#include "gfx/glrenderer/ScreenQuadRenderable.h"
 
 namespace cgu {
 
@@ -31,16 +32,14 @@ namespace cgu {
      * <para>    Base class for all applications using this framework. </para>
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   17. Dezember 2013
+     * @date   2013.12.17
      */
     class ApplicationBase
     {
-    private:
-        ApplicationBase(const ApplicationBase& orig) : win(orig.win) {};
-        ApplicationBase& operator=(const ApplicationBase&) { return *this; };
-
     public:
-        ApplicationBase(GLWindow& window);
+        ApplicationBase(GLWindow& window, const glm::vec3& camPos);
+        ApplicationBase(const ApplicationBase&) = delete;
+        ApplicationBase& operator=(const ApplicationBase&) = delete;
         virtual ~ApplicationBase();
 
         /** Starts the application. */
@@ -71,6 +70,7 @@ namespace cgu {
         GLWindow* GetWindow();
         GPUProgram* GetFontProgram();
         GPUProgram* GetGUIProgram();
+        ScreenQuadRenderable* GetScreenQuadRenderable();
         BindingLocation* GetGUITexUniform() { return &guiTexUniform; };
 
     private:
@@ -113,7 +113,7 @@ namespace cgu {
         std::unique_ptr<MaterialLibManager> matManager;
         /** Holds the shader manager. */
         std::unique_ptr<ShaderManager> shaderManager;
-        /** Holds the gpu program manager. */
+        /** Holds the GPU program manager. */
         std::unique_ptr<GPUProgramManager> programManager;
         /** Holds the font manager. */
         std::unique_ptr<FontManager> fontManager;
@@ -128,11 +128,13 @@ namespace cgu {
         std::unique_ptr<CameraView> cameraView;
         /** Holds the GPUProgram for font rendering. */
         GPUProgram* fontProgram;
-        /** Holds the GPUProgram for gui rendering. */
+        /** Holds the GPUProgram for GUI rendering. */
         GPUProgram* guiProgram;
+        /** Holds the screen quad renderable. */
+        std::unique_ptr<ScreenQuadRenderable> screenQuadRenderable;
 
     protected:
-        /** holds the gui programs uniform bindings. */
+        /** holds the GUI programs uniform bindings. */
         BindingLocation guiTexUniform;
     };
 }

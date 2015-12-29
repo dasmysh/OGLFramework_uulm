@@ -25,22 +25,20 @@ namespace cgu {
     class ScreenQuadRenderable
     {
     public:
-        ScreenQuadRenderable(GPUProgram* prog);
+        ScreenQuadRenderable();
         ScreenQuadRenderable(const ScreenQuadRenderable&);
         ScreenQuadRenderable& operator=(ScreenQuadRenderable);
         ScreenQuadRenderable(ScreenQuadRenderable&& orig);
         ScreenQuadRenderable& operator=(ScreenQuadRenderable&& orig);
         ~ScreenQuadRenderable();
 
-        void Draw() const;
+        void Draw(GPUProgram* program) const;
 
     private:
         /** Holds the vertex buffer object to use. */
         GLuint vBuffer;
-        /** Holds the rendering GPU program. */
-        GPUProgram* program;
-        /** Holds the shader attribute bindings for the shader. */
-        ShaderMeshAttributes attribBinds;
+        /** Holds the vertex attribute bindings. */
+        std::unique_ptr<GLVertexAttributeArray> vertexAttribs;
 
         void FillAttributeBindings();
     };

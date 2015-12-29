@@ -1,7 +1,7 @@
 /**
  * @file   GPUProgram.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
+ * @date   2014.01.15
  *
  * @brief  Contains the implementation of GPUProgram.
  */
@@ -12,8 +12,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include "ShaderBufferBindingPoints.h"
 #include "app/ApplicationBase.h"
-#include "GLTexture.h"
-#include "GLUniformBuffer.h"
 
 namespace cgu {
 
@@ -42,43 +40,75 @@ namespace cgu {
         if (IsLoaded()) UnloadLocal();
     }
 
+    /** Copy constructor. */
+    GPUProgram::GPUProgram(const GPUProgram& rhs) : GPUProgram(rhs.id, rhs.application)
+    {
+        if (rhs.IsLoaded()) GPUProgram::Load();
+    }
+
+    /** Copy assignment operator. */
+    GPUProgram& GPUProgram::operator=(const GPUProgram& rhs)
+    {
+        Resource* tRes = this;
+        *tRes = static_cast<const Resource&>(rhs);
+        GPUProgram tmp{ rhs };
+        std::swap(program, tmp.program);
+        std::swap(knownVABindings, tmp.knownVABindings);
+        std::swap(knownUniformBindings, tmp.knownUniformBindings);
+        std::swap(knownUBBindings, tmp.knownUBBindings);
+        std::swap(boundUBlocks, tmp.boundUBlocks);
+        std::swap(knownSSBOBindings, tmp.knownSSBOBindings);
+        std::swap(boundSSBOs, tmp.boundSSBOs);
+        std::swap(vaos, tmp.vaos);
+        return *this;
+    }
+
     /**
      * Move constructor.
-     * @param orig the original object
+     * @param rhs the original object
      */
-    GPUProgram::GPUProgram(GPUProgram&& orig) :
-        Resource(std::move(orig)),
-        program(orig.program)
+    GPUProgram::GPUProgram(GPUProgram&& rhs) :
+        Resource(std::move(rhs)),
+        program(rhs.program),
+        knownVABindings(std::move(rhs.knownVABindings)),
+        knownUniformBindings(std::move(rhs.knownUniformBindings)),
+        knownUBBindings(std::move(rhs.knownUBBindings)),
+        boundUBlocks(std::move(rhs.boundUBlocks)),
+        knownSSBOBindings(std::move(rhs.knownSSBOBindings)),
+        boundSSBOs(std::move(rhs.boundSSBOs)),
+        vaos(std::move(rhs.vaos))
     {
-        orig.program = 0;
+        rhs.program = 0;
     }
 
     /**
      * Move assignment operator.
-     * @param orig the original object
+     * @param rhs the original object
      * @return reference to this object
      */
-    GPUProgram& GPUProgram::operator =(GPUProgram&& orig)
+    GPUProgram& GPUProgram::operator =(GPUProgram&& rhs)
     {
         Resource* tRes = this;
-        *tRes = static_cast<Resource&&> (std::move(orig));
-        if (this != &orig) {
-            program = orig.program;
-            orig.program = 0;
+        *tRes = static_cast<Resource&&> (std::move(rhs));
+        if (this != &rhs) {
+            program = rhs.program;
+            rhs.program = 0;
+            knownVABindings = std::move(rhs.knownVABindings);
+            knownUniformBindings = std::move(rhs.knownUniformBindings);
+            knownUBBindings = std::move(rhs.knownUBBindings);
+            boundUBlocks = std::move(rhs.boundUBlocks);
+            knownSSBOBindings = std::move(rhs.knownSSBOBindings);
+            boundSSBOs = std::move(rhs.boundSSBOs);
+            vaos = std::move(rhs.vaos);
         }
         return *this;
     }
 
     void GPUProgram::Load()
     {
-        std::vector<std::string> progDefinition;
-        boost::split(progDefinition, id, boost::is_any_of(","));
-        std::vector<std::string> programNames;
-        boost::split(programNames, progDefinition[0], boost::is_any_of("|"));
+        auto programNames = GetSubresources();
         std::vector<GLuint> shaders;
         for (auto& progName : programNames) {
-            boost::trim(progName);
-            for (unsigned int i = 1; i < progDefinition.size(); ++i) progName += "," + progDefinition[i];
             // ignore exception and reload whole program
             shaders.push_back(application->GetShaderManager()->GetResource(progName)->shader);
         }
@@ -146,7 +176,7 @@ namespace cgu {
                 }
                 catch (shader_compiler_error compilerError) {
                     ReleaseShaders(newOGLShaders);
-                    throw compilerError;
+                    throw;
                 }
             }
         }
@@ -157,7 +187,7 @@ namespace cgu {
         }
         catch (shader_compiler_error compilerError) {
             ReleaseShaders(newOGLShaders);
-            throw compilerError;
+            throw;
         }
 
         Unload();
@@ -197,7 +227,7 @@ namespace cgu {
      */
     GLVertexAttributeArray* GPUProgram::CreateVertexAttributeArray(GLuint vBuffer, GLuint iBuffer)
     {
-        vaos.push_back(std::unique_ptr<GLVertexAttributeArray>(new GLVertexAttributeArray(vBuffer, iBuffer)));
+        vaos.push_back(std::make_unique<GLVertexAttributeArray>(vBuffer, iBuffer));
         return vaos.back().get();
     }
 
@@ -241,9 +271,9 @@ namespace cgu {
     }
 
     /**
-     * Returns the OpenGL location of the ubo with given name.
+     * Returns the OpenGL location of the UBO with given name.
      * @param uBufferName the uniform buffer name
-     * @return the ubo location
+     * @return the UBO location
      */
     BindingLocation GPUProgram::GetUniformBufferLocation(const std::string& uBufferName)
     {
@@ -260,12 +290,41 @@ namespace cgu {
     }
 
     /**
+     * Sets a uniform with given OpenGL name/location (vec2 version)
+     * @param name the location of the uniform
+     * @param data the vec2 to set the uniform to
+     */
+    void GPUProgram::SetUniform(BindingLocation name, const glm::vec2& data) const
+    {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
+        OGL_CALL(glUniform2fv, name->iBinding, 1, reinterpret_cast<const GLfloat*> (&data));
+    }
+
+    /**
+     * Sets a uniform with given OpenGL name/location (vec3 version)
+     * @param name the location of the uniform
+     * @param data the vec3 to set the uniform to
+     */
+    void GPUProgram::SetUniform(BindingLocation name, const glm::vec3& data) const
+    {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
+        OGL_CALL(glUniform3fv, name->iBinding, 1, reinterpret_cast<const GLfloat*> (&data));
+    }
+
+    /**
      * Sets a uniform with given OpenGL name/location (vec4 version)
      * @param name the location of the uniform
      * @param data the vec4 to set the uniform to
      */
-    void GPUProgram::SetUniform(BindingLocation name, const glm::vec4& data)
+    void GPUProgram::SetUniform(BindingLocation name, const glm::vec4& data) const
     {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
         OGL_CALL(glUniform4fv, name->iBinding, 1, reinterpret_cast<const GLfloat*> (&data));
     }
 
@@ -274,9 +333,25 @@ namespace cgu {
      * @param name the location of the uniform
      * @param data the float[] to set the uniform to
      */
-    void GPUProgram::SetUniform(BindingLocation name, const std::vector<float>& data)
+    void GPUProgram::SetUniform(BindingLocation name, const std::vector<float>& data) const
     {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
         OGL_CALL(glUniform1fv, name->iBinding, static_cast<GLsizei>(data.size()), data.data());
+    }
+
+    /**
+     * Sets a uniform with given OpenGL name/location (int[] version)
+     * @param name the location of the uniform
+     * @param data the int[] to set the uniform to
+     */
+    void GPUProgram::SetUniform(BindingLocation name, const std::vector<int>& data) const
+    {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
+        OGL_CALL(glUniform1iv, name->iBinding, static_cast<GLsizei>(data.size()), data.data());
     }
 
     /**
@@ -284,8 +359,11 @@ namespace cgu {
      * @param name the location of the uniform
      * @param data the int to set the uniform to
      */
-    void GPUProgram::SetUniform(BindingLocation name, int data)
+    void GPUProgram::SetUniform(BindingLocation name, int data) const
     {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
         OGL_CALL(glUniform1i, name->iBinding, data);
     }
 
@@ -294,8 +372,11 @@ namespace cgu {
      * @param name the location of the uniform
      * @param data the float to set the uniform to
      */
-    void GPUProgram::SetUniform(BindingLocation name, float data)
+    void GPUProgram::SetUniform(BindingLocation name, float data) const
     {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
         OGL_CALL(glUniform1f, name->iBinding, data);
     }
 
@@ -304,25 +385,28 @@ namespace cgu {
     * @param name the location of the uniform
     * @param data the uint vector to set the uniform to
     */
-    void GPUProgram::SetUniform(BindingLocation name, const glm::uvec3& data)
+    void GPUProgram::SetUniform(BindingLocation name, const glm::uvec3& data) const
     {
+        GLint cProg;
+        OGL_CALL(glGetIntegerv, GL_CURRENT_PROGRAM, &cProg);
+        assert(program == cProg);
         OGL_CALL(glUniform3ui, name->iBinding, data.x, data.y, data.z);
     }
 
     /**
-     * Bind a uniform block with given name to a ubo binding point
-     * @param uBufferName the ubo name
+     * Bind a uniform block with given name to a UBO binding point
+     * @param uBufferName the UBO name
      * @param bindingPoints the binding points
      */
     void GPUProgram::BindUniformBlock(const std::string& uBufferName, ShaderBufferBindingPoints& bindingPoints)
     {
-        GLuint bindingPoint = bindingPoints.GetBindingPoint(uBufferName);
+        auto bindingPoint = bindingPoints.GetBindingPoint(uBufferName);
         BindUniformBlock(uBufferName, bindingPoint);
     }
 
     /**
-     * Bind a uniform block with given name to a ubo binding point
-     * @param uBufferName the ubo name
+     * Bind a uniform block with given name to a UBO binding point
+     * @param uBufferName the UBO name
      * @param bindingPoint the binding point
      */
     void GPUProgram::BindUniformBlock(const std::string& uBufferName, GLuint bindingPoint)
@@ -333,19 +417,19 @@ namespace cgu {
     }
 
     /**
-     * Bind a uniform block with given name to a ubo binding point
-     * @param name the ubo name
+     * Bind a uniform block with given name to a UBO binding point
+     * @param name the UBO name
      * @param bindingPoint the binding point
      */
-    void GPUProgram::BindUniformBlock(BindingLocation name, GLuint bindingPoint)
+    void GPUProgram::BindUniformBlock(BindingLocation name, GLuint bindingPoint) const
     {
         OGL_CALL(glUniformBlockBinding, this->program, name->uBinding, bindingPoint);
     }
 
     /**
-    * Returns the OpenGL location of the ssbo with given name.
+    * Returns the OpenGL location of the SSBO with given name.
     * @param sBufferName the uniform buffer name
-    * @return the ssbo location
+    * @return the SSBO location
     */
     BindingLocation GPUProgram::GetShaderBufferLocation(const std::string& sBufferName)
     {
@@ -362,8 +446,8 @@ namespace cgu {
     }
 
     /**
-    * Bind a ssbo with given name to a ssbo binding point
-    * @param sBufferName the ssbo name
+    * Bind a SSBO with given name to a SSBO binding point
+    * @param sBufferName the SSBO name
     * @param bindingPoints the binding points
     */
     void GPUProgram::BindShaderBuffer(const std::string& sBufferName, ShaderBufferBindingPoints& bindingPoints)
@@ -373,8 +457,8 @@ namespace cgu {
     }
 
     /**
-    * Bind a ssbo with given name to a ssbo binding point
-    * @param sBufferName the ssbo name
+    * Bind a SSBO with given name to a SSBO binding point
+    * @param sBufferName the SSBO name
     * @param bindingPoint the binding point
     */
     void GPUProgram::BindShaderBuffer(const std::string& sBufferName, GLuint bindingPoint)
@@ -385,11 +469,11 @@ namespace cgu {
     }
 
     /**
-    * Bind a ssbo with given name to a ssbo binding point
-    * @param name the ssbo name
+    * Bind a SSBO with given name to a SSBO binding point
+    * @param name the SSBO name
     * @param bindingPoint the binding point
     */
-    void GPUProgram::BindShaderBuffer(BindingLocation name, GLuint bindingPoint)
+    void GPUProgram::BindShaderBuffer(BindingLocation name, GLuint bindingPoint) const
     {
         OGL_CALL(glShaderStorageBlockBinding, this->program, name->uBinding, bindingPoint);
     }
@@ -416,12 +500,13 @@ namespace cgu {
         Resource::Unload();
     }
 
-    GLuint GPUProgram::LinkNewProgram(const std::string& name, const std::vector<GLuint>& shaders)
+    GLuint GPUProgram::LinkNewProgram(const std::string& name, const std::vector<GLuint>& shaders) const
     {
         GLuint program = OGL_SCALL(glCreateProgram);
         if (program == 0) {
             LOG(ERROR) << L"Could not create GPU program!";
-            throw std::runtime_error("Could not create GPU program!");
+            throw resource_loading_error() << resid_info(name)
+                << errdesc_info("Cannot create program.");
         }
         for (auto shader : shaders) {
             OGL_CALL(glAttachShader, program, shader);
@@ -434,7 +519,7 @@ namespace cgu {
             GLint infoLogLength;
             OGL_CALL(glGetProgramiv, program, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-            GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+            auto strInfoLog = new GLchar[infoLogLength + 1];
             OGL_CALL(glGetProgramInfoLog, program, infoLogLength, NULL, strInfoLog);
             LOG(ERROR) << L"Linker failure: " << strInfoLog;
             std::string infoLog = strInfoLog;
@@ -445,7 +530,9 @@ namespace cgu {
             }
             OGL_CALL(glDeleteProgram, program);
 
-            throw shader_compiler_error(name, infoLog);
+            throw shader_compiler_error() << resid_info(id)
+                << compiler_error_info(infoLog)
+                << errdesc_info("Program linking failed.");
         }
         for (auto shader : shaders) {
             OGL_CALL(glDetachShader, program, shader);

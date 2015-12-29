@@ -1,8 +1,7 @@
 /**
  * @file   GPUProgramManager.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
- *
+ * @date   2014.01.15
  * @brief  Contains the definition of GPUProgramManager.
  */
 
@@ -12,43 +11,30 @@
 #include "gfx/glrenderer/GPUProgram.h"
 
 namespace cgu {
-    /** ResourceManager interface for GPUProgram resources. */
-    typedef IResourceManager<GPUProgram> IGPUProgramManager;
+
+    struct shader_compiler_error;
 
     /**
      * @brief  Manages the GPUProgram resources.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   15. Januar 2014
+     * @date   2014.01.15
      */
-    class GPUProgramManager : public IGPUProgramManager
+    class GPUProgramManager : public ResourceManager<GPUProgram, true>
     {
-    private:
-        /** Deleted copy constructor. */
-        GPUProgramManager(const GPUProgramManager&) = delete;
-        /** Deleted copy assignment operator. */
-        GPUProgramManager& operator=(const GPUProgramManager&) = delete;
-
     public:
-        /** The gpu program type. */
-        typedef IGPUProgramManager::ResourceType GPUProgramType;
-        /** The gpu program map type. */
-        typedef IGPUProgramManager::ResourceMap GPUProgramMap;
-
-        GPUProgramManager(ApplicationBase* app);
+        explicit GPUProgramManager(ApplicationBase* app);
+        GPUProgramManager(const GPUProgramManager&) = delete;
+        GPUProgramManager& operator=(const GPUProgramManager&) = delete;
+        GPUProgramManager(GPUProgramManager&&);
+        GPUProgramManager& operator=(GPUProgramManager&&);
         virtual ~GPUProgramManager();
 
-        GPUProgramType* GetResource(const std::string& resId) override;
-        bool HasResource(const std::string& resId) override;
         void RecompileAll();
 
     private:
-        /** Holds the GPUProgram objects. */
-        GPUProgramMap gpuPrograms;
-        /** Holds the window for dependencies. */
-        ApplicationBase* application;
-
-        void HandleShaderCompileException(const shader_compiler_error& except);
+        void LoadResource(const std::string& resId, ResourceType* resourcePtr) override;
+        void HandleShaderCompileException(const shader_compiler_error& except) const;
     };
 }
 

@@ -1,7 +1,7 @@
 /**
  * @file   MaterialLibManager.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   6. Januar 2014
+ * @date   2014.01.06
  *
  * @brief  Contains the definition of the material manager.
  */
@@ -16,40 +16,20 @@ namespace cgu {
     class ApplicationBase;
 
     /**
-     * @brief IResourceManager for MaterialLibrary resources.
-     */
-    typedef IResourceManager<MaterialLibrary> IMaterialLibManager;
-
-    /**
      * @brief  ResourceManager implementation for Material objects.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   6. Januar 2014
+     * @date   2014.01.06
      */
-    class MaterialLibManager final : public IMaterialLibManager
+    class MaterialLibManager final : public ResourceManager<MaterialLibrary>
     {
-    private:
-        /** Copy constructor deleted. */
-        MaterialLibManager(const MaterialLibManager&) {};
-        /** Copy assignment operator deleted. */
-        MaterialLibManager& operator=(const MaterialLibManager&) {};
     public:
-        /** The material library type. */
-        typedef IMaterialLibManager::ResourceType MaterialLibType;
-        /** The material library map type. */
-        typedef IMaterialLibManager::ResourceMap MaterialLibMap;
-
-        MaterialLibManager(ApplicationBase* app);
+        explicit MaterialLibManager(ApplicationBase* app);
+        MaterialLibManager(const MaterialLibManager&) = delete;
+        MaterialLibManager& operator=(const MaterialLibManager&) = delete;
+        MaterialLibManager(MaterialLibManager&&);
+        MaterialLibManager& operator=(MaterialLibManager&&);
         virtual ~MaterialLibManager();
-
-        MaterialLibType* GetResource(const std::string& resId) override;
-        bool HasResource(const std::string& resId) override;
-
-    private:
-        /** Holds the application object. */
-        ApplicationBase* application;
-        /** Holds the loaded material libraries. */
-        MaterialLibMap materialLibs;
     };
 }
 

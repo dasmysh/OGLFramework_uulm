@@ -1,7 +1,7 @@
 /**
  * @file   GLTexture2D.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   31. Dezember 2013
+ * @date   2013.12.31
  *
  * @brief  Contains texture class for openGL implementation.
  */
@@ -19,22 +19,20 @@ namespace cgu {
      * @brief  2D Texture for the OpenGL implementation.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   31. Dezember 2013
+     * @date   2013.12.31
      */
     class GLTexture2D : public Resource
     {
-    private:
-        /** Copy constructor deleted. */
-        GLTexture2D(const GLTexture2D& orig) = delete;
-        /** Copy assignment operator deleted. */
-        GLTexture2D& operator=(const GLTexture2D&) = delete;
-
     public:
         GLTexture2D(const std::string& texFilename, ApplicationBase* app);
+        GLTexture2D(const GLTexture2D&);
+        GLTexture2D& operator=(const GLTexture2D&);
+        GLTexture2D(GLTexture2D&&);
+        GLTexture2D& operator=(GLTexture2D&&);
         virtual ~GLTexture2D();
 
-        virtual void Load() override;
-        virtual void Unload() override;
+        void Load() override;
+        void Unload() override;
 
         GLTexture* GetTexture();
         const GLTexture* GetTexture() const;

@@ -46,8 +46,6 @@ namespace cgu {
         unsigned int width;
         /** Holds the windows height. */
         unsigned int height;
-
-    private:
     };
 }
 

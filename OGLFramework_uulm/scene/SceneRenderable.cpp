@@ -8,7 +8,6 @@
 
 #include "SceneRenderable.h"
 #include "gfx/CameraView.h"
-#include "gfx/glrenderer/GPUProgram.h"
 #include "gfx/glrenderer/MeshRenderable.h"
 #include <glm/glm.hpp>
 

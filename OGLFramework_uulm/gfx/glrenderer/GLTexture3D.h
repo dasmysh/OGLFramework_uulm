@@ -14,6 +14,7 @@
 #include "GLTexture.h"
 
 namespace cgu {
+
     class VolumeBrickOctree;
 
     /**
@@ -26,23 +27,23 @@ namespace cgu {
     {
     public:
         GLTexture3D(const std::string& texFilename, ApplicationBase* app);
-        GLTexture3D(const GLTexture3D& orig) = delete;
-        GLTexture3D(const GLTexture3D&& orig) = delete;
-        GLTexture3D& operator=(const GLTexture3D& orig) = delete;
-        GLTexture3D& operator=(const GLTexture3D&& orig) = delete;
+        GLTexture3D(const GLTexture3D&);
+        GLTexture3D& operator=(const GLTexture3D&);
+        GLTexture3D(GLTexture3D&&);
+        GLTexture3D& operator=(GLTexture3D&&);
         virtual ~GLTexture3D();
 
-        virtual void Load() override;
-        virtual void Unload() override;
+        void Load() override;
+        void Unload() override;
 
         GLTexture* LoadToSingleTexture();
-        GLTexture* GetTexture();
+        GLTexture* GetTexture() const;
         const glm::vec3& GetScaling() const { return cellSize; }
 
         std::unique_ptr<VolumeBrickOctree> GetBrickedVolume(const glm::vec3& scale);
         void FillRaw(std::vector<uint8_t>& data, const glm::uvec3& pos, const glm::uvec3& dataSize, const glm::uvec3& texSize) const;
         std::unique_ptr<GLTexture> CreateMinMaxTexture(const glm::uvec3& pos, const glm::uvec3& size, TextureDescriptor& minMaxDesc) const;
-        const TextureDescriptor& GetTextureDescriptor() const;
+        // const TextureDescriptor& GetTextureDescriptor() const;
         const glm::uvec3& GetSize() const { return volumeSize; }
 
     private:

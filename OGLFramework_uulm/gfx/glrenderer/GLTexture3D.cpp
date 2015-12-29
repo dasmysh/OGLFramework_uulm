@@ -15,6 +15,7 @@
 #include <boost/assign.hpp>
 #include "gfx/volumes/VolumeBrickOctree.h"
 #include <ios>
+#include <boost/filesystem.hpp>
 
 #undef min
 #undef max
@@ -38,6 +39,57 @@ namespace cgu {
     {
     }
 
+    /** Copy constructor. */
+    GLTexture3D::GLTexture3D(const GLTexture3D& rhs) : GLTexture3D(rhs.id, rhs.application)
+    {
+        if (rhs.IsLoaded()) GLTexture3D::Load();
+    }
+
+    /** Copy assignment operator. */
+    GLTexture3D& GLTexture3D::operator=(const GLTexture3D& rhs)
+    {
+        auto tmp(rhs);
+        std::swap(texture, tmp.texture);
+        std::swap(volumeSize, tmp.volumeSize);
+        std::swap(cellSize, tmp.cellSize);
+        std::swap(rawFileName, tmp.rawFileName);
+        std::swap(scaleValue, tmp.scaleValue);
+        std::swap(dataDim, tmp.dataDim);
+        std::swap(texDesc, tmp.texDesc);
+        std::swap(fileStream, tmp.fileStream);
+        std::swap(data, tmp.data);
+        return *this;
+    }
+
+    /** Move constructor. */
+    GLTexture3D::GLTexture3D(GLTexture3D&& rhs) :
+        Resource(std::move(rhs)),
+        texture(std::move(rhs.texture)),
+        volumeSize(std::move(rhs.volumeSize)),
+        cellSize(std::move(rhs.cellSize)),
+        rawFileName(std::move(rhs.rawFileName)),
+        scaleValue(std::move(rhs.scaleValue)),
+        dataDim(std::move(rhs.dataDim)),
+        texDesc(std::move(rhs.texDesc)),
+        fileStream(std::move(rhs.fileStream)),
+        data(std::move(rhs.data))
+    {
+        
+    }
+    GLTexture3D& GLTexture3D::operator=(GLTexture3D&& rhs)
+    {
+        texture = std::move(rhs.texture);
+        volumeSize = std::move(rhs.volumeSize);
+        cellSize = std::move(rhs.cellSize);
+        rawFileName = std::move(rhs.rawFileName);
+        scaleValue = std::move(rhs.scaleValue);
+        dataDim = std::move(rhs.dataDim);
+        texDesc = std::move(rhs.texDesc);
+        fileStream = std::move(rhs.fileStream);
+        data = std::move(rhs.data);
+        return *this;
+    }
+
     /** Destructor. */
     GLTexture3D::~GLTexture3D()
     {
@@ -46,21 +98,24 @@ namespace cgu {
 
     void GLTexture3D::Load()
     {
-        std::string filename = application->GetConfig().resourceBase + "/" + id;
-        std::string ending = filename.substr(filename.find_last_of("."));
-        std::string path = filename.substr(0, filename.find_last_of("/\\"));
+        auto filename = application->GetConfig().resourceBase + "/" + GetParameters()[0];
+        boost::filesystem::path datFile{ filename };
+        auto path = datFile.parent_path().string() + "/";
+        auto ending = datFile.extension().string();
 
         if (ending != ".dat" && ending != ".DAT") {
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
             LOG(ERROR) << "Cannot load '" << converter.from_bytes(ending) << "' Only .dat files are supported.";
-            throw std::runtime_error("Cannot load '" + ending + "' Only .dat files are supported.");
+            throw resource_loading_error() << ::boost::errinfo_file_name(datFile.filename().string()) << resid_info(id)
+                << errdesc_info("Cannot load file, file type not supported.");
         }
 
         std::ifstream ifs(filename);
         if (!ifs.is_open()) {
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            LOG(ERROR) << "Could not open file '" << converter.from_bytes(filename) << "'.";
-            throw std::runtime_error("Could not open file '" + filename + "'.");
+            LOG(ERROR) << "Cannot open file '" << converter.from_bytes(filename) << "'.";
+            throw resource_loading_error() << ::boost::errinfo_file_name(datFile.filename().string()) << resid_info(id)
+                << errdesc_info("Cannot open file.");
         }
 
         std::string str, raw_file, format_str, obj_model;
@@ -81,10 +136,11 @@ namespace cgu {
 
         if (raw_file == "" || volumeSize == glm::uvec3(0) || format_str == "") {
             LOG(ERROR) << "Could find all required fields in dat file.";
-            throw std::runtime_error("Could find all required fields in dat file.");
+            throw resource_loading_error() << ::boost::errinfo_file_name(datFile.filename().string()) << resid_info(id)
+                << errdesc_info("Cannot find all required fields in dat file.");
         }
 
-        unsigned int componentSize = 0;
+        unsigned int componentSize;
         if (format_str == "UCHAR") {
             texDesc.type = GL_UNSIGNED_BYTE;
             componentSize = 1;
@@ -100,7 +156,8 @@ namespace cgu {
         } else {
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
             LOG(ERROR) << "Format '" << converter.from_bytes(format_str) << "' is not supported.";
-            throw std::runtime_error("Format '" + format_str + "' is not supported.");
+            throw resource_loading_error() << ::boost::errinfo_file_name(datFile.filename().string()) << resid_info(id)
+                << errdesc_info("Format not supported.");
         }
 
         if (obj_model == "I") {
@@ -118,7 +175,8 @@ namespace cgu {
         } else {
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
             LOG(ERROR) << "ObjectModel '" << converter.from_bytes(obj_model) << "' is not supported.";
-            throw std::runtime_error("ObjectModel '" + obj_model + "' is not supported.");
+            throw resource_loading_error() << ::boost::errinfo_file_name(datFile.filename().string()) << resid_info(id)
+                << errdesc_info("ObjectModel not supported.");
         }
 
         texDesc.bytesPP = dataDim * componentSize;
@@ -176,45 +234,45 @@ namespace cgu {
         }
 
         ifsRaw.seekg(0, std::ios::end);
-        unsigned int data_size = static_cast<unsigned int>(ifsRaw.tellg());
+        auto data_size = static_cast<unsigned int>(ifsRaw.tellg());
         ifsRaw.seekg(0, std::ios::beg);
 
         std::vector<char> rawData(data_size, 9);
         ifsRaw.read(rawData.data(), data_size);
         ifsRaw.close();
 
-        unsigned int volumeNumBytes = volumeSize.x * volumeSize.y * volumeSize.z * texDesc.bytesPP;
+        auto volumeNumBytes = volumeSize.x * volumeSize.y * volumeSize.z * texDesc.bytesPP;
         data.resize(volumeNumBytes);
 
         if (texDesc.type == GL_UNSIGNED_BYTE) {
             int size = std::min(data_size, volumeNumBytes);
-            unsigned char* ptr = reinterpret_cast<uint8_t*>(rawData.data());
-            for (int i = 0; i < size; ++i) {
+            auto ptr = reinterpret_cast<uint8_t*>(rawData.data());
+            for (auto i = 0; i < size; ++i) {
                 data[i] = ptr[i];
             }
         } else if (texDesc.type == GL_UNSIGNED_SHORT) {
-            unsigned int elementSize = static_cast<unsigned int>(sizeof(uint16_t));
-            unsigned int size = std::min(data_size, volumeNumBytes) / elementSize;
-            uint16_t* ptr = reinterpret_cast<uint16_t*>(rawData.data());
+            auto elementSize = static_cast<unsigned int>(sizeof(uint16_t));
+            auto size = std::min(data_size, volumeNumBytes) / elementSize;
+            auto ptr = reinterpret_cast<uint16_t*>(rawData.data());
             for (unsigned int i = 0; i < size; ++i) {
                 reinterpret_cast<uint16_t*>(data.data())[i] = ptr[i] * scaleValue;
             }
         } else if (texDesc.type == GL_UNSIGNED_INT) {
-            unsigned int elementSize = static_cast<unsigned int>(sizeof(uint32_t));
-            unsigned int size = std::min(data_size, volumeNumBytes) / elementSize;
-            uint32_t* ptr = reinterpret_cast<uint32_t*>(rawData.data());
+            auto elementSize = static_cast<unsigned int>(sizeof(uint32_t));
+            auto size = std::min(data_size, volumeNumBytes) / elementSize;
+            auto ptr = reinterpret_cast<uint32_t*>(rawData.data());
             for (unsigned int i = 0; i < size; ++i) {
                 reinterpret_cast<uint32_t*>(data.data())[i] = ptr[i];
             }
         }
 
-        texture = std::unique_ptr<GLTexture>(new GLTexture(volumeSize.x, volumeSize.y, volumeSize.z, texDesc, data.data()));
+        texture = std::make_unique<GLTexture>(volumeSize.x, volumeSize.y, volumeSize.z, texDesc, data.data());
 
         return texture.get();
     }
 
     /** Returns the texture object. */
-    GLTexture* GLTexture3D::GetTexture()
+    GLTexture* GLTexture3D::GetTexture() const
     {
         return texture.get();
     }
@@ -236,12 +294,12 @@ namespace cgu {
         }
         fileStream = &ifs;
 
-        GPUProgram* minMaxProg = nullptr;
+        GPUProgram* minMaxProg;
         if (texDesc.bytesPP == 1) minMaxProg = application->GetGPUProgramManager()->GetResource("genMinMaxMipMaps8.cp");
         else if (texDesc.bytesPP == 2) minMaxProg = application->GetGPUProgramManager()->GetResource("genMinMaxMipMaps16.cp");
         else if (texDesc.bytesPP == 4) minMaxProg = application->GetGPUProgramManager()->GetResource("genMinMaxMipMaps32.cp");
         else throw std::runtime_error("Texture bit depth is not supported for min/max octrees.");
-        std::vector<BindingLocation> uniformNames = minMaxProg->GetUniformLocations(boost::assign::list_of<std::string>("origTex")("nextLevelTex"));
+        auto uniformNames = minMaxProg->GetUniformLocations(boost::assign::list_of<std::string>("origTex")("nextLevelTex"));
         std::unique_ptr<VolumeBrickOctree> result{ new VolumeBrickOctree(this, glm::uvec3(0), volumeSize,
             scale * cellSize, minMaxProg, uniformNames, application) };
 
@@ -290,7 +348,7 @@ namespace cgu {
 
         FillRaw(dataRaw, pos, dataSize, actualSize);
 
-        GPUProgram* minMaxProg = nullptr;
+        GPUProgram* minMaxProg;
         minMaxDesc.bytesPP = texDesc.bytesPP * 4;
         minMaxDesc.format = GL_RGBA;
         minMaxDesc.type = texDesc.type;
