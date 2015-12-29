@@ -10,13 +10,7 @@
 #define FWAPPLICATION_H
 
 #include "ApplicationBase.h"
-#include "gfx/glrenderer/MeshRenderable.h"
-#include "gfx/glrenderer/GPUProgram.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
-#include "gfx/glrenderer/Font.h"
 #include "gfx/glrenderer/ScreenText.h"
-#include "gfx/OBJMesh.h"
-#include "scene/ArcballRotatedSceneRenderable.h"
 
 namespace cguFrameworkApp {
 
@@ -29,12 +23,12 @@ namespace cguFrameworkApp {
     class FWApplication : public cgu::ApplicationBase
     {
     public:
-        FWApplication(cgu::GLWindow& window);
+        explicit FWApplication(cgu::GLWindow& window);
         virtual ~FWApplication();
 
-        virtual bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender) override;
-        virtual bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, cgu::BaseGLWindow* sender) override;
-        virtual void OnResize(unsigned int width, unsigned int height) override;
+        bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender) override;
+        bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, cgu::BaseGLWindow* sender) override;
+        void OnResize(unsigned int width, unsigned int height) override;
 
     private:
         /** Holds the screen text to render fps. */

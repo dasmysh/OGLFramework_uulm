@@ -1,19 +1,15 @@
 /**
  * @file   FWApplication.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   21. Januar 2014
+ * @date   2014.01.21
  *
  * @brief  Contains the implementation of FWApplication.
  */
 
 #include "FWApplication.h"
-#include "gfx/OBJMesh.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
-#include "gfx/glrenderer/GUIRenderable.h"
 #include "app/GLWindow.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace cguFrameworkApp {
 
@@ -22,7 +18,7 @@ namespace cguFrameworkApp {
      * @param window the primary window used for rendering
      */
     FWApplication::FWApplication(cgu::GLWindow& window) :
-        ApplicationBase(window),
+        ApplicationBase(window, glm::vec3(0.0f, 0.0f, 10.0f)),
         fpsText(new cgu::ScreenText(*fontManager->GetResource("Arial"), programManager->GetResource(fontProgramID),
             "test", glm::vec2(static_cast<float>(window.GetWidth()) - 100.0f, 10.0f), 30.0f))
     {
@@ -40,9 +36,9 @@ namespace cguFrameworkApp {
 
     void FWApplication::FrameMove(float time, float elapsed)
     {
-        static float fps = 0.0f;
-        static float accumulatedElapsed = 0.0f;
-        static float numAvg = 0;
+        static auto fps = 0.0f;
+        static auto accumulatedElapsed = 0.0f;
+        static auto numAvg = 0.0f;
 
         accumulatedElapsed += elapsed;
         numAvg += 1.0f;
@@ -82,7 +78,7 @@ namespace cguFrameworkApp {
     {
         if (ApplicationBase::HandleKeyboard(vkCode, bKeyDown, sender)) return true;
         if (!IsRunning() || IsPaused()) return false;
-        bool handled = false;
+        auto handled = false;
         return handled;
     }
 
@@ -94,9 +90,9 @@ namespace cguFrameworkApp {
     void FWApplication::OnResize(unsigned int width, unsigned int height)
     {
         ApplicationBase::OnResize(width, height);
-        float fWidth = static_cast<float> (width);
-        float fHeight = static_cast<float> (height);
-        fpsText->SetPosition(glm::vec2(width - 100.0f, 10.0f));
-        float aspectRatio = fWidth / fHeight;
+        auto fWidth = static_cast<float> (width);
+        // auto fHeight = static_cast<float> (height);
+        fpsText->SetPosition(glm::vec2(fWidth - 100.0f, 10.0f));
+        // auto aspectRatio = fWidth / fHeight;
     }
 }

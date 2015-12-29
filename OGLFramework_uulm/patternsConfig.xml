@@ -6,8 +6,8 @@
 	<backbufferBits>32</backbufferBits>
 	<windowLeft>0</windowLeft>
 	<windowTop>0</windowTop>
-	<windowWidth>1950</windowWidth>
-	<windowHeight>1209</windowHeight>
+	<windowWidth>1280</windowWidth>
+	<windowHeight>720</windowHeight>
 	<pauseOnKillFocus>0</pauseOnKillFocus>
 	<resourceBase>resources</resourceBase>
 	<useCUDA>0</useCUDA>
