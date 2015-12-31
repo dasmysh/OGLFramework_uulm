@@ -23,6 +23,11 @@ namespace cgu {
     {
     }
 
+    /** Default copy constructor. */
+    GPUProgramManager::GPUProgramManager(const GPUProgramManager&) = default;
+    /** Default copy assignment operator. */
+    GPUProgramManager& GPUProgramManager::operator=(const GPUProgramManager&) = default;
+
     /** Default move constructor. */
     GPUProgramManager::GPUProgramManager(GPUProgramManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
 

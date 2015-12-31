@@ -23,8 +23,8 @@ namespace cgu {
     {
     public:
         explicit ShaderManager(ApplicationBase* app);
-        ShaderManager(const ShaderManager&) = delete;
-        ShaderManager& operator=(const ShaderManager&) = delete;
+        ShaderManager(const ShaderManager&);
+        ShaderManager& operator=(const ShaderManager&);
         ShaderManager(ShaderManager&&);
         ShaderManager& operator=(ShaderManager&&);
         virtual ~ShaderManager();

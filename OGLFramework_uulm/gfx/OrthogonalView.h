@@ -1,7 +1,7 @@
 /**
  * @file   OrthogonalView.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   22. Februar 2014
+ * @date   2014.02.22
  *
  * @brief  Contains the definition of OrthogonalView.
  */
@@ -24,18 +24,16 @@ namespace cgu {
      * @brief  Represents a orthogonal view to be used for rendering.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   22. Februar 2014
+     * @date   2014.02.22
      */
     class OrthogonalView
     {
-    private:
-        /** Deleted copy constructor. */
-        OrthogonalView(const OrthogonalView&) = delete;
-        /** Deleted copy assignment operator. */
-        OrthogonalView& operator=(const OrthogonalView&) = delete;
-
     public:
         OrthogonalView(float width, float height, ShaderBufferBindingPoints* uniformBindingPoints);
+        OrthogonalView(const OrthogonalView&);
+        OrthogonalView& operator=(const OrthogonalView&);
+        OrthogonalView(OrthogonalView&&);
+        OrthogonalView& operator=(OrthogonalView&&);
         virtual ~OrthogonalView();
 
         void Resize(float width, float height);

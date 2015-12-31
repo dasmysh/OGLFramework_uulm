@@ -38,12 +38,6 @@ namespace cgu {
      */
     class GLBatchRenderTarget
     {
-    private:
-        /** Deleted copy constructor. */
-        GLBatchRenderTarget(const GLBatchRenderTarget& orig) = delete;
-        /** Deleted copy assignment operator. */
-        GLBatchRenderTarget& operator=(const GLBatchRenderTarget&) = delete;
-
     public:
         explicit GLBatchRenderTarget(GLRenderTarget& renderTarget);
         virtual ~GLBatchRenderTarget();

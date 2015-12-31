@@ -38,9 +38,46 @@ namespace cgu {
     {
     }
 
-    GLRenderTarget::~GLRenderTarget()
+    /** Copy constructor. */
+    GLRenderTarget::GLRenderTarget(const GLRenderTarget& rhs) :
+        batchRT(*this),
+        fbo(rhs.fbo),
+        width(rhs.fbo.GetWidth()),
+        height(rhs.fbo.GetHeight())
     {
     }
+
+    /** Copy assignment operator. */
+    GLRenderTarget& GLRenderTarget::operator=(const GLRenderTarget& rhs)
+    {
+        GLRenderTarget tmp{ rhs };
+        std::swap(fbo, tmp.fbo);
+        std::swap(width, tmp.width);
+        std::swap(height, tmp.height);
+        return *this;
+    }
+
+    /** Move constructor. */
+    GLRenderTarget::GLRenderTarget(GLRenderTarget&& rhs) :
+        batchRT(*this),
+        fbo(std::move(rhs.fbo)),
+        width(rhs.fbo.GetWidth()),
+        height(rhs.fbo.GetHeight())
+    {
+    }
+
+    /** Move assignment operator. */
+    GLRenderTarget& GLRenderTarget::operator=(GLRenderTarget&& rhs)
+    {
+        this->~GLRenderTarget();
+        fbo = std::move(rhs.fbo);
+        width = rhs.width;
+        height = rhs.height;
+        return *this;
+    }
+
+    /** Default destructor. */
+    GLRenderTarget::~GLRenderTarget() = default;
 
     /** Implicit conversion to a GLBatchRenderTarget for direct rendering without the lambda expression in BatchDraw. */
     GLRenderTarget::operator GLBatchRenderTarget&()
@@ -49,7 +86,7 @@ namespace cgu {
     }
 
     /**
-     * Resizes the render target (ie. sets the new view port).
+     * Resizes the render target (i.e. sets the new view port).
      * @param w the windows new width
      * @param h the windows new height
      */

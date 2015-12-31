@@ -26,11 +26,13 @@ namespace cgu {
      */
     class GLRenderTarget
     {
-    private:
-        GLRenderTarget(const GLRenderTarget&) = delete;
     public:
         GLRenderTarget(unsigned int w, unsigned int h);
         GLRenderTarget(unsigned int w, unsigned int h, const FrameBufferDescriptor& desc);
+        GLRenderTarget(const GLRenderTarget&);
+        GLRenderTarget& operator=(const GLRenderTarget&);
+        GLRenderTarget(GLRenderTarget&&);
+        GLRenderTarget& operator=(GLRenderTarget&&);
         virtual ~GLRenderTarget();
 
         operator GLBatchRenderTarget&();

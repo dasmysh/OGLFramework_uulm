@@ -23,8 +23,8 @@ namespace cgu {
     {
     public:
         explicit VolumeManager(ApplicationBase* app);
-        VolumeManager(const VolumeManager&) = delete;
-        VolumeManager& operator=(const VolumeManager&) = delete;
+        VolumeManager(const VolumeManager&);
+        VolumeManager& operator=(const VolumeManager&);
         VolumeManager(VolumeManager&&);
         VolumeManager& operator=(VolumeManager&&);
         virtual ~VolumeManager();

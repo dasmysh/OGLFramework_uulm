@@ -56,10 +56,26 @@ namespace cgu {
     public:
         /** Constructor for resource managers. */
         explicit ResourceManager(ApplicationBase* app) : application{ app } {};
-        /** Default copy constructor. */
-        ResourceManager(const ResourceManager&) = delete;
-        /** Default copy assignment operator. */
-        ResourceManager& operator=(const ResourceManager&) = delete;
+
+        /** Copy constructor. */
+        ResourceManager(const ResourceManager& rhs) : ResourceManager(rhs.application)
+        {
+            for (const auto& res : rhs.resources) {
+                std::unique_ptr<ResourceType> resourcePtr = std::move(ResourceLoadingPolicy::CreateResource(res.first, application));
+                ResourceLoadingPolicy::LoadResource(resourcePtr.get());
+                resources.insert(std::move(std::make_pair(res.first, std::move(resourcePtr))));
+            }
+        }
+
+        /** Copy assignment operator. */
+        ResourceManager& operator=(const ResourceManager& rhs)
+        {
+            ResourceManager tmp{ rhs };
+            std::swap(application, tmp.application);
+            std::swap(resources, tmp.resources);
+            return *this;
+        }
+
         /** Default move constructor. */
         ResourceManager(ResourceManager&& rhs) : resources(std::move(rhs.resources)), application(rhs.application) {}
         /** Default move assignment operator. */

@@ -29,8 +29,8 @@ namespace cgu {
     {
     public:
         OBJMesh(const std::string& objFilename, ApplicationBase* app);
-        OBJMesh(const OBJMesh&) = delete;
-        OBJMesh& operator=(const OBJMesh&) = delete;
+        OBJMesh(const OBJMesh&);
+        OBJMesh& operator=(const OBJMesh&);
         OBJMesh(OBJMesh&&);
         OBJMesh& operator=(OBJMesh&&);
         virtual ~OBJMesh();

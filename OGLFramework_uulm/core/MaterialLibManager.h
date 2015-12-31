@@ -25,8 +25,8 @@ namespace cgu {
     {
     public:
         explicit MaterialLibManager(ApplicationBase* app);
-        MaterialLibManager(const MaterialLibManager&) = delete;
-        MaterialLibManager& operator=(const MaterialLibManager&) = delete;
+        MaterialLibManager(const MaterialLibManager&);
+        MaterialLibManager& operator=(const MaterialLibManager&);
         MaterialLibManager(MaterialLibManager&&);
         MaterialLibManager& operator=(MaterialLibManager&&);
         virtual ~MaterialLibManager();

@@ -39,8 +39,8 @@ namespace cgu {
     {
     public:
         MaterialLibrary(const std::string& mtlFilename, ApplicationBase* app);
-        MaterialLibrary(const MaterialLibrary&) = delete;
-        MaterialLibrary& operator=(const MaterialLibrary&) = delete;
+        MaterialLibrary(const MaterialLibrary&);
+        MaterialLibrary& operator=(const MaterialLibrary&);
         MaterialLibrary(MaterialLibrary&&);
         MaterialLibrary& operator=(MaterialLibrary&&);
         virtual ~MaterialLibrary();

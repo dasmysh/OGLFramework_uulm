@@ -1,7 +1,7 @@
 /**
  * @file   OrthogonalView.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   22. Februar 2014
+ * @date   2014.02.22
  *
  * @brief  Contains the implementation of OrthogonalView.
  */
@@ -17,9 +17,41 @@ namespace cgu {
         Resize(width, height);
     }
 
-    OrthogonalView::~OrthogonalView()
+    /** Copy constructor. */
+    OrthogonalView::OrthogonalView(const OrthogonalView& rhs) :
+        orthoBuffer(rhs.orthoBuffer),
+        orthoUBO(new GLUniformBuffer(*rhs.orthoUBO))
+    {
+        orthoUBO->UploadData(0, sizeof(OrthoProjectionBuffer), &orthoBuffer);
+    }
+
+    /** Copy assignment operator. */
+    OrthogonalView& OrthogonalView::operator=(const OrthogonalView& rhs)
+    {
+        OrthogonalView tmp{ rhs };
+        std::swap(orthoBuffer, tmp.orthoBuffer);
+        std::swap(orthoUBO, tmp.orthoUBO);
+        return *this;
+    }
+
+    /** Move constructor. */
+    OrthogonalView::OrthogonalView(OrthogonalView&& rhs) :
+        orthoBuffer(std::move(rhs.orthoBuffer)),
+        orthoUBO(std::move(rhs.orthoUBO))
     {
     }
+
+    /** Move assignment operator. */
+    OrthogonalView& OrthogonalView::operator=(OrthogonalView&& rhs)
+    {
+        this->~OrthogonalView();
+        orthoBuffer = std::move(rhs.orthoBuffer);
+        orthoUBO = std::move(rhs.orthoUBO);
+        return *this;
+    }
+
+    /** Default destructor. */
+    OrthogonalView::~OrthogonalView() = default;
 
     void OrthogonalView::Resize(float width, float height)
     {

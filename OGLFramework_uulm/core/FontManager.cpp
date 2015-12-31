@@ -20,6 +20,11 @@ namespace cgu {
     {
     }
 
+    /** Default copy constructor. */
+    FontManager::FontManager(const FontManager&) = default;
+    /** Default copy assignment operator. */
+    FontManager& FontManager::operator=(const FontManager&) = default;
+
     /** Default move constructor. */
     FontManager::FontManager(FontManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
 

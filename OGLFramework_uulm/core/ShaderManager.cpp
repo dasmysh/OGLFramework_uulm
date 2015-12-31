@@ -18,6 +18,11 @@ namespace cgu {
     {
     }
 
+    /** Default copy constructor. */
+    ShaderManager::ShaderManager(const ShaderManager&) = default;
+    /** Default copy assignment operator. */
+    ShaderManager& ShaderManager::operator=(const ShaderManager&) = default;
+
     /** Default move constructor. */
     ShaderManager::ShaderManager(ShaderManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
 

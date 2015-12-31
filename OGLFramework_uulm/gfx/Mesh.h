@@ -24,8 +24,8 @@ namespace cgu {
     {
     public:
         Mesh();
-        Mesh(const Mesh&) = delete;
-        Mesh& operator=(const Mesh&) = delete;
+        Mesh(const Mesh&);
+        Mesh& operator=(const Mesh&);
         Mesh(Mesh&&);
         Mesh& operator=(Mesh&&);
         ~Mesh();

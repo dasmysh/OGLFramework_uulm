@@ -23,8 +23,8 @@ namespace cgu {
     {
     public:
         explicit TextureManager(ApplicationBase* app);
-        TextureManager(const TextureManager&) = delete;
-        TextureManager& operator=(const TextureManager&) = delete;
+        TextureManager(const TextureManager&);
+        TextureManager& operator=(const TextureManager&);
         TextureManager(TextureManager&&);
         TextureManager& operator=(TextureManager&&);
         virtual ~TextureManager();

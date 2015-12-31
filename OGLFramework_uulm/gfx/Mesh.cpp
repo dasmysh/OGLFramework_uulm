@@ -25,9 +25,47 @@ namespace cgu {
     /** Default constructor. */
     Mesh::Mesh() : SubMesh() {}
 
+    /** Copy constructor. */
+    Mesh::Mesh(const Mesh& rhs) :
+        SubMesh(rhs),
+        vertices(rhs.vertices),
+        texCoords(rhs.texCoords),
+        normals(rhs.normals),
+        paramVertices(rhs.paramVertices),
+        lineVertices(rhs.lineVertices),
+        faceVertices(rhs.faceVertices),
+        triangleConnect(rhs.triangleConnect),
+        verticesConnect(rhs.verticesConnect)
+    {
+        for (const auto& submesh : rhs.subMeshes) {
+            auto subMeshPtr = std::make_unique<SubMesh>(*submesh);
+            subMeshes.push_back(subMeshPtr.get());
+            subMeshMap.insert(std::move(std::make_pair(submesh->objectName, std::move(subMeshPtr))));
+        }
+    }
+
+    /** Copy assignment operator. */
+    Mesh& Mesh::operator=(const Mesh& rhs)
+    {
+        Mesh tmp{ rhs };
+        SubMesh* tMesh = this;
+        *tMesh = static_cast<const SubMesh&>(rhs);
+        std::swap(vertices, tmp.vertices);
+        std::swap(texCoords, tmp.texCoords);
+        std::swap(normals, tmp.normals);
+        std::swap(paramVertices, tmp.paramVertices);
+        std::swap(lineVertices, tmp.lineVertices);
+        std::swap(faceVertices, tmp.faceVertices);
+        std::swap(subMeshMap, tmp.subMeshMap);
+        std::swap(subMeshes, tmp.subMeshes);
+        std::swap(triangleConnect, tmp.triangleConnect);
+        std::swap(verticesConnect, tmp.verticesConnect);
+        return *this;
+    }
+
     /** Default move constructor. */
     Mesh::Mesh(Mesh&& rhs) :
-        SubMesh(std::move(rhs)),
+        //SubMesh(std::move(rhs)),
         vertices(std::move(rhs.vertices)),
         texCoords(std::move(rhs.texCoords)),
         normals(std::move(rhs.normals)),
@@ -197,7 +235,7 @@ namespace cgu {
             verticesConnect[tri.vertex[2]].triangles.push_back(i);
         }
 
-        // set triangle neighbours
+        // set triangle neighbors
         for (auto i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
             auto& tri = triangleConnect[i];
             for (unsigned int ni = 0; ni < 3; ++ni) {

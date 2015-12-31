@@ -19,6 +19,11 @@ namespace cgu {
     {
     }
 
+    /** Default copy constructor. */
+    VolumeManager::VolumeManager(const VolumeManager&) = default;
+    /** Default copy assignment operator. */
+    VolumeManager& VolumeManager::operator=(const VolumeManager&) = default;
+
     /** Default move constructor. */
     VolumeManager::VolumeManager(VolumeManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
 

@@ -94,6 +94,11 @@ namespace cgu {
     {
     }
 
+    /** Default copy constructor. */
+    OBJMesh::OBJMesh(const OBJMesh&) = default;
+    /** Default copy assignment operator. */
+    OBJMesh& OBJMesh::operator=(const OBJMesh&) = default;
+
     /** Default move constructor. */
     OBJMesh::OBJMesh(OBJMesh&& rhs) : Resource(std::move(rhs)), Mesh(std::move(rhs)) {}
 

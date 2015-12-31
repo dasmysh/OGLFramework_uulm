@@ -24,8 +24,8 @@ namespace cgu {
     {
     public:
         explicit GPUProgramManager(ApplicationBase* app);
-        GPUProgramManager(const GPUProgramManager&) = delete;
-        GPUProgramManager& operator=(const GPUProgramManager&) = delete;
+        GPUProgramManager(const GPUProgramManager&);
+        GPUProgramManager& operator=(const GPUProgramManager&);
         GPUProgramManager(GPUProgramManager&&);
         GPUProgramManager& operator=(GPUProgramManager&&);
         virtual ~GPUProgramManager();

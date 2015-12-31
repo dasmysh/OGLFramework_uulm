@@ -23,8 +23,8 @@ namespace cgu {
     {
     public:
         explicit FontManager(ApplicationBase* app);
-        FontManager(const FontManager&) = delete;
-        FontManager& operator=(const FontManager&) = delete;
+        FontManager(const FontManager&);
+        FontManager& operator=(const FontManager&);
         FontManager(FontManager&&);
         FontManager& operator=(FontManager&&);
         virtual ~FontManager();

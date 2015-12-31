@@ -19,6 +19,11 @@ namespace cgu {
     {
     }
 
+    /** Default copy constructor. */
+    MaterialLibManager::MaterialLibManager(const MaterialLibManager&) = default;
+    /** Default copy assignment operator. */
+    MaterialLibManager& MaterialLibManager::operator=(const MaterialLibManager&) = default;
+
     /** Default move constructor. */
     MaterialLibManager::MaterialLibManager(MaterialLibManager&& rhs) : ResourceManagerBase(std::move(rhs)) {}
 
