@@ -3,14 +3,16 @@
  * @author  Sebastian Maisch
  * @date    2014.04.10
  *
- * @brief Includes common headers and defines used for cuda.
+ * @brief Includes common headers and defines used for CUDA.
  */
 
 #ifndef CUDAMAIN_H
 #define CUDAMAIN_H
 
+// ReSharper disable CppUnusedIncludeDirective
 #include <cuda.h>
 #include <cuda_runtime.h>
+// ReSharper enable CppUnusedIncludeDirective
 #include <cublas_v2.h>
 #include <stdexcept>
 
@@ -35,7 +37,7 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line)
 
 inline void __cudaCheckError( const char *file, const int line )
 {
-    cudaError err = cudaGetLastError();
+    auto err = cudaGetLastError();
     if ( cudaSuccess != err )
     {
         cudaLog::log(file, line) << L"cudaCheckError() failed: " << cudaGetErrorString(err);
@@ -70,7 +72,7 @@ inline void __cudaCheckError(const char*, const int)
 #define CONSTANT
 #endif
 
-static inline const char* cublasGetErrorString(cublasStatus_t status)
+static const char* cublasGetErrorString(cublasStatus_t status)
 {
     switch(status)
     {
@@ -83,6 +85,8 @@ static inline const char* cublasGetErrorString(cublasStatus_t status)
         case CUBLAS_STATUS_EXECUTION_FAILED: return "CUBLAS_STATUS_EXECUTION_FAILED"; 
         case CUBLAS_STATUS_INTERNAL_ERROR: return "CUBLAS_STATUS_INTERNAL_ERROR"; 
         case CUBLAS_STATUS_NOT_SUPPORTED: return "CUBLAS_STATUS_NOT_SUPPORTED";
+        case CUBLAS_STATUS_LICENSE_ERROR: return "CUBLAS_STATUS_LICENSE_ERROR";
+        default: break;
     }
     return "unknown error";
 }

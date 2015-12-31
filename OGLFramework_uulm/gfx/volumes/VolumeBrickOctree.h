@@ -10,9 +10,7 @@
 #define VOLUMEBRICKOCTREE_H
 
 #include "main.h"
-#include "gfx/glrenderer/GLVertexAttributeArray.h"
 #include "gfx/glrenderer/GLTexture.h"
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace cgu {
 

@@ -96,6 +96,7 @@ namespace cgu {
     /** Default move assignment operator. */
     SubMesh& SubMesh::operator=(SubMesh&& rhs)
     {
+        this->~SubMesh();
         objectName = std::move(rhs.objectName);
         mtlChunks = std::move(rhs.mtlChunks);
         lineHasTexture = rhs.lineHasTexture;

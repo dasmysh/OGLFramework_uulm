@@ -36,7 +36,7 @@ namespace cgu {
             glm::vec2 GetPos() const { return glm::vec2(val, rgba.w); }
             glm::vec3 GetColor() const { return glm::vec3(rgba); }
 
-            bool operator==(const ControlPoint& other)
+            bool operator==(const ControlPoint& other) const
             {
                 return (this->val == other.val) && (this->rgba == other.rgba);
             }

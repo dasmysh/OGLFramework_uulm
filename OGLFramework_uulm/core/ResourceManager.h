@@ -127,7 +127,7 @@ namespace cgu {
                 auto filename = boost::get_error_info<boost::errinfo_file_name>(loadingError);
                 auto errDesc = boost::get_error_info<errdesc_info>(loadingError);
                 std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-                LOG(INFO) << L"Error while loading resource \"" << converter.from_bytes(resId) << L"\"." << std::endl
+                LOG(INFO) << L"Error while loading resource \"" << converter.from_bytes(resId) << L"\"/\"" << resId.c_str() << "\"." << std::endl
                     << "ResourceID: " << (resid == nullptr ? "-" : resid->c_str()) << std::endl
                     << "Filename: " << (filename == nullptr ? "-" : filename->c_str()) << std::endl
                     << "Description: " << (errDesc == nullptr ? "-" : errDesc->c_str());
@@ -147,7 +147,6 @@ namespace cgu {
             return resources[resourceName].get();
         }
 
-    protected:
         /** Holds the resources managed. */
         ResourceMap resources;
         /** Holds the application base. */

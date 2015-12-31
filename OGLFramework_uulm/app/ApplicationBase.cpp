@@ -52,7 +52,7 @@ namespace cgu {
         // guiThemeManager.reset(new GUIThemeManager(this));
         win.RegisterApplication(*this);
         win.ShowWindow();
-        float aspectRatio = static_cast<float> (win.GetWidth())
+        auto aspectRatio = static_cast<float> (win.GetWidth())
             / static_cast<float> (win.GetHeight());
         orthoView.reset(new OrthogonalView(static_cast<float>(win.GetWidth()), static_cast<float>(win.GetHeight()), &uniformBindingPoints));
         cameraView.reset(new CameraView(60.0f, aspectRatio, 1.0f, 100.0f, camPos, &uniformBindingPoints));
@@ -75,7 +75,7 @@ namespace cgu {
      * Returns the texture manager.
      * @return  the texture manager
      */
-    TextureManager* ApplicationBase::GetTextureManager()
+    TextureManager* ApplicationBase::GetTextureManager() const
     {
         return texManager.get();
     }
@@ -84,7 +84,7 @@ namespace cgu {
      * Returns the volume manager.
      * @return  the volume manager
      */
-    VolumeManager* ApplicationBase::GetVolumeManager()
+    VolumeManager* ApplicationBase::GetVolumeManager() const
     {
         return volManager.get();
     }
@@ -93,7 +93,7 @@ namespace cgu {
      * Returns the material lib manager.
      * @return the material lib manager
      */
-    MaterialLibManager* ApplicationBase::GetMaterialLibManager()
+    MaterialLibManager* ApplicationBase::GetMaterialLibManager() const
     {
         return matManager.get();
     }
@@ -102,7 +102,7 @@ namespace cgu {
      * Returns the shader manager.
      * @return the shader manager
      */
-    ShaderManager* ApplicationBase::GetShaderManager()
+    ShaderManager* ApplicationBase::GetShaderManager() const
     {
         return shaderManager.get();
     }
@@ -111,7 +111,7 @@ namespace cgu {
      * Returns the GPU program manager.
      * @return the GPU program manager
      */
-    GPUProgramManager* ApplicationBase::GetGPUProgramManager()
+    GPUProgramManager* ApplicationBase::GetGPUProgramManager() const
     {
         return programManager.get();
     }
@@ -138,7 +138,7 @@ namespace cgu {
      * Returns the current configuration.
      * @return the configuration
      */
-    Configuration& ApplicationBase::GetConfig()
+    Configuration& ApplicationBase::GetConfig() const
     {
         return win.GetConfig();
     }
@@ -147,7 +147,7 @@ namespace cgu {
      * Returns the font manager.
      * @return the font manager
      */
-    FontManager* ApplicationBase::GetFontManager()
+    FontManager* ApplicationBase::GetFontManager() const
     {
         return fontManager.get();
     }
@@ -165,7 +165,7 @@ namespace cgu {
      * Returns the main window.
      * @return the main window
      */
-    GLWindow* ApplicationBase::GetWindow()
+    GLWindow* ApplicationBase::GetWindow() const
     {
         return &win;
     }
@@ -174,7 +174,7 @@ namespace cgu {
      * Returns the GPU program for font rendering.
      * @return the font rendering program
      */
-    GPUProgram* ApplicationBase::GetFontProgram()
+    GPUProgram* ApplicationBase::GetFontProgram() const
     {
         return fontProgram;
     }
@@ -183,7 +183,7 @@ namespace cgu {
      * Returns the GPU program for GUI rendering.
      * @return the GUI rendering program
      */
-    GPUProgram* ApplicationBase::GetGUIProgram()
+    GPUProgram* ApplicationBase::GetGUIProgram() const
     {
         return guiProgram;
     }
@@ -192,7 +192,7 @@ namespace cgu {
      *  Returns the screen quad renderable.
      *  @return the screen quad renderable.
      */
-    ScreenQuadRenderable* ApplicationBase::GetScreenQuadRenderable()
+    ScreenQuadRenderable* ApplicationBase::GetScreenQuadRenderable() const
     {
         return screenQuadRenderable.get();
     }
@@ -205,15 +205,15 @@ namespace cgu {
      */
     bool ApplicationBase::HandleKeyboard(unsigned int vkCode, bool bKeyDown, BaseGLWindow* sender)
     {
-        int handled = 0;
+        auto handled = 0;
         static unsigned __int64 s_PrevKeyDown = 0;
         static __int64 s_PrevKeyDownMod = 0;
-        static int s_PrevKeyDownHandled = 0;
+        static auto s_PrevKeyDownHandled = 0;
 
-        int kmod = 0;
-        int testkp = 0;
-        int k = 0;
-        unsigned int twVKCode = vkCode == VK_NUMRETURN ? VK_RETURN : vkCode;
+        auto kmod = 0;
+        auto testkp = 0;
+        auto k = 0;
+        auto twVKCode = vkCode == VK_NUMRETURN ? VK_RETURN : vkCode;
         if (sender->GetKeyboardModState(VK_MOD_SHIFT)) kmod |= TW_KMOD_SHIFT;
         if (sender->GetKeyboardModState(VK_MOD_CTRL)) {
             kmod |= TW_KMOD_CTRL; testkp = 1;
@@ -289,7 +289,7 @@ namespace cgu {
             else
             {
                 // if the key will be handled at next WM_CHAR report this event as handled
-                int key = (int)(MapVirtualKey(twVKCode, 2) & 0xff);
+                auto key = static_cast<int>(MapVirtualKey(twVKCode, 2) & 0xff);
                 if (kmod&TW_KMOD_CTRL && key > 0 && key < 27)
                     key += 'a' - 1;
                 if (key > 0 && key < 256)
@@ -305,7 +305,7 @@ namespace cgu {
             else
             {
                 // if the key would have been handled report this event as handled
-                int key = (int)(MapVirtualKey(twVKCode, 2) & 0xff);
+                auto key = static_cast<int>(MapVirtualKey(twVKCode, 2) & 0xff);
                 if (kmod&TW_KMOD_CTRL && key > 0 && key < 27)
                     key += 'a' - 1;
                 if (key > 0 && key < 256)
@@ -345,8 +345,8 @@ namespace cgu {
      */
     bool ApplicationBase::HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender)
     {
-        int handled = 0;
-        int handledMovement = 0;
+        auto handled = 0;
+        auto handledMovement = 0;
         if (sender->HadPositionUpdate()) {
             handledMovement = TwMouseMotion(static_cast<int>(sender->GetMouseAbsolute().x), static_cast<int>(sender->GetMouseAbsolute().y));
             sender->HandledPositionUpdate();
@@ -358,7 +358,7 @@ namespace cgu {
         if (handled == 0 && buttonAction & RI_MOUSE_MIDDLE_BUTTON_DOWN) handled = TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_MIDDLE);
         if (handled == 0 && buttonAction & RI_MOUSE_MIDDLE_BUTTON_UP) handled = TwMouseButton(TW_MOUSE_RELEASED, TW_MOUSE_MIDDLE);
 
-        static int s_WheelPos = 0;
+        static auto s_WheelPos = 0;
         s_WheelPos += static_cast<int>(mouseWheelDelta);
         if (handled == 0) handled = TwMouseWheel(s_WheelPos);
         if (handled == 0 && IsRunning() && !IsPaused()) handled = HandleMouseApp(buttonAction, mouseWheelDelta, sender);
@@ -372,7 +372,7 @@ namespace cgu {
      */
     void ApplicationBase::OnResize(unsigned int width, unsigned int height)
     {
-        float aspectRatio = static_cast<float> (width) / static_cast<float> (height);
+        auto aspectRatio = static_cast<float> (width) / static_cast<float> (height);
         TwWindowSize(width, height);
         if (orthoView) {
             orthoView->Resize(static_cast<float>(win.GetWidth()), static_cast<float> (win.GetHeight()));
@@ -400,7 +400,7 @@ namespace cgu {
         orthoView->SetView();
     }
 
-    bool ApplicationBase::IsRunning()
+    bool ApplicationBase::IsRunning() const
     {
         return !this->m_stopped;
     }
@@ -420,7 +420,8 @@ namespace cgu {
         LARGE_INTEGER qwTime;
         QueryPerformanceCounter(&qwTime);
 
-        this->m_elapsedTime = (float)((double)(qwTime.QuadPart - this->m_lastElapsedTime) / (double) this->m_QPFTicksPerSec);
+        this->m_elapsedTime = static_cast<float>(static_cast<double>(qwTime.QuadPart - this->m_lastElapsedTime)
+            / static_cast<double>(this->m_QPFTicksPerSec));
         if (this->m_elapsedTime < 0.0f)
             this->m_elapsedTime = 0.0f;
 
@@ -431,9 +432,9 @@ namespace cgu {
             return;
         }
 
-        this->m_time = (qwTime.QuadPart - this->m_baseTime) / (double) this->m_QPFTicksPerSec;
+        this->m_time = (qwTime.QuadPart - this->m_baseTime) / static_cast<double>(this->m_QPFTicksPerSec);
 
-        this->FrameMove((float) this->m_time, (float) this->m_elapsedTime);
+        this->FrameMove(static_cast<float>(this->m_time), static_cast<float>(this->m_elapsedTime));
         this->RenderScene();
         TwDraw();
         this->win.Present();

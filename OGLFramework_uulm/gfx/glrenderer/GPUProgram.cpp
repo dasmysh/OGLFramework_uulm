@@ -49,6 +49,7 @@ namespace cgu {
     /** Copy assignment operator. */
     GPUProgram& GPUProgram::operator=(const GPUProgram& rhs)
     {
+        this->~GPUProgram();
         Resource* tRes = this;
         *tRes = static_cast<const Resource&>(rhs);
         GPUProgram tmp{ rhs };
@@ -206,7 +207,7 @@ namespace cgu {
     {
         std::vector<BindingLocation> result;
         result.reserve(attribNames.size());
-        for (const std::string& name : attribNames) {
+        for (const auto& name : attribNames) {
             try {
                 result.push_back(knownVABindings.at(name).get());
             }
@@ -257,7 +258,7 @@ namespace cgu {
     {
         std::vector<BindingLocation> result;
         result.reserve(uniformNames.size());
-        for (const std::string& name : uniformNames) {
+        for (const auto& name : uniformNames) {
             try {
                 result.push_back(knownUniformBindings.at(name).get());
             }
@@ -411,7 +412,7 @@ namespace cgu {
      */
     void GPUProgram::BindUniformBlock(const std::string& uBufferName, GLuint bindingPoint)
     {
-        BindingLocation uBufferLoc = GetUniformBufferLocation(uBufferName);
+        auto uBufferLoc = GetUniformBufferLocation(uBufferName);
         BindUniformBlock(uBufferLoc, bindingPoint);
         boundUBlocks[uBufferName] = bindingPoint;
     }
@@ -452,7 +453,7 @@ namespace cgu {
     */
     void GPUProgram::BindShaderBuffer(const std::string& sBufferName, ShaderBufferBindingPoints& bindingPoints)
     {
-        GLuint bindingPoint = bindingPoints.GetBindingPoint(sBufferName);
+        auto bindingPoint = bindingPoints.GetBindingPoint(sBufferName);
         BindShaderBuffer(sBufferName, bindingPoint);
     }
 
@@ -463,7 +464,7 @@ namespace cgu {
     */
     void GPUProgram::BindShaderBuffer(const std::string& sBufferName, GLuint bindingPoint)
     {
-        BindingLocation sBufferLoc = GetShaderBufferLocation(sBufferName);
+        auto sBufferLoc = GetShaderBufferLocation(sBufferName);
         BindShaderBuffer(sBufferLoc, bindingPoint);
         boundSSBOs[sBufferName] = bindingPoint;
     }
@@ -502,7 +503,7 @@ namespace cgu {
 
     GLuint GPUProgram::LinkNewProgram(const std::string& name, const std::vector<GLuint>& shaders) const
     {
-        GLuint program = OGL_SCALL(glCreateProgram);
+        auto program = OGL_SCALL(glCreateProgram);
         if (program == 0) {
             LOG(ERROR) << L"Could not create GPU program!";
             throw resource_loading_error() << resid_info(name)

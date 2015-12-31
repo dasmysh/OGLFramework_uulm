@@ -1,7 +1,7 @@
 /**
  * @file   GLWindow.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   18. Dezember 2013
+ * @date   2013.12.18
  * @ingroup win
  *
  * @brief  Windows declaration for the GLWindow.
@@ -13,7 +13,6 @@
 #include "main.h"
 #include "Configuration.h"
 #include "BaseGLWindow.h"
-#include <bitset>
 
 namespace cgu {
 
@@ -24,7 +23,7 @@ namespace cgu {
      * @ingroup win
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   18. Dezember 2013
+     * @date   2013.12.18
      */
     class GLWindow : public BaseGLWindow
     {
@@ -32,7 +31,7 @@ namespace cgu {
         GLWindow(HINSTANCE hInstance, int nCmdShow, const std::string& title, Configuration& conf);
         virtual ~GLWindow();
 
-        void ShowWindow();
+        void ShowWindow() const;
         void CloseWindow() override;
         void RegisterApplication(ApplicationBase& application);
         void Present() override;
@@ -41,7 +40,7 @@ namespace cgu {
         LRESULT HandleMessages(UINT message, WPARAM wParam, LPARAM lParam);
         void HandleRawKeyboard(const RAWKEYBOARD& raw);
         void HandleRawMouse(const RAWMOUSE& raw);
-        Configuration& GetConfig();
+        Configuration& GetConfig() const;
 
     private:
         HWND hWnd;
@@ -68,10 +67,10 @@ namespace cgu {
 
         void InitWindow();
         void InitOpenGL();
-        void InitCUDA();
+        void InitCUDA() const;
         void ReleaseWindow();
         void ReleaseOpenGL();
-        void ReleaseCUDA();
+        void ReleaseCUDA() const;
         void HandleResize();
         void HandleSizeEvent(WPARAM wParam);
     };

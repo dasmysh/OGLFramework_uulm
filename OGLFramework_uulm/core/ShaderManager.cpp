@@ -54,7 +54,7 @@ namespace cgu {
             if (lineNo == nullptr) fileline << "-";
             else fileline << *lineNo;
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            LOG(INFO) << L"Error while loading shader \"" << resid->c_str() << L"\"." << std::endl
+            LOG(INFO) << L"Error while loading shader \"" << resid->c_str() << L"\"/\"" << resId.c_str() << "\"." << std::endl
                 << "Filename: " << (filename == nullptr ? "-" : *filename) << std::endl
                 << fileline.str().c_str() << std::endl
                 << "Description: " << (errDesc == nullptr ? "-" : *errDesc);

@@ -44,7 +44,7 @@ namespace cgu {
         /// Initializes the grid.
         /// </summary>
         /// <param name="value">The value to initialize each field.</param>
-        void CUDAGrid::InitGrid(int value)
+        void CUDAGrid::InitGrid(int value) const
         {
             CudaSafeCall(cudaMemset(grid, value, size.width * size.height * size.depth));
         }
@@ -53,10 +53,10 @@ namespace cgu {
         /// Initializes the grid using a texture. Will only work for 2d grids.
         /// </summary>
         /// <param name="texture">The texture.</param>
-        void CUDAGrid::InitGrid(CUDAImage* texture)
+        void CUDAGrid::InitGrid(CUDAImage* texture) const
         {
             assert(size.depth == 1);
-            cudaArray* src = texture->GetMappedArray();
+            auto src = texture->GetMappedArray();
             CudaSafeCall(cudaMemcpy2DFromArray(grid, size.width, src, 0, 0, size.width,
                 size.height, cudaMemcpyDeviceToDevice));
         }
@@ -65,10 +65,10 @@ namespace cgu {
         /// Copies the grids content to texture. Works only with 2d grids.
         /// </summary>
         /// <param name="texture">The texture.</param>
-        void CUDAGrid::CopyToTexture(CUDAImage* texture)
+        void CUDAGrid::CopyToTexture(CUDAImage* texture) const
         {
             assert(size.depth == 1);
-            cudaArray* dst = texture->GetMappedArray();
+            auto dst = texture->GetMappedArray();
             CudaSafeCall(cudaMemcpyToArray(dst, 0, 0, grid, size.width * size.height,
                 cudaMemcpyDeviceToDevice));
         }
@@ -80,7 +80,7 @@ namespace cgu {
         /// <param name="ptr">The pointer to allocated host memory.</param>
         /// <param name="destSize">Size of the host memory in elements.</param>
         /// <param name="elementSize">Size of a single element.</param>
-        void CUDAGrid::CopyToHost(void* ptr, const glm::uvec3 destSize, size_t elementSize)
+        void CUDAGrid::CopyToHost(void* ptr, const glm::uvec3 destSize, size_t elementSize) const
         {
             assert(dimensions.x == destSize.x);
             assert(dimensions.y == destSize.y);

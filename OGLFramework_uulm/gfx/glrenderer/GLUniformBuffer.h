@@ -1,7 +1,7 @@
 /**
  * @file   GLUniformBuffer.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   25. Januar 2014
+ * @date   2014.01.25
  *
  * @brief  Contains the definition of GLUniformBuffer.
  */
@@ -19,7 +19,7 @@ namespace cgu {
      * @brief  Represents uniform buffers.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   25. Januar 2014
+     * @date   2014.01.25
      */
     class GLUniformBuffer
     {
@@ -33,8 +33,8 @@ namespace cgu {
 
         void UploadData(unsigned int offset, unsigned int size, const void* data) const;
         void BindBuffer() const;
-        ShaderBufferBindingPoints* GetBindingPoints() { return bindingPoints; }
-        const std::string& GetUBOName() { return uboName; }
+        ShaderBufferBindingPoints* GetBindingPoints() const { return bindingPoints; }
+        const std::string& GetUBOName() const { return uboName; }
 
     private:
         /** holds the uniform buffer object. */

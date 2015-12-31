@@ -21,72 +21,6 @@ namespace cgu {
 
     /**
      * Constructor.
-     * @param shader the name of the shader the error occurred in
-     * @param errors the error string opengl returned
-     */
-    /*shader_compiler_error::shader_compiler_error(const std::string& shader, const std::string& errors) :
-        shr(new char[shader.size() + 1]),
-        errs(new char[errors.size() + 1]),
-        myWhat(nullptr)
-    {
-        std::string result = "Shader " + shader + " compilation failed!\n";
-        result += "Compiler errors:\n" + errors;
-        myWhat.reset(new char[result.size() + 1]);
-
-        std::copy(shader.begin(), shader.end(), shr.get());
-        shr[shader.size()] = '\0';
-        std::copy(errors.begin(), errors.end(), errs.get());
-        errs[errors.size()] = '\0';
-        std::copy(result.begin(), result.end(), myWhat.get());
-        myWhat[result.size()] = '\0';
-    }
-
-    shader_compiler_error::shader_compiler_error(const shader_compiler_error& orig) :
-        shader_compiler_error(std::string(orig.shr.get()), std::string(orig.errs.get()))
-    {
-    }
-
-    shader_compiler_error& shader_compiler_error::operator=(const shader_compiler_error& orig)
-    {
-        shader_compiler_error tmp(std::string(orig.shr.get()), std::string(orig.errs.get()));
-        shr.reset(nullptr);
-        shr.swap(tmp.shr);
-        errs.reset(nullptr);
-        errs.swap(tmp.errs);
-        myWhat.reset(nullptr);
-        myWhat.swap(tmp.myWhat);
-
-        return *this;
-    }
-
-    shader_compiler_error::shader_compiler_error(shader_compiler_error&& orig) :
-        std::exception(std::move(orig)),
-        shr(std::move(orig.shr)),
-        errs(std::move(orig.errs)),
-        myWhat(std::move(orig.myWhat))
-    {
-    }
-
-    shader_compiler_error& shader_compiler_error::operator= (shader_compiler_error&& orig)
-    {
-        std::exception* tExcpt = this;
-        *tExcpt = static_cast<std::exception&&>(std::move(orig));
-        if (this != &orig) {
-            shr = std::move(orig.shr);
-            errs = std::move(orig.errs);
-            myWhat = std::move(orig.myWhat);
-        }
-        return *this;
-    }*/
-
-    /** Returns information about the exception */
-    /*const char* shader_compiler_error::what() const
-    {
-        return myWhat.get();
-    }*/
-
-    /**
-     * Constructor.
      * @param shaderFilename the shaders file name
      */
     Shader::Shader(const std::string& shaderFilename, ApplicationBase* app) :
@@ -95,7 +29,7 @@ namespace cgu {
         type(GL_VERTEX_SHADER),
         strType("vertex")
     {
-        std::vector<std::string> shaderDefinition = GetParameters();
+        auto shaderDefinition = GetParameters();
         if (boost::ends_with(shaderDefinition[0], ".fp")) {
             type = GL_FRAGMENT_SHADER;
             strType = "fragment";
@@ -146,6 +80,7 @@ namespace cgu {
     /** Move assignment operator. */
     Shader& Shader::operator =(Shader&& rhs)
     {
+        this->~Shader();
         Resource* tRes = this;
         *tRes = static_cast<Resource&&> (std::move(rhs));
         if (this != &rhs) {

@@ -1,7 +1,7 @@
 /**
  * @file   ShaderBufferBindingPoints.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   26. Januar 2014
+ * @date   2014.01.26
  *
  * @brief  Contains the implementation of ShaderBufferBindingPoints.
  */

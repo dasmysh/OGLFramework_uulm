@@ -1,7 +1,7 @@
 /**
  * @file   ScreenText.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   4. Februar 2014
+ * @date   2014.02.04
  *
  * @brief  Contains the definition of ScreenText.
  */
@@ -22,23 +22,24 @@ namespace cgu {
      * @brief  Displays text on the screen.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   4. Februar 2014
+     * @date   2014.02.04
      */
     class ScreenText
     {
-    private:
-        /** Deleted copy constructor. */
-        ScreenText(const ScreenText& orig) : font(orig.font) {};
-        /** Deleted copy assignment operator. */
-        ScreenText& operator=(const ScreenText&) { return *this; };
-
     public:
         ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
-            const glm::vec2& pos, float fntSize = 10.0f, float fntWeight = 1.0f,
-            float fntShearing = 0.0f, float depth = 0.0f);
+            const glm::vec2& pos, const glm::vec2& dir, const glm::vec2& fntSize = glm::vec2(10.0f, 10.0f),
+            float fntWeight = 1.0f, float fntShearing = 0.0f, float depth = 0.0f);
         ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
             const glm::vec2& pos, const glm::vec2& dir, float fntSize = 10.0f,
             float fntWeight = 1.0f, float fntShearing = 0.0f, float depth = 0.0f);
+        ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
+            const glm::vec2& pos, float fntSize = 10.0f, float fntWeight = 1.0f,
+            float fntShearing = 0.0f, float depth = 0.0f);
+        ScreenText(const ScreenText&);
+        ScreenText& operator=(const ScreenText&);
+        ScreenText(ScreenText&&);
+        ScreenText& operator=(ScreenText&&);
         virtual ~ScreenText();
 
         void SetText(const std::string& txt, bool reinit = true);
@@ -53,12 +54,12 @@ namespace cgu {
 
         void Draw();
         void DrawMultiple();
-        float GetPixelLength();
-        float GetBaseLine();
+        float GetPixelLength() const;
+        float GetBaseLine() const;
 
     private:
         /** Holds the font. */
-        const Font& font;
+        const Font* font;
         /** Holds the boldness of the font. */
         float fontWeight;
         /** Holds the shearing of the font. */
@@ -75,15 +76,15 @@ namespace cgu {
         glm::vec4 color;
         /** Holds the depth layer for this element. */
         float depthLayer;
-        /** Holds the vbo chain for the text. */
+        /** Holds the VBO chain for the text. */
         std::vector<GLuint> textVBOs;
-        /** Holds the font vbo fences. */
+        /** Holds the font VBO fences. */
         std::vector<GLsync> textVBOFences;
         /** Holds the current sizes of the buffers. */
         std::vector<unsigned int> textVBOSizes;
         /** Holds the currently used buffer. */
         unsigned int currentBuffer;
-        /** Holds the font rendering gpu program. */
+        /** Holds the font rendering GPU program. */
         GPUProgram* fontProgram;
         /** Holds the vertex attribute positions. */
         std::vector<BindingLocation> vertexAttribPos;

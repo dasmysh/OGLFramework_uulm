@@ -1,13 +1,12 @@
 /**
  * @file   GLRenderTarget.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
+ * @date   2014.01.15
  *
  * @brief  Contains the implementation of GLRenderTarget.
  */
 
 #include "GLRenderTarget.h"
-#include "../../main.h"
 #include "FrameBuffer.h"
 
 namespace cgu {

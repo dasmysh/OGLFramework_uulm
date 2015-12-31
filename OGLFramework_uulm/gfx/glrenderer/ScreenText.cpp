@@ -1,7 +1,7 @@
 /**
  * @file   ScreenText.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   4. Februar 2014
+ * @date   2014.02.04
  *
  * @brief  Contains the implementation of ScreenText.
  */
@@ -11,60 +11,29 @@
 #include "gfx/Vertices.h"
 #include "Font.h"
 #include "core/GPUProgramManager.h"
-#include "gfx/glrenderer/GLTexture.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 
 #include <boost/assign.hpp>
 
 namespace cgu {
 
     /**
-     * Constructor for text from left to right.
-     * @param fnt the font to use
-     * @param programManager the gpu program manager
-     * @param txt the text to render
-     * @param pos the position to render at
-     * @param fntSize the texts font size in virtual screen pixels
-     * @param fntWeight the texts font weight
-     * @param fntShearing the texts fonts shearing
-     */
+    * Constructor for text in a certain direction.
+    * @param fnt the font to use
+    * @param programManager the GPU program manager
+    * @param txt the text to render
+    * @param pos the position to render at
+    * @param dir the direction the text should to
+    * @param fntSize the texts font size in virtual screen pixels
+    * @param fntWeight the texts font weight
+    * @param fntShearing the texts fonts shearing
+    */
     ScreenText::ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
-        const glm::vec2& pos, float fntSize, float fntWeight, float fntShearing, float depth) :
-        font(fnt),
-        fontWeight(fntWeight),
-        fontShearing(fntShearing),
-        fontSize(fntSize, fntSize),
-        text(txt),
-        position(pos),
-        direction(glm::vec2(1.0f, 0.0f)),
-        color(1.0f, 1.0f, 1.0f, 1.0f),
-        depthLayer(depth),
-        currentBuffer(0),
-        fontProgram(fontProg),
-        fontMetricsBindingLocation(nullptr),
-        pixelLength(0.0f)
-    {
-        Initialize();
-    }
-
-    /**
-     * Constructor for text in a certain direction.
-     * @param fnt the font to use
-     * @param programManager the gpu program manager
-     * @param txt the text to render
-     * @param pos the position to render at
-     * @param dir the direction the text should to
-     * @param fntSize the texts font size in virtual screen pixels
-     * @param fntWeight the texts font weight
-     * @param fntShearing the texts fonts shearing
-     */
-    ScreenText::ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
-        const glm::vec2& pos, const glm::vec2& dir, float fntSize, float fntWeight,
+        const glm::vec2& pos, const glm::vec2& dir, const glm::vec2& fntSize, float fntWeight,
         float fntShearing, float depth) :
-        font(fnt),
+        font(&fnt),
         fontWeight(fntWeight),
         fontShearing(fntShearing),
-        fontSize(fntSize, fntSize),
+        fontSize(fntSize),
         text(txt),
         position(pos),
         direction(dir),
@@ -78,10 +47,125 @@ namespace cgu {
         Initialize();
     }
 
+    /**
+    * Constructor for text in a certain direction.
+    * @param fnt the font to use
+    * @param programManager the GPU program manager
+    * @param txt the text to render
+    * @param pos the position to render at
+    * @param dir the direction the text should to
+    * @param fntSize the texts font size in virtual screen pixels
+    * @param fntWeight the texts font weight
+    * @param fntShearing the texts fonts shearing
+    */
+    ScreenText::ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
+        const glm::vec2& pos, const glm::vec2& dir, float fntSize, float fntWeight,
+        float fntShearing, float depth) :
+        ScreenText(fnt, fontProg, txt, pos, dir, glm::vec2(fntSize, fntSize), fntWeight, fntShearing, depth)
+    {
+    }
+
+    /**
+     * Constructor for text from left to right.
+     * @param fnt the font to use
+     * @param programManager the GPU program manager
+     * @param txt the text to render
+     * @param pos the position to render at
+     * @param fntSize the texts font size in virtual screen pixels
+     * @param fntWeight the texts font weight
+     * @param fntShearing the texts fonts shearing
+     */
+    ScreenText::ScreenText(const Font& fnt, GPUProgram* fontProg, const std::string& txt,
+        const glm::vec2& pos, float fntSize, float fntWeight, float fntShearing, float depth) :
+        ScreenText(fnt, fontProg, txt, pos, glm::vec2(1.0f, 0.0f), glm::vec2(fntSize, fntSize), fntWeight, fntShearing, depth)
+    {
+    }
+
+    /** Copy constructor. */
+    ScreenText::ScreenText(const ScreenText&) : ScreenText(*font, fontProgram, text, position, direction, fontSize, fontWeight, fontShearing, depthLayer)
+    {
+    }
+
+    /** Copy assignment operator. */
+    ScreenText& ScreenText::operator=(const ScreenText& rhs)
+    {
+        ScreenText tmp{ rhs };
+        std::swap(font, tmp.font);
+        std::swap(fontWeight, tmp.fontWeight);
+        std::swap(fontShearing, tmp.fontShearing);
+        std::swap(fontSize, tmp.fontSize);
+        std::swap(text, tmp.text);
+        std::swap(position, tmp.position);
+        std::swap(direction, tmp.direction);
+        std::swap(color, tmp.color);
+        std::swap(depthLayer, tmp.depthLayer);
+        std::swap(textVBOs, tmp.textVBOs);
+        std::swap(textVBOFences, tmp.textVBOFences);
+        std::swap(textVBOSizes, tmp.textVBOSizes);
+        std::swap(currentBuffer, tmp.currentBuffer);
+        std::swap(fontProgram, tmp.fontProgram);
+        std::swap(vertexAttribPos, tmp.vertexAttribPos);
+        std::swap(attribBind, tmp.attribBind);
+        std::swap(uniformNames, tmp.uniformNames);
+        std::swap(fontMetricsBindingLocation, tmp.fontMetricsBindingLocation);
+        std::swap(pixelLength, tmp.pixelLength);
+        return *this;
+    }
+
+    /** Default move constructor. */
+    ScreenText::ScreenText(ScreenText&& rhs) :
+        font(std::move(rhs.font)),
+        fontWeight(std::move(rhs.fontWeight)),
+        fontShearing(std::move(rhs.fontShearing)),
+        fontSize(std::move(rhs.fontSize)),
+        text(std::move(rhs.text)),
+        position(std::move(rhs.position)),
+        direction(std::move(rhs.direction)),
+        color(std::move(rhs.color)),
+        depthLayer(std::move(rhs.depthLayer)),
+        textVBOs(std::move(rhs.textVBOs)),
+        textVBOFences(std::move(rhs.textVBOFences)),
+        textVBOSizes(std::move(rhs.textVBOSizes)),
+        currentBuffer(std::move(rhs.currentBuffer)),
+        fontProgram(std::move(rhs.fontProgram)),
+        vertexAttribPos(std::move(rhs.vertexAttribPos)),
+        attribBind(std::move(rhs.attribBind)),
+        uniformNames(std::move(rhs.uniformNames)),
+        fontMetricsBindingLocation(std::move(rhs.fontMetricsBindingLocation)),
+        pixelLength(std::move(rhs.pixelLength))
+    {
+    }
+
+    /** Move assignment operator. */
+    ScreenText& ScreenText::operator=(ScreenText&& rhs)
+    {
+        this->~ScreenText();
+        font = std::move(rhs.font);
+        fontWeight = std::move(rhs.fontWeight);
+        fontShearing = std::move(rhs.fontShearing);
+        fontSize = std::move(rhs.fontSize);
+        text = std::move(rhs.text);
+        position = std::move(rhs.position);
+        direction = std::move(rhs.direction);
+        color = std::move(rhs.color);
+        depthLayer = std::move(rhs.depthLayer);
+        textVBOs = std::move(rhs.textVBOs);
+        textVBOFences = std::move(rhs.textVBOFences);
+        textVBOSizes = std::move(rhs.textVBOSizes);
+        currentBuffer = std::move(rhs.currentBuffer);
+        fontProgram = std::move(rhs.fontProgram);
+        vertexAttribPos = std::move(rhs.vertexAttribPos);
+        attribBind = std::move(rhs.attribBind);
+        uniformNames = std::move(rhs.uniformNames);
+        fontMetricsBindingLocation = std::move(rhs.fontMetricsBindingLocation);
+        pixelLength = std::move(rhs.pixelLength);
+        return *this;
+    }
+
     /** Destructor. */
     ScreenText::~ScreenText()
     {
-        for (GLsync sync : textVBOFences) {
+        for (auto sync : textVBOFences) {
             OGL_CALL(glDeleteSync, sync);
         }
         OGL_CALL(glDeleteBuffers, static_cast<GLsizei>(textVBOs.size()), textVBOs.data());
@@ -106,7 +190,7 @@ namespace cgu {
     }
 
     /**
-     * Initializes the texts vbo.
+     * Initializes the texts VBO.
      * @param first is this method called from destructor? is so, no need to choose a different buffer
      */
     void ScreenText::InitializeText(bool first)
@@ -117,19 +201,19 @@ namespace cgu {
         std::vector<FontVertex> textVertices(text.size());
         pixelLength = 0.0f;
         for (unsigned int i = 0; i < text.size(); ++i) {
-            textVertices[i].idx = font.GetCharacterId(text[i]);
+            textVertices[i].idx = font->GetCharacterId(text[i]);
             textVertices[i].pos = glm::vec3(pixelLength * direction, depthLayer);
-            pixelLength += font.GetFontMetrics().chars[textVertices[i].idx].xadv * fontSize.x;
+            pixelLength += font->GetFontMetrics().chars[textVertices[i].idx].xadv * fontSize.x;
         }
 
         if (textVBOFences[currentBuffer] != nullptr) {
-            GLenum result = OGL_CALL(glClientWaitSync, textVBOFences[currentBuffer], 0, ASYNC_TIMEOUT);
+            auto result = OGL_CALL(glClientWaitSync, textVBOFences[currentBuffer], 0, ASYNC_TIMEOUT);
             if (result == GL_TIMEOUT_EXPIRED || result == GL_WAIT_FAILED) {
                 LOG(ERROR) << L"Waiting for buffer failed.";
                 throw std::runtime_error("Waiting for buffer failed.");
             }
 #ifdef _DEBUG
-            else if (result == GL_CONDITION_SATISFIED) {
+            if (result == GL_CONDITION_SATISFIED) {
                 LOG(DEBUG) << L"Waited for buffer ...";
             }
 #endif
@@ -155,13 +239,13 @@ namespace cgu {
             attribBind[currentBuffer]->EndAttributeSetup();
         }
 
-        void* ptr = OGL_CALL(glMapBufferRange, GL_ARRAY_BUFFER, 0, sizeof(FontVertex) * text.size(),
+        auto ptr = OGL_CALL(glMapBufferRange, GL_ARRAY_BUFFER, 0, sizeof(FontVertex) * text.size(),
             GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
         if (ptr == nullptr) {
             throw std::runtime_error("Could not map text vertex buffer.");
         }
 
-        FontVertex* buffer = static_cast<FontVertex*> (ptr);
+        auto buffer = static_cast<FontVertex*> (ptr);
         std::copy(textVertices.begin(), textVertices.end(), buffer);
         OGL_CALL(glUnmapBuffer, GL_ARRAY_BUFFER);
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
@@ -171,7 +255,7 @@ namespace cgu {
      * Returns the length of the text in virtual screen pixels.
      * @return the length of the text in virtual screen pixels
      */
-    float ScreenText::GetPixelLength()
+    float ScreenText::GetPixelLength() const
     {
         return pixelLength;
     }
@@ -180,24 +264,24 @@ namespace cgu {
      * Returns the texts baseline
      * @return the baseline
      */
-    float ScreenText::GetBaseLine()
+    float ScreenText::GetBaseLine() const
     {
-        return font.GetFontMetrics().baseLine * fontSize.y;
+        return font->GetFontMetrics().baseLine * fontSize.y;
     }
 
     /**
      * Draws the text.
-     * Used for drawing only a single text, so this will set the gpu programs and bind uniform blocks.
+     * Used for drawing only a single text, so this will set the GPU programs and bind uniform blocks.
      */
     void ScreenText::Draw()
     {
-        font.UseFont(fontProgram, fontMetricsBindingLocation);
+        font->UseFont(fontProgram, fontMetricsBindingLocation);
         DrawMultiple();
     }
 
     /**
      * Draws the text.
-     * Used for drawing multiple texts on the screen. GPU programs and ubos will not be set.
+     * Used for drawing multiple texts on the screen. GPU programs and UBOs will not be set.
      */
     void ScreenText::DrawMultiple()
     {
@@ -208,9 +292,9 @@ namespace cgu {
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, textVBOs[currentBuffer]);
         attribBind[currentBuffer]->EnableVertexAttributeArray();
 
-        glm::vec4 fontStyle(fontWeight, fontShearing * fontSize.y * font.GetFontMetrics().sizeNormalization,
-            fontSize.x * font.GetFontMetrics().sizeNormalization,
-            fontSize.y * font.GetFontMetrics().sizeNormalization);
+        glm::vec4 fontStyle(fontWeight, fontShearing * fontSize.y * font->GetFontMetrics().sizeNormalization,
+            fontSize.x * font->GetFontMetrics().sizeNormalization,
+            fontSize.y * font->GetFontMetrics().sizeNormalization);
         glm::vec4 fontPos(position.x, position.y, direction.x, direction.y);
         fontProgram->SetUniform(uniformNames[0], fontStyle);
         fontProgram->SetUniform(uniformNames[1], fontPos);

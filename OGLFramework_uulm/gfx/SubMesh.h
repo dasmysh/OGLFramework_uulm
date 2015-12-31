@@ -36,9 +36,9 @@ namespace cgu {
 
         bool operator<(const MeshConnectTriangle& rhs) const {
             if (vertex[0] < rhs.vertex[0]) return true;
-            else if (vertex[0] == rhs.vertex[0]) {
+            if (vertex[0] == rhs.vertex[0]) {
                 if (vertex[1] < rhs.vertex[1]) return true;
-                else if (vertex[1] == rhs.vertex[1]) {
+                if (vertex[1] == rhs.vertex[1]) {
                     if (vertex[2] < rhs.vertex[2]) return true;
                 }
             }

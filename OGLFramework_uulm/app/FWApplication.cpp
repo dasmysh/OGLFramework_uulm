@@ -34,7 +34,7 @@ namespace cguFrameworkApp {
     {
     }
 
-    void FWApplication::FrameMove(float time, float elapsed)
+    void FWApplication::FrameMove(float, float elapsed)
     {
         static auto fps = 0.0f;
         static auto accumulatedElapsed = 0.0f;
@@ -82,7 +82,7 @@ namespace cguFrameworkApp {
         return handled;
     }
 
-    bool FWApplication::HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, cgu::BaseGLWindow* sender)
+    bool FWApplication::HandleMouseApp(unsigned int, float, cgu::BaseGLWindow*)
     {
         return false;
     }

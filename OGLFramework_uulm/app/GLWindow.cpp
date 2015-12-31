@@ -1,7 +1,7 @@
 /**
  * @file   WinGLWindow.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   18. Dezember 2013
+ * @date   2013.12.18
  * @ingroup win
  *
  * @brief  Windows implementation for the GLWindow.
@@ -23,9 +23,9 @@ namespace cgu {
      * Global function for window message handling.
      * @ingroup win
      * @param hWnd the handle of the window
-     * @param message the message recieved
-     * @param wParam the wparam
-     * @param lParam the lparam
+     * @param message the message received
+     * @param wParam the wParam
+     * @param lParam the lParam
      * @return the handling result
      */
     LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -78,9 +78,9 @@ namespace cgu {
      */
     GLWindow::GLWindow(HINSTANCE hInstance, int nCmdShow, const std::string& title, Configuration& conf) :
         BaseGLWindow(conf.windowWidth, conf.windowHeight),
-        hWnd(0),
-        hDC(0),
-        hRC(0),
+        hWnd(nullptr),
+        hDC(nullptr),
+        hRC(nullptr),
         instance(hInstance),
         cmdShow(nCmdShow),
         windowClass("PatternsFWWindow"),
@@ -126,12 +126,12 @@ namespace cgu {
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = 0;
         wcex.hInstance = instance;
-        wcex.hIcon = LoadIcon(instance, (LPCTSTR)IDI_APPLICATION);
-        wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-        wcex.lpszMenuName = NULL;
+        wcex.hIcon = LoadIcon(instance, static_cast<LPCTSTR>(IDI_APPLICATION));
+        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+        wcex.lpszMenuName = nullptr;
         wcex.lpszClassName = windowClass.c_str();
-        wcex.hIconSm = LoadIcon(instance, (LPCTSTR)IDI_APPLICATION);
+        wcex.hIconSm = LoadIcon(instance, static_cast<LPCTSTR>(IDI_APPLICATION));
         if (!RegisterClassEx(&wcex)) {
             LOG(ERROR) << L"Could not register class!";
             throw std::runtime_error("Could not register class!");
@@ -150,7 +150,7 @@ namespace cgu {
             // Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
             if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
                 // If The Mode Fails, Offer Two Options.  Quit Or Use Windowed Mode.
-                if (MessageBox(NULL, "The Requested Fullscreen Mode Is Not Supported By\nYour Video Card. Use Windowed Mode Instead?",
+                if (MessageBox(nullptr, "The Requested Fullscreen Mode Is Not Supported By\nYour Video Card. Use Windowed Mode Instead?",
                     windowClass.c_str(), MB_YESNO | MB_ICONEXCLAMATION) == IDYES) {
                     config.fullscreen = false;
                     maximized = false;
@@ -178,9 +178,9 @@ namespace cgu {
             dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             config.windowLeft, config.windowTop,
             size.right - size.left, size.bottom - size.top,
-            NULL, // No Parent Window
-            NULL, // No Menu
-            instance, (void*) this);
+            nullptr, // No Parent Window
+            nullptr, // No Menu
+            instance, static_cast<void*>(this));
         if (!hWnd) {
             this->ReleaseWindow();
             LOG(ERROR) << L"Could not create window!";
@@ -274,7 +274,7 @@ namespace cgu {
 
         unsigned int nPixCount = 0;
         int pixAttribs[64];
-        int index = 0;
+        auto index = 0;
         // Specify the important attributes we care about
         pixAttribs[index++] = WGL_SUPPORT_OPENGL_ARB; pixAttribs[index++] = 1; // Must support OGL rendering
         pixAttribs[index++] = WGL_DRAW_TO_WINDOW_ARB; pixAttribs[index++] = 1; // pf that can run a window
@@ -288,7 +288,7 @@ namespace cgu {
         if (config.useSRGB) {
             pixAttribs[index++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB; pixAttribs[index++] = GL_TRUE;
         }
-        pixAttribs[index++] = 0; // NULL termination
+        pixAttribs[index] = 0; // NULL termination
         // Ask OpenGL to find the most relevant format matching our pixAttribs
         // Only get one format back.
         int nPF;
@@ -317,9 +317,9 @@ namespace cgu {
             0
         };
 
-        hRC = wglCreateContextAttribsARB(hDC, 0, attribs);
-        if (hRC == NULL) {
-            DWORD err = GetLastError();
+        hRC = wglCreateContextAttribsARB(hDC, nullptr, attribs);
+        if (hRC == nullptr) {
+            auto err = GetLastError();
             this->ReleaseOpenGL();
             LOG(ERROR) << L"Could not create rendering context: " << err;
             throw std::runtime_error("Could not create rendering context.");
@@ -335,19 +335,19 @@ namespace cgu {
 #ifdef _DEBUG
         // get the debug output extension by hand ...
         int NumberOfExtensions;
-        bool debugOutput = false;
+        auto debugOutput = false;
         glGetIntegerv(GL_NUM_EXTENSIONS, &NumberOfExtensions);
-        for (int i = 0; i < NumberOfExtensions; i++) {
-            const GLubyte *ccc = glGetStringi(GL_EXTENSIONS, i);
+        for (auto i = 0; i < NumberOfExtensions; i++) {
+            auto ccc = glGetStringi(GL_EXTENSIONS, i);
             if (strcmp(reinterpret_cast<const char*> (ccc), "GL_ARB_debug_output") == 0) {
                 // The extension is supported by our hardware and driver
                 // Try to get the "glDebugMessageCallbackARB" function :
                 glDebugMessageCallback =
-                    (PFNGLDEBUGMESSAGECALLBACKPROC)wglGetProcAddress("glDebugMessageCallback");
+                    reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKPROC>(wglGetProcAddress("glDebugMessageCallback"));
                 glDebugMessageControl =
-                    (PFNGLDEBUGMESSAGECONTROLPROC)wglGetProcAddress("glDebugMessageControl");
+                    reinterpret_cast<PFNGLDEBUGMESSAGECONTROLPROC>(wglGetProcAddress("glDebugMessageControl"));
                 glDebugMessageInsert =
-                    (PFNGLDEBUGMESSAGEINSERTPROC)wglGetProcAddress("glDebugMessageInsert");
+                    reinterpret_cast<PFNGLDEBUGMESSAGEINSERTPROC>(wglGetProcAddress("glDebugMessageInsert"));
                 LOG(DEBUG) << L"The OpenGL implementation provides debug output.";
                 glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
                 glDebugMessageCallback(&DebugOutputCallback, nullptr);
@@ -374,7 +374,7 @@ namespace cgu {
         }
     }
 
-    void GLWindow::InitCUDA()
+    void GLWindow::InitCUDA() const
     {
         cudaError_t result;
         if (config.cudaDevice == -1) {
@@ -420,7 +420,7 @@ namespace cgu {
     /**
      * Shows the window.
      */
-    void GLWindow::ShowWindow()
+    void GLWindow::ShowWindow() const
     {
         ::ShowWindow(hWnd, cmdShow);
         SetForegroundWindow(hWnd);
@@ -432,9 +432,10 @@ namespace cgu {
         SendMessage(this->hWnd, WM_CLOSE, 0, 0);
     }
 
-    void GLWindow::ReleaseCUDA()
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    void GLWindow::ReleaseCUDA() const
     {
-        cudaError_t result = cudaDeviceReset();
+        auto result = cudaDeviceReset();
         if (result != cudaSuccess) {
             LOG(ERROR) << L"Could not reset CUDA device. Error: " << result;
         }
@@ -443,24 +444,24 @@ namespace cgu {
     void GLWindow::ReleaseOpenGL()
     {
         if (maximized) {
-            ChangeDisplaySettings(NULL, 0);
+            ChangeDisplaySettings(nullptr, 0);
             ShowCursor(TRUE);
         }
 
         if (hRC) {
-            if (!wglMakeCurrent(hDC, NULL)) {
+            if (!wglMakeCurrent(hDC, nullptr)) {
                 LOG(ERROR) << L"Release of DC and RC failed.";
             }
 
             if (!wglDeleteContext(hRC)) {
                 LOG(ERROR) << L"Release rendering context failed.";
             }
-            hRC = 0;
+            hRC = nullptr;
         }
 
         if (hDC && !ReleaseDC(hWnd, hDC)) {
             LOG(ERROR) << L"Release device context failed.";
-            hDC = NULL;
+            hDC = nullptr;
         }
     }
 
@@ -468,13 +469,13 @@ namespace cgu {
     {
         if (hWnd && !DestroyWindow(hWnd)) {
             LOG(ERROR) << L"Could Not Release hWnd.";
-            hWnd = 0;
+            hWnd = nullptr;
         }
 
         if (instance && !UnregisterClassA(this->windowClass.c_str(), this->instance)) {
 
             LOG(ERROR) << L"Could Not Unregister Class.";
-            instance = 0;
+            instance = nullptr;
         }
     }
 
@@ -501,15 +502,15 @@ namespace cgu {
     {
         assert(this->app != nullptr);
         LOG(DEBUG) << L"Begin HandleResize()";
-        unsigned int width = this->maximized ? GetSystemMetrics(SM_CXSCREEN) : this->width;
-        unsigned int height = this->maximized ? GetSystemMetrics(SM_CYSCREEN) : this->height;
+        auto width = this->maximized ? GetSystemMetrics(SM_CXSCREEN) : this->width;
+        auto height = this->maximized ? GetSystemMetrics(SM_CYSCREEN) : this->height;
 
         if (width == 0 || height == 0) {
             return;
         }
         this->Resize(width, height);
 
-        if (this->hWnd != 0) {
+        if (this->hWnd != nullptr) {
             try {
                 this->app->OnResize(width, height);
             }
@@ -579,7 +580,8 @@ namespace cgu {
             keyboardModState = 0;
             break;
         case WM_MOUSEMOVE:
-            mouseAbsolute = glm::vec2(static_cast<float>((short)LOWORD(lParam)), static_cast<float>((short)HIWORD(lParam)));
+            mouseAbsolute = glm::vec2(static_cast<float>(static_cast<short>(LOWORD(lParam))),
+                static_cast<float>(static_cast<short>(HIWORD(lParam))));
             hadPositionUpdate = true;
             break;
         }
@@ -595,16 +597,18 @@ namespace cgu {
         if (vkCode == 255) return;
 
         if (vkCode == VK_SHIFT) vkCode = MapVirtualKey(scanCode, MAPVK_VSC_TO_VK_EX);
+        // ReSharper disable CppAssignedValueIsNeverUsed
         else if (vkCode == VK_NUMLOCK) scanCode = (MapVirtualKey(vkCode, MAPVK_VK_TO_VSC) | 0x100);
 
-        const bool isE0 = ((raw.Flags & RI_KEY_E0) != 0);
-        const bool isE1 = ((raw.Flags & RI_KEY_E1) != 0);
+        const auto isE0 = ((raw.Flags & RI_KEY_E0) != 0);
+        const auto isE1 = ((raw.Flags & RI_KEY_E1) != 0);
 
         if (isE1)
         {
             if (vkCode == VK_PAUSE) scanCode = 0x45;
             else scanCode = MapVirtualKey(vkCode, MAPVK_VK_TO_VSC);
         }
+        // ReSharper restore CppAssignedValueIsNeverUsed
 
         switch (vkCode)
         {
@@ -682,7 +686,7 @@ namespace cgu {
         else if ((vkCode == VK_LMENU || vkCode == VK_RMENU || vkCode == VK_MENU) && raw.Flags & RI_KEY_BREAK) keyboardModState &= ~VK_MOD_MENU;
 
         if (this->app != nullptr) {
-            bool keyDown = false;
+            auto keyDown = false;
             if (!(raw.Flags & RI_KEY_BREAK)) keyDown = true;
             //else if (!(raw.Flags & RI_KEY_BREAK)) {
             //    LOG(DEBUG) << "KeyEvent " << std::hex << std::showbase << std::internal << std::setfill(L'0') << std::setw(4) << vkCode << " omitted. (" << isE0 << " | " << isE1 << ")";
@@ -715,8 +719,8 @@ namespace cgu {
         if (raw.usButtonFlags & RI_MOUSE_BUTTON_5_DOWN) mouseButtonState |= MB_BTN5;
         if (raw.usButtonFlags & RI_MOUSE_BUTTON_5_UP) mouseButtonState &= ~MB_BTN5;
 
-        float mouseWheelDelta = 0.0f;
-        if (raw.usButtonFlags & RI_MOUSE_WHEEL) mouseWheelDelta = static_cast<float>((short)raw.usButtonData);
+        auto mouseWheelDelta = 0.0f;
+        if (raw.usButtonFlags & RI_MOUSE_WHEEL) mouseWheelDelta = static_cast<float>(static_cast<short>(raw.usButtonData));
 
         if (this->app != nullptr) {
             this->app->HandleMouse(raw.usButtonFlags, mouseWheelDelta, this);
@@ -771,7 +775,7 @@ namespace cgu {
      * Returns the current configuration.
      * @return the configuration
      */
-    Configuration& GLWindow::GetConfig()
+    Configuration& GLWindow::GetConfig() const
     {
         return config;
     }
@@ -780,7 +784,7 @@ namespace cgu {
     {
         if (message == WM_CREATE) { // Store pointer to RenderWindow in user data area
             SetWindowLongPtr(hWnd, GWLP_USERDATA,
-                (LONG_PTR)(((LPCREATESTRUCT)lParam)->lpCreateParams));
+                reinterpret_cast<LONG_PTR>(reinterpret_cast<LPCREATESTRUCT>(lParam)->lpCreateParams));
 
             RAWINPUTDEVICE rid[2];
             rid[0].dwFlags = 0;
@@ -798,7 +802,7 @@ namespace cgu {
 
         // look up window instance
         // note: it is possible to get a WM_SIZE before WM_CREATE
-        GLWindow* win = (GLWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        auto win = reinterpret_cast<GLWindow*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         if (!win)
             return DefWindowProc(hWnd, message, wParam, lParam);
 
@@ -809,15 +813,15 @@ namespace cgu {
         case WM_INPUT:
         {
             UINT dwSize = 0;
-            if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER)) == -1){
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER)) == -1){
                 break;
             }
             std::vector<BYTE> buffer(dwSize);
-            if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, buffer.data(), &dwSize, sizeof(RAWINPUTHEADER)) != dwSize){
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, buffer.data(), &dwSize, sizeof(RAWINPUTHEADER)) != dwSize){
                 break;
             }
 
-            RAWINPUT *raw = (RAWINPUT*)buffer.data();
+            auto raw = reinterpret_cast<RAWINPUT*>(buffer.data());
             if (raw->header.dwType == RIM_TYPEKEYBOARD) {
                 win->HandleRawKeyboard(raw->data.keyboard);
             } else if (raw->header.dwType == RIM_TYPEMOUSE) {

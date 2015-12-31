@@ -1,7 +1,7 @@
 /**
  * @file   GLVertexAttributeArray.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   16. Februar 2014
+ * @date   2014.02.16
  *
  * @brief  Contains the implementation of GLVertexAttributeArray.
  */
@@ -13,7 +13,7 @@ namespace cgu {
     /**
      * Constructor.
      * @param vertexBuffer the vertex buffer used to create the attributes.
-     * @param indexBuffer the indexbuffer to bind
+     * @param indexBuffer the index buffer to bind
      */
     GLVertexAttributeArray::GLVertexAttributeArray(GLuint vertexBuffer, GLuint indexBuffer) :
         vao(0),
@@ -24,6 +24,7 @@ namespace cgu {
         OGL_CALL(glGenVertexArrays, 1, &vao);
     }
 
+    /** Move constructor. */
     GLVertexAttributeArray::GLVertexAttributeArray(GLVertexAttributeArray&& orig) :
         vao(orig.vao),
         i_buffer(orig.i_buffer),
@@ -35,6 +36,7 @@ namespace cgu {
         orig.v_buffer = 0;
     }
 
+    /** Move assignment operator. */
     GLVertexAttributeArray& GLVertexAttributeArray::operator =(GLVertexAttributeArray&& orig)
     {
         if (this != &orig) {
@@ -62,7 +64,7 @@ namespace cgu {
         OGL_CALL(glBindVertexArray, vao);
         OGL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        for (const vertex_attribute_desc& desc : v_desc) {
+        for (const auto& desc : v_desc) {
             if (desc.location->iBinding > 0) {
                 OGL_CALL(glDisableVertexAttribArray, desc.location->iBinding);
             }
@@ -72,14 +74,14 @@ namespace cgu {
     }
 
     /** Initializes the vertex attribute setup. */
-    void GLVertexAttributeArray::StartAttributeSetup()
+    void GLVertexAttributeArray::StartAttributeSetup() const
     {
         OGL_CALL(glBindVertexArray, vao);
         OGL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     /** Ends the vertex attribute setup. */
-    void GLVertexAttributeArray::EndAttributeSetup()
+    void GLVertexAttributeArray::EndAttributeSetup() const
     {
         OGL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, i_buffer);
         OGL_CALL(glBindVertexArray, 0);
@@ -92,6 +94,7 @@ namespace cgu {
         OGL_CALL(glBindVertexArray, vao);
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeStatic
     /** Disables the vertex attribute array. */
     void GLVertexAttributeArray::DisableVertexAttributeArray() const
     {
@@ -108,7 +111,7 @@ namespace cgu {
         OGL_CALL(glBindVertexArray, vao);
         OGL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, i_buffer);
 
-        for (const vertex_attribute_desc& desc : v_desc) {
+        for (const auto& desc : v_desc) {
             if (desc.location->iBinding > 0) {
                 OGL_CALL(glEnableVertexAttribArray, desc.location->iBinding);
                 switch (desc.shaderType)

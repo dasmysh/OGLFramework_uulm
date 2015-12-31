@@ -18,7 +18,7 @@
 namespace cgu {
 
     class BaseGLWindow;
-    class GUIRenderable;
+    class ScreenQuadRenderable;
     class GLTexture;
     class GPUProgram;
 
@@ -50,7 +50,7 @@ namespace cgu {
         bool RemovePoint(const glm::vec2& position, const glm::vec2& pickSize);
         void UpdateTF(bool createVAO = false);
 
-        bool Overlap(const glm::vec2& point) const
+        static bool Overlap(const glm::vec2& point)
         {
             if (point.x < 0.0f || point.x > 1.0f) return false;
             if (point.y < 0.0f || point.y > 1.0f) return false;
@@ -63,7 +63,7 @@ namespace cgu {
         OrthoProjectionBuffer orthoBuffer;
 
         /** holds the GUI renderable for a textured quad. */
-        std::unique_ptr<GUIRenderable> quad;
+        std::unique_ptr<ScreenQuadRenderable> quad;
         /** holds the quads texture. */
         std::unique_ptr<GLTexture> quadTex;
         /** The texture that is the result of the transfer function. */
@@ -91,7 +91,7 @@ namespace cgu {
         /** holds the color picker bar. */
         TwBar* colorPicker;
 
-        void UpdateTexture();
+        void UpdateTexture() const;
         int GetControlPoint(const glm::vec2& p);
         tf::TransferFunction tf_;
     };

@@ -1,7 +1,7 @@
 /**
  * @file   Configuration.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   18. Dezember 2013
+ * @date   2013.12.18
  * @ingroup win
  *
  * @brief  Implementation of the configuration class for windows systems.

@@ -142,7 +142,7 @@ namespace cgu {
     }
 
     /** Initializes the sampler. */
-    void GLTexture::InitSampling()
+    void GLTexture::InitSampling() const
     {
         SampleLinear();
         SampleWrapClamp();
@@ -174,12 +174,12 @@ namespace cgu {
      * @param file the file to add
      * @param slice the array slice to add the files content to
      */
-    void GLTexture::AddTextureToArray(const std::string& file, unsigned int slice)
+    void GLTexture::AddTextureToArray(const std::string& file, unsigned int slice) const
     {
-        FIBITMAP* bitmap = FreeImage_Load(FIF_PNG, file.c_str());
-        FIBITMAP* bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
-        unsigned int texWidth = FreeImage_GetWidth(bitmap32);
-        unsigned int texHeight = FreeImage_GetHeight(bitmap32);
+        auto bitmap = FreeImage_Load(FIF_PNG, file.c_str());
+        auto bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
+        auto texWidth = FreeImage_GetWidth(bitmap32);
+        auto texHeight = FreeImage_GetHeight(bitmap32);
         if (width != texWidth || height != texHeight) {
             LOG(ERROR) << L"Texture \"" << file.c_str() << L"\" has the wrong format!";
             FreeImage_Unload(bitmap32);
@@ -201,7 +201,7 @@ namespace cgu {
      *  Sets the textures data.
      *  @param data the data to set.
      */
-    void GLTexture::SetData(const void* data)
+    void GLTexture::SetData(const void* data) const
     {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         switch (id.textureType)
@@ -225,7 +225,7 @@ namespace cgu {
      *  Downloads the textures data to a vector.
      *  @param data the vector to contain the data.
      */
-    void GLTexture::DownloadData(std::vector<uint8_t>& data)
+    void GLTexture::DownloadData(std::vector<uint8_t>& data) const
     {
         data.resize(width * height * depth * descriptor.bytesPP);
         assert(data.size() != 0);
@@ -240,7 +240,7 @@ namespace cgu {
         OGL_CALL(glGetTexImage, id.textureType, 0, descriptor.format, descriptor.type, 0);
 
         OGL_CALL(glMemoryBarrier, GL_ALL_BARRIER_BITS);
-        void* gpuMem = OGL_CALL(glMapBuffer, GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        auto gpuMem = OGL_CALL(glMapBuffer, GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
         if (gpuMem) {
             memcpy(data.data(), gpuMem, data.size());
             OGL_CALL(glUnmapBuffer, GL_PIXEL_PACK_BUFFER);
@@ -255,7 +255,7 @@ namespace cgu {
      *  Uploads data to the texture from a vector.
      *  @param data the vector that contains the data.
      */
-    void GLTexture::UploadData(std::vector<uint8_t>& data)
+    void GLTexture::UploadData(std::vector<uint8_t>& data) const
     {
         assert(data.size() != 0);
 
@@ -265,7 +265,7 @@ namespace cgu {
         OGL_CALL(glBindBuffer, GL_PIXEL_UNPACK_BUFFER, pbo);
         OGL_CALL(glBufferData, GL_PIXEL_UNPACK_BUFFER, data.size(), nullptr, GL_STREAM_DRAW);
 
-        void* gpuMem = OGL_CALL(glMapBuffer, GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+        auto gpuMem = OGL_CALL(glMapBuffer, GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
         if (gpuMem) {
             memcpy(gpuMem, data.data(), data.size());
             OGL_CALL(glUnmapBuffer, GL_PIXEL_UNPACK_BUFFER);
@@ -288,7 +288,7 @@ namespace cgu {
     /**
      *  Generates MipMaps for the texture.
      */
-    void GLTexture::GenerateMipMaps()
+    void GLTexture::GenerateMipMaps() const
     {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         OGL_CALL(glGenerateMipmap, id.textureType);
@@ -307,10 +307,10 @@ namespace cgu {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         OGL_CALL(glGenerateMipmap, id.textureType);
 
-        unsigned int max_res = glm::max(width, glm::max(height, depth));
-        glm::ivec3 firstMipRes = glm::ivec3(glm::ceil(glm::vec3(width, height, depth) * 0.5f));
-        glm::ivec3 numGroups = glm::ivec3(glm::ceil(glm::vec3(firstMipRes) / 8.0f));
-        unsigned int levels = glm::max(1, (int)glm::log2((float)max_res) + 1);
+        auto max_res = glm::max(width, glm::max(height, depth));
+        auto firstMipRes = glm::ivec3(glm::ceil(glm::vec3(width, height, depth) * 0.5f));
+        auto numGroups = glm::ivec3(glm::ceil(glm::vec3(firstMipRes) / 8.0f));
+        unsigned int levels = glm::max(1, static_cast<int>(glm::log2(static_cast<float>(max_res))) + 1);
 
         minMaxProg->UseProgram();
         minMaxProg->SetUniform(uniformNames[0], 0);
@@ -330,7 +330,7 @@ namespace cgu {
     /**
      *  Sets the sampler parameters for mirroring.
      */
-    void GLTexture::SampleWrapMirror()
+    void GLTexture::SampleWrapMirror() const
     {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         OGL_CALL(glTexParameteri, id.textureType, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -346,7 +346,7 @@ namespace cgu {
     /**
      *  Sets the sampler parameters for clamping.
      */
-    void GLTexture::SampleWrapClamp()
+    void GLTexture::SampleWrapClamp() const
     {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         OGL_CALL(glTexParameteri, id.textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -362,7 +362,7 @@ namespace cgu {
     /**
      *  Sets the sampler parameters for linear filtering.
      */
-    void GLTexture::SampleLinear()
+    void GLTexture::SampleLinear() const
     {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         if (hasMipMaps) {
@@ -379,7 +379,7 @@ namespace cgu {
     /**
      *  Sets the sampler parameters for box filtering.
      */
-    void GLTexture::SampleNearest()
+    void GLTexture::SampleNearest() const
     {
         OGL_CALL(glBindTexture, id.textureType, id.textureId);
         if (hasMipMaps) {

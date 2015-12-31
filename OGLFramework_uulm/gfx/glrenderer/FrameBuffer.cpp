@@ -82,7 +82,7 @@ namespace cgu {
      */
     FrameBuffer& FrameBuffer::operator=(const FrameBuffer& orig)
     {
-        Destroy();
+        this->~FrameBuffer();
         fbo = 0;
         isBackbuffer = orig.isBackbuffer;
         desc = orig.desc;
@@ -96,7 +96,7 @@ namespace cgu {
      */
     FrameBuffer& FrameBuffer::operator=(FrameBuffer&& orig)
     {
-        Destroy();
+        this->~FrameBuffer();
         fbo = orig.fbo;
         orig.fbo = 0;
         isBackbuffer = orig.isBackbuffer;
@@ -130,7 +130,7 @@ namespace cgu {
         for (auto& tex : textures) {
             tex.release();
         }
-        for (GLuint rb : renderBuffers) {
+        for (auto rb : renderBuffers) {
             if (rb != 0) {
                 OGL_CALL(glDeleteRenderbuffers, 1, &rb);
             }
@@ -169,7 +169,7 @@ namespace cgu {
             OGL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, texDesc.internalFormat, width, height, 0, texDesc.format, texDesc.type, nullptr);
             std::unique_ptr<GLTexture> texture{ new GLTexture{ tex, GL_TEXTURE_2D, texDesc } };
 
-            GLenum attachment = findAttachment(texDesc.internalFormat, colorAtt, drawBuffers);
+            auto attachment = findAttachment(texDesc.internalFormat, colorAtt, drawBuffers);
             OGL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, attachment, tex, 0);
             textures.push_back(std::move(texture));
         }
@@ -180,14 +180,14 @@ namespace cgu {
             OGL_CALL(glGenRenderbuffers, 1, &rb);
             OGL_CALL(glBindRenderbuffer, GL_RENDERBUFFER, rb);
             OGL_CALL(glRenderbufferStorage, GL_RENDERBUFFER, rbDesc.internalFormat, width, height);
-            GLenum attachment = findAttachment(rbDesc.internalFormat, colorAtt, drawBuffers);
+            auto attachment = findAttachment(rbDesc.internalFormat, colorAtt, drawBuffers);
             OGL_CALL(glFramebufferRenderbuffer, GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rb);
             renderBuffers.push_back(rb);
         }
 
         OGL_CALL(glDrawBuffers, static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
 
-        GLenum fboStatus = OGL_CALL(glCheckFramebufferStatus, GL_FRAMEBUFFER);
+        auto fboStatus = OGL_CALL(glCheckFramebufferStatus, GL_FRAMEBUFFER);
         if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("Could not create frame buffer.");
     }

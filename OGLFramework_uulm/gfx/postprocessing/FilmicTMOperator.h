@@ -39,7 +39,7 @@ namespace cgu {
     class FilmicTMOperator
     {
     public:
-        FilmicTMOperator(ApplicationBase* app);
+        explicit FilmicTMOperator(ApplicationBase* app);
         ~FilmicTMOperator();
 
         void AddParameterSlidersToBar(TwBar* bar);

@@ -14,7 +14,6 @@
 
 #include <memory>
 #include <future>
-#include <string>
 
 #include "g2log.h"
 
@@ -30,12 +29,12 @@ public:
   virtual ~g2LogWorker();
 
   /// pushes in background thread (asynchronously) input messages to log file
-  void save(g2::internal::LogEntry entry);
+  void save(g2::internal::LogEntry entry) const;
 
   /// Will push a fatal message on the queue, this is the last message to be processed
   /// this way it's ensured that all existing entries were flushed before 'fatal'
   /// Will abort the application!
-  void fatal(g2::internal::FatalMessage fatal_message);
+  void fatal(g2::internal::FatalMessage fatal_message) const;
 
   /// Attempt to change the current log file to another name/location.
   /// returns filename with full path if successful, else empty string

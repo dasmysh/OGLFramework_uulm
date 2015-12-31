@@ -8,7 +8,6 @@
 
 #include "main.h"
 #include "app/FWApplication.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
 #include "app/Configuration.h"
 #include "app/GLWindow.h"
 
@@ -76,10 +75,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     LOG(DEBUG) << L"Starting main loop.";
     app.StartRun();
-    MSG msg = {0, 0, 0, 0, 0, 0, 0};
-    bool done = false;
+    MSG msg = {nullptr, 0, 0, 0, 0, 0, 0};
+    auto done = false;
     while (app.IsRunning() && !done) {
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             if (WM_QUIT == msg.message) {
                 done = true;
             }
@@ -94,7 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
     }
     app.EndRun();
-    LOG(DEBUG) << L"Main loop ended (" << (int) msg.wParam << L"). Message: " << msg.message;
+    LOG(DEBUG) << L"Main loop ended (" << static_cast<int>(msg.wParam) << L"). Message: " << msg.message;
 
     LOG(DEBUG) << L"Exiting application. Saving configuration to file.";
     std::ofstream ofs(configFileName, std::ios::out);

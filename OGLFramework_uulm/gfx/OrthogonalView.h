@@ -39,7 +39,7 @@ namespace cgu {
         virtual ~OrthogonalView();
 
         void Resize(float width, float height);
-        void SetView();
+        void SetView() const;
 
     private:
         /** Holds the ortho ubo content. */

@@ -30,7 +30,7 @@ namespace cgu {
 
             void MapImage();
             void UnmapImage();
-            cudaArray* GetMappedArray(unsigned int arrayIndex = 0, unsigned int mipLevel = 0);
+            cudaArray* GetMappedArray(unsigned int arrayIndex = 0, unsigned int mipLevel = 0) const;
 
         private:
             /** holds the opengl texture object. */

@@ -25,7 +25,7 @@ namespace cgu {
 
     protected:
         /** Constructor used for derivations that create their own renderables. */
-        ArcballRotatedSceneRenderable(const glm::vec3& pos);
+        explicit ArcballRotatedSceneRenderable(const glm::vec3& pos);
 
     private:
         /** Holds the arcball for rotation. */

@@ -93,8 +93,8 @@ namespace cgu {
     void SpotLightArray::SetLightParameters()
     {
         if (lights.size() != lightParams.size()) {
-            ShaderBufferBindingPoints* uniformBindingPoints = lightsUBO->GetBindingPoints();
-            std::string lightArrayName = lightsUBO->GetUBOName();
+            auto uniformBindingPoints = lightsUBO->GetBindingPoints();
+            auto lightArrayName = lightsUBO->GetUBOName();
             lightParams.resize(lights.size());
             lightsUBO.reset(new GLUniformBuffer(lightArrayName, sizeof(SpotLightParams) * static_cast<unsigned int>(lightParams.size()), uniformBindingPoints));
         }

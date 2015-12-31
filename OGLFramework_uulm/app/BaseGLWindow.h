@@ -1,7 +1,7 @@
 /**
  * @file   BaseGLWindow.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   19. Dezember 2013
+ * @date   2013.12.19
  *
  * @brief  Contains the base class for all OpenGL windows and definitions needed.
  */
@@ -24,7 +24,7 @@ namespace cgu {
      * @brief The base class for all OpenGL windows.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   19. Dezember 2013
+     * @date   2013.12.19
      */
     class BaseGLWindow : public GLRenderTarget
     {
@@ -45,13 +45,13 @@ namespace cgu {
         virtual void CloseWindow() = 0;
 
         /** Returns the windows width. */
-        unsigned int GetWidth()
+        unsigned int GetWidth() const
         {
             return width;
         };
 
         /** Returns the windows height. */
-        unsigned int GetHeight()
+        unsigned int GetHeight() const
         {
             return height;
         };
@@ -64,11 +64,11 @@ namespace cgu {
         bool HadPositionUpdate() const { return hadPositionUpdate; };
         void HandledPositionUpdate() { hadPositionUpdate = false; };
 
-        TextureManager* GetTextureManager();
-        MaterialLibManager* GetMaterialLibManager();
-        ShaderManager* GetShaderManager();
-        GPUProgramManager* GetGPUProgramaManager();
-        ShaderBufferBindingPoints* GetUBOBindingPoints();
+        /*TextureManager* GetTextureManager() const;
+        MaterialLibManager* GetMaterialLibManager() const;
+        ShaderManager* GetShaderManager() const;
+        GPUProgramManager* GetGPUProgramaManager() const;
+        ShaderBufferBindingPoints* GetUBOBindingPoints() const;*/
 
     protected:
         /** Holds the texture manager. */
@@ -77,7 +77,7 @@ namespace cgu {
         MaterialLibManager* matManager;
         /** Holds the shader manager. */
         ShaderManager* shaderManager;
-        /** Holds the gpu program manager. */
+        /** Holds the GPU program manager. */
         GPUProgramManager* programManager;
         /** Holds the uniform binding points. */
         ShaderBufferBindingPoints* uboBindingPoints;

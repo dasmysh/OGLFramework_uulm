@@ -20,7 +20,6 @@
 
 
 #include "active.h"
-#include <cassert>
 
 using namespace kjellkod;
 

@@ -6,7 +6,6 @@
 * strings attached and no restrictions or obligations.
 * ============================================================================*/
 #include <string>
-#include <csignal>
 
 namespace g2
 {

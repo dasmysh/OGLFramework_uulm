@@ -1,7 +1,7 @@
 /**
  * @file   Configuration.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   18. Dezember 2013
+ * @date   2013.12.18
  * @ingroup win
  *
  * @brief  Definition of the configuration class for windows systems.
@@ -20,11 +20,10 @@ namespace cgu {
      * @ingroup win
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   18. Dezember 2013
+     * @date   2013.12.18
      */
     class Configuration
     {
-    private:
         /** Deleted copy constructor. */
         Configuration(const Configuration&) = delete;
 

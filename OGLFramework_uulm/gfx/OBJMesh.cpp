@@ -100,6 +100,7 @@ namespace cgu {
     /** Default move assignment operator. */
     OBJMesh& OBJMesh::operator=(OBJMesh&& rhs)
     {
+        this->~OBJMesh();
         Resource* tRes = this;
         *tRes = static_cast<Resource&&>(std::move(rhs));
         Mesh* tMesh = this;
@@ -131,6 +132,7 @@ namespace cgu {
             boost::trim(currLine);
 
             if (currLine.length() == 0 || boost::starts_with(currLine, "#"))
+            // ReSharper disable once CppRedundantControlFlowJump
                 continue; // comment or empty line
         }
         Resource::Load();
@@ -175,12 +177,12 @@ namespace cgu {
                     boost::sregex_iterator(currLine.begin(),
                     currLine.end(), reg_pcount), boost::sregex_iterator()));
             } else if (boost::regex_match(currLine, lineMatch, reg_l)) {
-                unsigned int lineInds = static_cast<unsigned int>(std::distance(
+                auto lineInds = static_cast<unsigned int>(std::distance(
                     boost::sregex_iterator(currLine.begin(), currLine.end(), reg_lcount),
                     boost::sregex_iterator()));
                 countState.numLineIndices += (lineInds - 1) * 2;
             } else if (boost::regex_match(currLine, lineMatch, reg_f)) {
-                unsigned int faceInds = static_cast<unsigned int>(std::distance(
+                auto faceInds = static_cast<unsigned int>(std::distance(
                     boost::sregex_iterator(currLine.begin(), currLine.end(), reg_fcount),
                     boost::sregex_iterator()));
                 countState.numFaceIndices += (faceInds - 2) * 3;
@@ -219,7 +221,7 @@ namespace cgu {
 
             if (currLine.length() == 0 || boost::starts_with(currLine, "#"))
                 continue; // comment or empty line
-            else if (boost::regex_match(currLine, lineMatch, reg_o)) {
+            if (boost::regex_match(currLine, lineMatch, reg_o)) {
                 subMesh->FinishMaterial(mtlChunk);
                 loadGroup(subMesh);
 
@@ -292,13 +294,13 @@ namespace cgu {
         std::vector<MaterialLibrary*> result;
         while (i != j) {
             boost::filesystem::path meshFile{ id };
-            std::string mtllibname = meshFile.parent_path().string() + "/" + (*i++)[1].str();
+            auto mtllibname = meshFile.parent_path().string() + "/" + (*i++)[1].str();
             result.push_back(application->GetMaterialLibManager()->GetResource(mtllibname));
         }
         return result;
     }
 
-    void OBJMesh::loadGroup(SubMesh* submesh)
+    void OBJMesh::loadGroup(SubMesh*)
     {
     }
 
@@ -309,7 +311,7 @@ namespace cgu {
 
         // get new material
         const Material* newMat = nullptr;
-        for (MaterialLibrary* lib : matLibs) {
+        for (const auto lib : matLibs) {
             if (lib->HasResource(newMtl)) {
                 newMat = lib->GetResource(newMtl);
             }
@@ -322,7 +324,7 @@ namespace cgu {
         boost::sregex_token_iterator i(line.begin(), line.end(), reg_pcount);
         boost::sregex_token_iterator j;
         while (i != j) {
-            int pi = boost::lexical_cast<int>(*i++);
+            auto pi = boost::lexical_cast<int>(*i++);
             mesh->pointIndices.push_back(pi > 0 ? static_cast<GLuint> (pi - 1)
                 : static_cast<GLuint>(vertices.size() - pi));
         }
@@ -341,7 +343,7 @@ namespace cgu {
     unsigned int addVertex(std::vector<VT>& vertices, const VT& v, unsigned int pidx,
         std::vector<std::unique_ptr<CacheEntry> >& cache)
     {
-        CacheEntry* ce = cache[pidx].get();
+        auto ce = cache[pidx].get();
 
         while (ce != nullptr) {
             unsigned int idx = ce->index;
@@ -350,13 +352,13 @@ namespace cgu {
             ce = ce->next.get();
         }
 
-        unsigned int idx = static_cast<unsigned int>(vertices.size());
+        auto idx = static_cast<unsigned int>(vertices.size());
         vertices.push_back(v);
         ce = new CacheEntry;
         ce->next = nullptr;
         ce->index = idx;
         if (cache[pidx] != nullptr) {
-            CacheEntry* cei = cache[pidx].get();
+            auto cei = cache[pidx].get();
             while (cei->next != nullptr) {
                 cei = cei->next.get();
             }
@@ -401,14 +403,14 @@ namespace cgu {
     {
         boost::sregex_iterator i(line.begin(), line.end(), reg_fcount);
         boost::sregex_iterator j;
-        int idx1 = -1;
-        int idx2 = -1;
-        int pidx1 = -1;
-        int pidx2 = -1;
-        std::set<MeshConnectTriangle>::iterator currentFace = mesh->trianglePtsIndices.end();
+        auto idx1 = -1;
+        auto idx2 = -1;
+        auto pidx1 = -1;
+        auto pidx2 = -1;
+        auto currentFace = mesh->trianglePtsIndices.end();
         while (i != j) {
             FaceVertex fv;
-            int pi = boost::lexical_cast<int>((*i)[2].str());
+            auto pi = boost::lexical_cast<int>((*i)[2].str());
             pi = pi > 0 ? static_cast<unsigned int> (pi - 1) : static_cast<int>(vertices.size() - pi);
             fv.pos = vertices[pi].xyz();
             if (pidx1 == -1)
@@ -425,20 +427,20 @@ namespace cgu {
             if ((*i)[4].length() > 0) {
                 mesh->faceHasTexture = true;
                 mesh->faceHasNormal = true;
-                int ti = boost::lexical_cast<int>((*i)[4].str());
-                int ni = boost::lexical_cast<int>((*i)[5].str());
+                auto ti = boost::lexical_cast<int>((*i)[4].str());
+                auto ni = boost::lexical_cast<int>((*i)[5].str());
                 fv.tex = texCoords[ti > 0 ? static_cast<unsigned int> (ti - 1) : texCoords.size() - ti].xy();
                 fv.normal = normals[ni > 0 ? static_cast<unsigned int> (ni - 1) : normals.size() - ni];
             } else if ((*i)[6].length() > 0) {
                 mesh->faceHasTexture = true;
                 mesh->faceHasNormal = false;
-                int ti = boost::lexical_cast<int>((*i)[6].str());
+                auto ti = boost::lexical_cast<int>((*i)[6].str());
                 fv.tex = texCoords[ti > 0 ? static_cast<unsigned int> (ti - 1) : texCoords.size() - ti].xy();
                 fv.normal = glm::vec3(0.0f);
             } else if ((*i)[5].length() > 0) {
                 mesh->faceHasNormal = true;
                 mesh->faceHasTexture = false;
-                int ni = boost::lexical_cast<int>((*i)[5].str());
+                auto ni = boost::lexical_cast<int>((*i)[5].str());
                 fv.tex = glm::vec2(0.0f);
                 fv.normal = normals[ni > 0 ? static_cast<unsigned int> (ni - 1) : normals.size() - ni];
             }

@@ -46,7 +46,7 @@ namespace cgu {
             auto resid = boost::get_error_info<resid_info>(compilerError);
             auto errDesc = boost::get_error_info<errdesc_info>(compilerError);
             auto errorString = boost::get_error_info<compiler_error_info>(compilerError);
-            LOG(INFO) << L"Shader compiler/linker error while loading resource \"" << resid->c_str() << L"\"." << std::endl
+            LOG(INFO) << L"Shader compiler/linker error while loading resource \"" << resid->c_str() << L"\"/\"" << resId.c_str() << "\"." << std::endl
                 << "Filename: " << (filename == nullptr ? "-" : filename->c_str()) << std::endl
                 << "Description: " << (errDesc == nullptr ? "-" : errDesc->c_str()) << std::endl
                 << "Compiler Errors: " << (errorString == nullptr ? "-" : errorString->c_str());
@@ -65,7 +65,7 @@ namespace cgu {
             if (lineNo == nullptr) fileline << "-";
             else fileline << *lineNo;
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            LOG(INFO) << L"Error while loading program \"" << resid->c_str() << L"\"." << std::endl
+            LOG(INFO) << L"Error while loading program \"" << resid->c_str() << L"\"/\"" << resId.c_str() << "\"." << std::endl
                 << "Filename: " << (filename == nullptr ? "-" : filename->c_str()) << std::endl
                 << fileline.str().c_str() << std::endl
                 << "Description: " << (errDesc == nullptr ? "-" : errDesc->c_str());

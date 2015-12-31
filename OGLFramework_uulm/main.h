@@ -114,8 +114,10 @@ log_ogl_err(__FILE__, __LINE__, __func__, OGL_FUNCTION_STR(call))
 #define OGL_CALL(call, ...)  call(__VA_ARGS__)
 #endif
 
+// ReSharper disable CppUnusedIncludeDirective
 #include "core/Resource.h"
 #include "core/ResourceManager.h"
+// ReSharper restore CppUnusedIncludeDirective
 
 namespace cgu {
     class GLVertexAttributeArray;

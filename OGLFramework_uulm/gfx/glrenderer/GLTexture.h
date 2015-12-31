@@ -40,7 +40,7 @@ namespace cgu {
         friend class cgu::gpgpu::CUDAImage;
         friend class cgu::GLTexture;
         friend class cgu::FrameBuffer;
-    private:
+
         TextureGLIdentifierAccessor(GLuint id, GLenum type) : textureId(id), textureType(type) {};
         GLuint textureId;
         GLenum textureType;
@@ -54,7 +54,6 @@ namespace cgu {
     */
     class GLTexture
     {
-    private:
         /** Deleted copy constructor. */
         GLTexture(const GLTexture&) = delete;
         /** Deleted copy assignment operator. */
@@ -70,17 +69,17 @@ namespace cgu {
 
         void ActivateTexture(GLenum textureUnit) const;
         void ActivateImage(GLuint imageUnitIndex, GLint mipLevel, GLenum accessType) const;
-        void AddTextureToArray(const std::string& file, unsigned int slice);
-        void SetData(const void* data);
-        void DownloadData(std::vector<uint8_t>& data);
-        void UploadData(std::vector<uint8_t>& data);
-        void GenerateMipMaps();
+        void AddTextureToArray(const std::string& file, unsigned int slice) const;
+        void SetData(const void* data) const;
+        void DownloadData(std::vector<uint8_t>& data) const;
+        void UploadData(std::vector<uint8_t>& data) const;
+        void GenerateMipMaps() const;
         void GenerateMinMaxMaps(GPUProgram* minMaxProgram, const std::vector<BindingLocation>& uniformNames);
 
-        void SampleWrapMirror();
-        void SampleWrapClamp();
-        void SampleLinear();
-        void SampleNearest();
+        void SampleWrapMirror() const;
+        void SampleWrapClamp() const;
+        void SampleLinear() const;
+        void SampleNearest() const;
 
         const TextureGLIdentifierAccessor& GetGLIdentifier() const { return id; };
 
@@ -99,7 +98,7 @@ namespace cgu {
         /** Holds whether the texture has mip maps. */
         bool hasMipMaps;
 
-        void InitSampling();
+        void InitSampling() const;
     };
 }
 

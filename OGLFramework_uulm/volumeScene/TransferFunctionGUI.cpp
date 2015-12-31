@@ -8,13 +8,13 @@
 
 #include "TransferFunctionGUI.h"
 #include "app/ApplicationBase.h"
-#include "gfx/glrenderer/GUIRenderable.h"
 #include "gfx/glrenderer/GLTexture.h"
 #include "app/BaseGLWindow.h"
 #include <boost/assign.hpp>
 #include "gfx/glrenderer/GLUniformBuffer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "app/GLWindow.h"
+#include "gfx/glrenderer/ScreenQuadRenderable.h"
 
 namespace cgu {
 
@@ -23,13 +23,13 @@ namespace cgu {
         quad(nullptr),
         quadTex(nullptr),
         tfTex(nullptr),
-        colorPicker(),
         selection(-1),
         draggingSelection(false),
         lastButtonAction(0),
         tfProgram(nullptr),
         orthoUBO(new GLUniformBuffer("tfOrthoProjection", sizeof(OrthoProjectionBuffer), app->GetUBOBindingPoints())),
-        tfVBO(0)
+        tfVBO(0),
+        colorPicker()
     {
         screenAlignedProg = app->GetGPUProgramManager()->GetResource("tfRenderGUI.vp|tfRenderGUI.fp");
         screenAlignedTextureUniform = screenAlignedProg->GetUniformLocation("guiTex");
@@ -38,7 +38,7 @@ namespace cgu {
         tfProgram = app->GetGPUProgramManager()->GetResource("tfPicker.vp|tfPicker.fp");
         tfProgram->BindUniformBlock("tfOrthoProjection", *app->GetUBOBindingPoints());
 
-        std::vector<GUIVertex> quadVerts(4);
+        /*std::vector<GUIVertex> quadVerts(4);
         quadVerts[0].pos = glm::vec3(0.0f);
         quadVerts[0].texCoords = glm::vec2(0.0f, 1.0f);
         quadVerts[1].pos = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -47,9 +47,9 @@ namespace cgu {
         quadVerts[2].texCoords = glm::vec2(1.0f, 1.0f);
         quadVerts[3].pos = glm::vec3(1.0f, 1.0f, 0.0f);
         quadVerts[3].texCoords = glm::vec2(1.0f, 0.0f);
-        std::vector<unsigned int> quadIndices{ 0, 1, 2, 2, 1, 3 };
+        std::vector<unsigned int> quadIndices{ 0, 1, 2, 2, 1, 3 };*/
 
-        quad.reset(new GUIRenderable(quadVerts, quadIndices, screenAlignedProg));
+        quad.reset(new ScreenQuadRenderable());
 
         std::stringstream options;
         glm::uvec2 atbSize{ static_cast<unsigned int>(rectMax.x - rectMin.x), 115 };
@@ -94,10 +94,10 @@ namespace cgu {
 
     void TransferFunctionGUI::Resize(float width, float height)
     {
-        float left = -rectMin.x / (rectMax.x - rectMin.x);
-        float right = (width - rectMin.x) / (rectMax.x - rectMin.x);
-        float bottom = (height - rectMin.y) / (rectMax.y - rectMin.y);
-        float top = -rectMin.y / (rectMax.y - rectMin.y);
+        auto left = -rectMin.x / (rectMax.x - rectMin.x);
+        auto right = (width - rectMin.x) / (rectMax.x - rectMin.x);
+        auto bottom = (height - rectMin.y) / (rectMax.y - rectMin.y);
+        auto top = -rectMin.y / (rectMax.y - rectMin.y);
         orthoBuffer.orthoMatrix = glm::ortho(left, right, bottom, top, 1.0f, -1.0f);
         orthoUBO->UploadData(0, sizeof(OrthoProjectionBuffer), &orthoBuffer);
     }
@@ -110,7 +110,7 @@ namespace cgu {
         screenAlignedProg->UseProgram();
         quadTex->ActivateTexture(GL_TEXTURE0);
         screenAlignedProg->SetUniform(screenAlignedTextureUniform, 0);
-        quad->RenderGeometry();
+        quad->Draw();// RenderGeometry();
 
         // draw
         glPointSize(0.5f * pickRadius);
@@ -131,9 +131,9 @@ namespace cgu {
         glEnable(GL_DEPTH_TEST);
     }
 
-    bool TransferFunctionGUI::HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender)
+    bool TransferFunctionGUI::HandleMouse(unsigned int buttonAction, float, BaseGLWindow* sender)
     {
-        bool handled = false;
+        auto handled = false;
 
         if (selection == -1) {
             draggingSelection = false;
@@ -142,11 +142,11 @@ namespace cgu {
         // if (buttonAction == 0 && !draggingSelection) return handled;
 
         glm::vec2 screenSize(static_cast<float>(sender->GetWidth()), static_cast<float>(sender->GetHeight()));
-        glm::vec2 pickSize = glm::vec2(pickRadius) / screenSize;
-        glm::vec2 mouseCoords = sender->GetMouseAbsolute();
+        auto pickSize = glm::vec2(pickRadius) / screenSize;
+        auto mouseCoords = sender->GetMouseAbsolute();
 
         // calculate relative points
-        glm::vec2 relCoords = (mouseCoords - rectMin) / (rectMax - rectMin);
+        auto relCoords = (mouseCoords - rectMin) / (rectMax - rectMin);
         relCoords.y = 1.0f - relCoords.y;
 
         if (draggingSelection) {
@@ -160,7 +160,7 @@ namespace cgu {
             return true;
         }
 
-        const float SEL_RAD2 = (pickRadius / (rectMax.x - rectMin.x)) * (pickRadius / (rectMax.y - rectMin.y));
+        const auto SEL_RAD2 = (pickRadius / (rectMax.x - rectMin.x)) * (pickRadius / (rectMax.y - rectMin.y));
         if (relCoords.x >= -SEL_RAD2 && relCoords.y >= -SEL_RAD2 && relCoords.x <= 1.0f + SEL_RAD2 && relCoords.y <= 1.0f + SEL_RAD2)
         {
             // left click: select point
@@ -184,7 +184,7 @@ namespace cgu {
         return handled;
     }
 
-    bool TransferFunctionGUI::SelectPoint(const glm::vec2& position, const glm::vec2& pickSize)
+    bool TransferFunctionGUI::SelectPoint(const glm::vec2& position, const glm::vec2&)
     {
         selection = GetControlPoint(position);
         if (selection != -1) {
@@ -194,9 +194,9 @@ namespace cgu {
         return false;
     }
 
-    bool TransferFunctionGUI::AddPoint(const glm::vec2& position, const glm::vec2& pickSize)
+    bool TransferFunctionGUI::AddPoint(const glm::vec2& position, const glm::vec2&)
     {
-        int i = GetControlPoint(position);
+        auto i = GetControlPoint(position);
         selection = i;
 
         if (i == -1 && Overlap(position)) {
@@ -214,9 +214,9 @@ namespace cgu {
         return false;
     }
 
-    bool TransferFunctionGUI::RemovePoint(const glm::vec2& position, const glm::vec2& pickSize)
+    bool TransferFunctionGUI::RemovePoint(const glm::vec2& position, const glm::vec2&)
     {
-        int i = GetControlPoint(position);
+        auto i = GetControlPoint(position);
         if (i > -1) {
             tf_.RemoveControlPoint(i);
             selection = -1;
@@ -270,7 +270,7 @@ namespace cgu {
         glBufferSubData(GL_ARRAY_BUFFER, (tf_.points().size() + 1) * sizeof(tf::ControlPoint), sizeof(tf::ControlPoint), &last);
 
         if (createVAO) {
-            std::vector<BindingLocation> loc = tfProgram->GetAttributeLocations(boost::assign::list_of<std::string>("value")("color"));
+            auto loc = tfProgram->GetAttributeLocations(boost::assign::list_of<std::string>("value")("color"));
             attribBind = tfProgram->CreateVertexAttributeArray(tfVBO, 0);
             attribBind->StartAttributeSetup();
             attribBind->AddVertexAttribute(loc[0], 1, GL_FLOAT, GL_FALSE, sizeof(tf::ControlPoint), 0);
@@ -282,7 +282,7 @@ namespace cgu {
         UpdateTexture();
     }
 
-    void TransferFunctionGUI::UpdateTexture()
+    void TransferFunctionGUI::UpdateTexture() const
     {
         std::array<glm::vec4, TEX_RES> texData;
         tf_.CreateTextureData(texData.data(), TEX_RES);
@@ -292,14 +292,14 @@ namespace cgu {
     // Gets an index to a control point if found within radii of mouse_pos
     int TransferFunctionGUI::GetControlPoint(const glm::vec2& mouse_pos)
     {
-        const float SEL_RAD2 = (pickRadius / (rectMax.x - rectMin.x)) * (pickRadius / (rectMax.y - rectMin.y));
+        const auto SEL_RAD2 = (pickRadius / (rectMax.x - rectMin.x)) * (pickRadius / (rectMax.y - rectMin.y));
 
-        for (int i = 0; i < (int)tf_.points().size(); ++i) {
-            glm::vec2 p = tf_.points()[i].GetPos();
+        for (auto i = 0; i < static_cast<int>(tf_.points().size()); ++i) {
+            auto p = tf_.points()[i].GetPos();
             // p.y = 1.f - p.y;
             // glm::vec2 pos = p * (rectMax - rectMin) + rectMin;
-            glm::vec2 d = mouse_pos - p;
-            float dist2 = d.x * d.x + d.y * d.y;
+            auto d = mouse_pos - p;
+            auto dist2 = d.x * d.x + d.y * d.y;
             if (dist2 < SEL_RAD2)
                 return i;
         }

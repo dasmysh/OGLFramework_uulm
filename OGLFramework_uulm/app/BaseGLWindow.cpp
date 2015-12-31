@@ -1,9 +1,9 @@
 /**
  * @file   BaseGLWindow.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   19. Dezember 2013
+ * @date   2013.12.19
  *
- * @brief  Constains Implementation for the BaseGLWindow.
+ * @brief  Contains Implementation for the BaseGLWindow.
  */
 
 #include "main.h"
@@ -26,40 +26,7 @@ namespace cgu {
     {
     }
 
-    BaseGLWindow::~BaseGLWindow()
-    {
-    }
-
-    /** Returns the texture manager. */
-    TextureManager* BaseGLWindow::GetTextureManager()
-    {
-        return texManager;
-    }
-
-    /** Returns the material lib manager. */
-    MaterialLibManager* BaseGLWindow::GetMaterialLibManager()
-    {
-        return matManager;
-    }
-
-    /** Returns the shader manager. */
-    ShaderManager* BaseGLWindow::GetShaderManager()
-    {
-        return shaderManager;
-    }
-
-    /** Returns the gpu program manager. */
-    GPUProgramManager* BaseGLWindow::GetGPUProgramaManager()
-    {
-        return programManager;
-    }
-
-    /** Returns the UBO binding points. */
-    ShaderBufferBindingPoints* BaseGLWindow::GetUBOBindingPoints()
-    {
-        return uboBindingPoints;
-    }
-
+    BaseGLWindow::~BaseGLWindow() = default;
 
     /** Returns the mouse pointer coordinates in normalized device coordinates. */
     glm::vec3 BaseGLWindow::GetMouseAbsoluteNDC() const
@@ -68,7 +35,7 @@ namespace cgu {
             -(2.0f * mouseAbsolute.y - height) / height, 0.0f);
         result = glm::clamp(result, glm::vec3(-1.0f), glm::vec3(1.0f));
 
-        float length_squared = glm::dot(result, result);
+        auto length_squared = glm::dot(result, result);
         if (length_squared <= 1.0f)
             result.z = sqrtf(1.0f - length_squared);
         else

@@ -23,13 +23,13 @@ namespace cgu {
 
     void OrthogonalView::Resize(float width, float height)
     {
-        float bottom = height;
-        float right = width;
+        auto bottom = height;
+        auto right = width;
         orthoBuffer.orthoMatrix = glm::ortho(0.0f, right, bottom, 0.0f, 1.0f, -1.0f);
         orthoUBO->UploadData(0, sizeof(OrthoProjectionBuffer), &orthoBuffer);
     }
 
-    void OrthogonalView::SetView()
+    void OrthogonalView::SetView() const
     {
         orthoUBO->BindBuffer();
     }

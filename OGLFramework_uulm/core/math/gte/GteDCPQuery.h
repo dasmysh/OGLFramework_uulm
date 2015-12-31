@@ -33,7 +33,7 @@ namespace gte
             // distance.  The operator() is non-const to allow DCPQuery to store
             // and modify private state that supports the query.
         };
-        Result operator()(Type0 const& primitive0, Type1 const& primitive1);
+        Result operator()(Type0 const&, Type1 const&) { return Result(); };
     };
 
 }

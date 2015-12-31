@@ -1,7 +1,7 @@
 /**
  * @file   GLRenderTarget.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   15. Januar 2014
+ * @date   2014.01.15
  *
  * @brief  Contains the definition of GLRenderTarget.
  */
@@ -22,10 +22,12 @@ namespace cgu {
      * @brief  Represents an OpenGL render target.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   15. Januar 2014
+     * @date   2014.01.15
      */
     class GLRenderTarget
     {
+    private:
+        GLRenderTarget(const GLRenderTarget&) = delete;
     public:
         GLRenderTarget(unsigned int w, unsigned int h);
         GLRenderTarget(unsigned int w, unsigned int h, const FrameBufferDescriptor& desc);

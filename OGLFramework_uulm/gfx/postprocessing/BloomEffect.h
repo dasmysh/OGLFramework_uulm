@@ -31,7 +31,7 @@ namespace cgu {
     class BloomEffect
     {
     public:
-        BloomEffect(ApplicationBase* app);
+        explicit BloomEffect(ApplicationBase* app);
         ~BloomEffect();
 
         void AddParameterSlidersToBar(TwBar* bar);

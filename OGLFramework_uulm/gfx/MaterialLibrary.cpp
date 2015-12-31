@@ -37,6 +37,7 @@ namespace cgu {
     /** Default move assignment operator. */
     MaterialLibrary& MaterialLibrary::operator=(MaterialLibrary&& rhs)
     {
+        this->~MaterialLibrary();
         Resource* tRes = this;
         *tRes = static_cast<Resource&&>(std::move(rhs));
         ResourceManagerBase* tResMan = this;
@@ -77,7 +78,7 @@ namespace cgu {
             boost::trim(currLine);
             if (currLine.length() == 0 || boost::starts_with(currLine, "#"))
                 continue; // comment or empty line
-            else if (boost::regex_match(currLine, lineMatch, reg_newmtl)) {
+            if (boost::regex_match(currLine, lineMatch, reg_newmtl)) {
                 auto mtlName = lineMatch[1].str();
                 currMat = SetResource(mtlName, std::move(std::make_unique<Material>()));
             } else if (boost::regex_match(currLine, lineMatch, reg_Ka) && currMat) {
@@ -156,7 +157,8 @@ namespace cgu {
      */
     float MaterialLibrary::parseFloatParameter(const std::string& paramName, const std::string& matches, float defaultValue) const
     {
-        boost::regex reg_bm("^.*-bm\\s+([-+]?[0-9]*\\.?[0-9]+).*$");
+        auto regexString = "^.*" + paramName + "\\s+([-+]?[0-9]*\\.?[0-9]+).*$";
+        boost::regex reg_bm(regexString);
         boost::smatch lineMatch;
         if (boost::regex_match(matches, lineMatch, reg_bm)) {
             return boost::lexical_cast<float>(lineMatch[1]);

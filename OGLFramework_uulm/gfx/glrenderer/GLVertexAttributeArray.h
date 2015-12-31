@@ -1,7 +1,7 @@
 /**
  * @file   GLVertexAttributeArray.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   16. Februar 2014
+ * @date   2014.02.16
  *
  * @brief  Contains the definition of GLVertexAttributeArray.
  */
@@ -40,7 +40,7 @@ namespace cgu {
     /** The location of a general shader binding point. */
     typedef shader_binding_desc* BindingLocation;
 
-    /** Describtion of a vertex attribute. */
+    /** Description of a vertex attribute. */
     struct vertex_attribute_desc
     {
         /** Holds the attribute type inside the shader. */
@@ -63,26 +63,20 @@ namespace cgu {
      * @brief
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   16. Februar 2014
+     * @date   2014.02.16
      */
     class GLVertexAttributeArray
     {
-    private:
-        /** Deleted copy constructor. */
-        GLVertexAttributeArray(const GLVertexAttributeArray&) {};
-        /** Deleted copy assignment operator. */
-        GLVertexAttributeArray& operator=(const GLVertexAttributeArray&) {};
-
     public:
         GLVertexAttributeArray(GLuint vertexBuffer, GLuint indexBuffer);
-        ~GLVertexAttributeArray();
-        /** Default move constructor. */
+        GLVertexAttributeArray(const GLVertexAttributeArray&) = delete;
+        GLVertexAttributeArray& operator=(const GLVertexAttributeArray&) = delete;
         GLVertexAttributeArray(GLVertexAttributeArray&& orig);
-        /** Default move assignment operator. */
         GLVertexAttributeArray& operator=(GLVertexAttributeArray&& orig);
+        ~GLVertexAttributeArray();
 
-        void StartAttributeSetup();
-        void EndAttributeSetup();
+        void StartAttributeSetup() const;
+        void EndAttributeSetup() const;
         void AddVertexAttribute(BindingLocation location, int size, GLenum type, GLboolean normalized,
             GLsizei stride, unsigned int offset);
         void AddVertexAttributeI(BindingLocation location, int size, GLenum type, GLsizei stride,

@@ -45,7 +45,7 @@ namespace cgu {
         /** Starts the application. */
         void StartRun();
         /** Checks if the application is still running. */
-        bool IsRunning();
+        bool IsRunning() const;
         /** Make one application <em>step</em> (rendering etc.). */
         void Step();
         /** Called if the application is to end running. */
@@ -58,19 +58,19 @@ namespace cgu {
         virtual bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender) = 0;
         virtual void OnResize(unsigned int width, unsigned int height);
 
-        TextureManager* GetTextureManager();
-        VolumeManager* GetVolumeManager();
-        MaterialLibManager* GetMaterialLibManager();
-        ShaderManager* GetShaderManager();
-        GPUProgramManager* GetGPUProgramManager();
-        FontManager* GetFontManager();
+        TextureManager* GetTextureManager() const;
+        VolumeManager* GetVolumeManager() const;
+        MaterialLibManager* GetMaterialLibManager() const;
+        ShaderManager* GetShaderManager() const;
+        GPUProgramManager* GetGPUProgramManager() const;
+        FontManager* GetFontManager() const;
         ShaderBufferBindingPoints* GetUBOBindingPoints();
         ShaderBufferBindingPoints* GetSSBOBindingPoints();
-        Configuration& GetConfig();
-        GLWindow* GetWindow();
-        GPUProgram* GetFontProgram();
-        GPUProgram* GetGUIProgram();
-        ScreenQuadRenderable* GetScreenQuadRenderable();
+        Configuration& GetConfig() const;
+        GLWindow* GetWindow() const;
+        GPUProgram* GetFontProgram() const;
+        GPUProgram* GetGUIProgram() const;
+        ScreenQuadRenderable* GetScreenQuadRenderable() const;
         BindingLocation* GetGUITexUniform() { return &guiTexUniform; };
 
     private:
@@ -133,7 +133,6 @@ namespace cgu {
         /** Holds the screen quad renderable. */
         std::unique_ptr<ScreenQuadRenderable> screenQuadRenderable;
 
-    protected:
         /** holds the GUI programs uniform bindings. */
         BindingLocation guiTexUniform;
     };

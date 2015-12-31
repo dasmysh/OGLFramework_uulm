@@ -1,7 +1,7 @@
 /**
  * @file   ShaderBufferBindingPoints.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   26. Januar 2014
+ * @date   2014.01.26
  *
  * @brief  Contains the definition of ShaderBufferBindingPoints.
  */
@@ -16,11 +16,10 @@ namespace cgu {
      * @brief Manages the binding points for shader buffers (uniform buffers, textures, ...).
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   26. Januar 2014
+     * @date   2014.01.26
      */
     class ShaderBufferBindingPoints
     {
-    private:
         /** Deleted copy constructor. */
         ShaderBufferBindingPoints(const ShaderBufferBindingPoints&) = delete;
         /** Deleted copy assignment operator. */

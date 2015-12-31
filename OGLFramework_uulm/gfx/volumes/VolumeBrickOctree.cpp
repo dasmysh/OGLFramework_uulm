@@ -32,6 +32,7 @@ namespace cgu {
         maxTexValue(1.0f),
         maxLevel(0),
         streamFile(nullptr),
+        dataSize(0),
         brickTextureDesc(4, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
         minMaxMapProgram(minMaxProg),
         minMaxMapUniformNames(uniformNames)
@@ -54,9 +55,9 @@ namespace cgu {
         VolumeBrickOctree(pos, size, scale, 0, minMaxProg, uniformNames)
     {
         if (origSize.x > MAX_SIZE || origSize.y > MAX_SIZE || origSize.z > MAX_SIZE) {
-            unsigned int ovlp = cguOctreeMath::calculateOverlapPixels(glm::max(origSize.x, glm::max(origSize.y, origSize.z)));
+            auto ovlp = cguOctreeMath::calculateOverlapPixels(glm::max(origSize.x, glm::max(origSize.y, origSize.z)));
             glm::uvec3 sizeOverlap{ ovlp };
-            glm::uvec3 sizeWithOverlap = origSize + sizeOverlap;
+            auto sizeWithOverlap = origSize + sizeOverlap;
             glm::uvec3 sizePowerOfTwo{ cguMath::roundupPow2(origSize.x), cguMath::roundupPow2(origSize.y),
                 cguMath::roundupPow2(origSize.z) };
             if (sizeWithOverlap.x > sizePowerOfTwo.x) {
@@ -108,12 +109,12 @@ namespace cgu {
         posOffsets[6] = glm::uvec3(1, 1, 0);
         posOffsets[7] = glm::uvec3(1, 1, 1);
 
-        unsigned int ovlp = cguOctreeMath::calculateOverlapPixels(glm::max(childSizeBase.x, glm::max(childSizeBase.y, childSizeBase.z)));
+        auto ovlp = cguOctreeMath::calculateOverlapPixels(glm::max(childSizeBase.x, glm::max(childSizeBase.y, childSizeBase.z)));
 
         for (unsigned int i = 0; i < 8; ++i) {
-            glm::uvec3 childPosOffset = posOffsets[i] * (childSizeBase - glm::uvec3(ovlp));
-            glm::uvec3 childPos = posOffset + childPosOffset;
-            glm::uvec3 childSize = glm::uvec3(glm::max(glm::ivec3(0),
+            auto childPosOffset = posOffsets[i] * (childSizeBase - glm::uvec3(ovlp));
+            auto childPos = posOffset + childPosOffset;
+            auto childSize = glm::uvec3(glm::max(glm::ivec3(0),
                 glm::ivec3(glm::min(origSize, childPosOffset + childSizeBase)) - glm::ivec3(childPosOffset)));
 
             if (childSizeBase.x == ovlp && posOffsets[i].x == 1) childSize.x = 0;
@@ -251,8 +252,7 @@ namespace cgu {
         else if (brickTextureDesc.type == GL_UNSIGNED_INT) combineProg = app->GetGPUProgramManager()->GetResource("combineChildTextures32.cp");
         else throw std::runtime_error("Pixel-type not supported.");
 
-        std::vector<BindingLocation> uniformNames = combineProg->GetUniformLocations(
-            boost::assign::list_of<std::string>("childTex")("combineTex")("childShift")("maxChunkSize"));
+        auto uniformNames = combineProg->GetUniformLocations({ "childTex", "combineTex", "childShift", "maxChunkSize" });
         brickTexture.reset(new GLTexture(texSize.x, texSize.y, texSize.z, brickTextureDesc, nullptr));
 
         //glm::uvec3 chunkSize = glm::uvec3(glm::ceil(glm::vec3(texSize) / 2.0f));
@@ -273,7 +273,7 @@ namespace cgu {
         brickTexture->ActivateImage(1, 0, GL_WRITE_ONLY);
         for (unsigned int i = 0; i < 8; ++i) {
             if (children[i]->dataSize != 0) {
-                glm::ivec3 numGroups = glm::ivec3(glm::ceil(glm::vec3(children[i]->texSize) / 8.0f));
+                auto numGroups = glm::ivec3(glm::ceil(glm::vec3(children[i]->texSize) / 8.0f));
 
                 combineProg->SetUniform(uniformNames[3], children[i]->texSize);
                 combineProg->SetUniform(uniformNames[2], childShifts[i]);
@@ -295,10 +295,10 @@ namespace cgu {
     bool VolumeBrickOctree::UpdateFrustum(const cgu::CameraView& camera, const glm::mat4& world)
     {
         if (dataSize == 0) return false;
-        bool isCorrectLod = false; // TODO: add LOD mechanism here. [8/26/2015 Sebastian Maisch]
+        auto isCorrectLod = false; // TODO: add LOD mechanism here. [8/26/2015 Sebastian Maisch]
         // if (level == maxLevel - 1) isCorrectLod = true;
 
-        glm::mat4 localWorld = GetLocalWorld(world);
+        auto localWorld = GetLocalWorld(world);
 
         cguMath::AABB3<float> box{ { { glm::vec3(0.0f), glm::vec3(1.0f) } } };
 
@@ -325,7 +325,7 @@ namespace cgu {
     {
         if (!hasAnyData || dataSize == 0) return;
         else if (IsLoaded()) {
-            glm::mat4 childWorld = GetLocalWorld(world);
+            auto childWorld = GetLocalWorld(world);
             result.push_back(std::make_pair(this, camera.GetSignedDistanceToUnitAABB2(childWorld)));
         }
         else {
@@ -336,10 +336,10 @@ namespace cgu {
     glm::mat4 VolumeBrickOctree::GetLocalWorld(const glm::mat4& world) const
     {
         // glm::mat4 scaleVoxelMat = glm::scale(glm::mat4(), glm::vec3(origSize));
-        glm::mat4 scaleVoxelMat = glm::scale(glm::mat4(), glm::vec3(origSize) * (maxTexValue - minTexValue));
-        glm::mat4 scaleToWorldMat = glm::scale(glm::mat4(), voxelScale);
+        auto scaleVoxelMat = glm::scale(glm::mat4(), glm::vec3(origSize) * (maxTexValue - minTexValue));
+        auto scaleToWorldMat = glm::scale(glm::mat4(), voxelScale);
         // glm::mat4 translateOffsetMat = glm::translate(glm::mat4(), glm::vec3(posOffset));
-        glm::mat4 translateOffsetMat = glm::translate(glm::mat4(), glm::vec3(posOffset) + (minTexValue * glm::vec3(texSize)));
+        auto translateOffsetMat = glm::translate(glm::mat4(), glm::vec3(posOffset) + (minTexValue * glm::vec3(texSize)));
         return world * scaleToWorldMat * translateOffsetMat * scaleVoxelMat;
     }
 }

@@ -11,8 +11,6 @@
 #include "GLTexture2D.h"
 #include "GLTexture.h"
 
-#include <boost/assign.hpp>
-
 namespace cgu {
 
     /**
@@ -133,7 +131,7 @@ namespace cgu {
     {
         assert(attribBinds.GetUniformIds().size() == 0);
         assert(attribBinds.GetVertexAttributes().size() == 0);
-        std::vector<BindingLocation> shaderPositions = program->GetAttributeLocations({ "pos", "tex", "normal" });
+        auto shaderPositions = program->GetAttributeLocations({ "pos", "tex", "normal" });
 
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
         attribBinds.GetVertexAttributes().push_back(program->CreateVertexAttributeArray(vBuffer, iBuffer));
@@ -188,7 +186,7 @@ namespace cgu {
     void MeshRenderable::DrawSubMesh(const GLVertexAttributeArray* vao, const SubMesh* subMesh) const
     {
         vao->EnableVertexAttributeArray();
-        for (const SubMeshMaterialChunk& mtlChunk : subMesh->mtlChunks) {
+        for (const auto& mtlChunk : subMesh->mtlChunks) {
             if (mtlChunk.material->diffuseTex && attribBinds.GetUniformIds().size() != 0) {
                 mtlChunk.material->diffuseTex->GetTexture()->ActivateTexture(GL_TEXTURE0);
                 program->SetUniform(attribBinds.GetUniformIds()[0], 0);

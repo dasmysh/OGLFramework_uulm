@@ -1,7 +1,7 @@
 /**
  * @file   GLUniformBuffer.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   25. Januar 2014
+ * @date   2014.01.25
  *
  * @brief  Contains the implementation of GLUniformBuffer.
  */

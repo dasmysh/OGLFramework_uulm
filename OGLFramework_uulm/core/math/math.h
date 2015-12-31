@@ -9,7 +9,6 @@
 #ifndef MATH_H
 #define MATH_H
 
-#include <array>
 #include <glm/glm.hpp>
 #include <cmath>
 #include "primitives.h"
@@ -226,11 +225,13 @@ namespace cguMath {
     inline uint32_t nextPow2(uint32_t x)
     {
         uint32_t j, k;
+        // ReSharper disable CppUsingResultOfAssignmentAsCondition
         (j = x & 0xFFFF0000) || (j = x);
         (k = j & 0xFF00FF00) || (k = j);
         (j = k & 0xF0F0F0F0) || (j = k);
         (k = j & 0xCCCCCCCC) || (k = j);
         (j = k & 0xAAAAAAAA) || (j = k);
+        // ReSharper restore CppUsingResultOfAssignmentAsCondition
         return j << 1;
     }
 }

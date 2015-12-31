@@ -9,7 +9,6 @@
 #ifndef CUDAADDNOISE_H
 #define CUDAADDNOISE_H
 
-#include <cuda_runtime_api.h>
 #include <glm/glm.hpp>
 
 namespace cgu {
@@ -23,10 +22,10 @@ namespace cgu {
         class CUDAAddNoise
         {
         public:
-            CUDAAddNoise(CUDAGrid* theGrid);
+            explicit CUDAAddNoise(CUDAGrid* theGrid);
             ~CUDAAddNoise();
 
-            void RunKernel(const glm::vec4& color, float resolution, float strength, unsigned int seed);
+            void RunKernel(const glm::vec4& color, float resolution, float strength, unsigned int seed) const;
 
         private:
             /** holds the grid. */

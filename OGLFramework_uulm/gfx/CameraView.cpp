@@ -10,8 +10,6 @@
 
 #include "CameraView.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "glrenderer/GLUniformBuffer.h"
@@ -37,7 +35,8 @@ namespace cgu {
     camOrient(1.0f, 0.0f, 0.0f, 0.0f),
     camUp(0.0f, 1.0f, 0.0f),
     camArcball(theButtonDownFlag, theButtonFlag),
-    perspectiveUBO(uniformBindingPoints == nullptr ? nullptr : new GLUniformBuffer(perspectiveProjectionUBBName, sizeof(PerspectiveTransformBuffer), uniformBindingPoints))
+    perspectiveUBO(uniformBindingPoints == nullptr ? nullptr : std::make_unique<GLUniformBuffer>(perspectiveProjectionUBBName,
+        static_cast<unsigned int>(sizeof(PerspectiveTransformBuffer)), uniformBindingPoints))
     {
         Resize(aspectRatio);
     }
@@ -140,7 +139,7 @@ namespace cgu {
      */
     void CameraView::UpdateCamera()
     {
-        glm::quat camOrientStep = camArcball.GetWorldRotation(view);
+        auto camOrientStep = camArcball.GetWorldRotation(view);
         glm::mat3 matOrientStep{ glm::mat3_cast(camOrientStep) };
         camOrient = camOrientStep * camOrient;
         glm::mat3 matOrient{ glm::mat3_cast(camOrient) };
@@ -168,7 +167,7 @@ namespace cgu {
 
     cguMath::Frustum<float> CameraView::GetViewFrustum(const glm::mat4& modelM) const
     {
-        glm::mat4 mvp = perspective * view * modelM;
+        auto mvp = perspective * view * modelM;
         return std::move(CalcViewFrustum(mvp));
     }
 
@@ -199,8 +198,8 @@ namespace cgu {
 
     float CameraView::GetSignedDistanceToUnitAABB2(const glm::mat4& world) const
     {
-        glm::vec3 localCamPos = glm::vec3(glm::inverse(world) * glm::vec4(camPos, 1.0f));
-        glm::vec3 clampedCamPos = glm::vec3(world * glm::vec4(glm::clamp(localCamPos, glm::vec3(0.0f), glm::vec3(1.0f)), 1.0f));
+        auto localCamPos = glm::vec3(glm::inverse(world) * glm::vec4(camPos, 1.0f));
+        auto clampedCamPos = glm::vec3(world * glm::vec4(glm::clamp(localCamPos, glm::vec3(0.0f), glm::vec3(1.0f)), 1.0f));
         return glm::dot(clampedCamPos - camPos, clampedCamPos - camPos);
     }
 
@@ -210,9 +209,9 @@ namespace cgu {
      *  @param vKeyDown whether the key is down or not.
      *  @param sender the window the event came from.
      */
-    bool CameraView::HandleKeyboard(unsigned int vkCode, bool bKeyDown, BaseGLWindow* sender)
+    bool CameraView::HandleKeyboard(unsigned int vkCode, bool, BaseGLWindow*)
     {
-        bool handled = false;
+        auto handled = false;
         switch (vkCode) {
         case 'W':
             camPos -= glm::vec3(0.0f, 0.0f, 0.5f);
@@ -253,7 +252,7 @@ namespace cgu {
      */
     bool CameraView::HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender)
     {
-        bool handled = camArcball.HandleMouse(buttonAction, sender);
+        auto handled = camArcball.HandleMouse(buttonAction, sender);
 
         if (mouseWheelDelta != 0) {
             fovY -= mouseWheelDelta * 0.03f;

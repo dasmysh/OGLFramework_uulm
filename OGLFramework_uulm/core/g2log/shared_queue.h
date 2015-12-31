@@ -17,7 +17,6 @@
 
 #include <queue>
 #include <mutex>
-#include <exception>
 #include <condition_variable>
 
 /** Multiple producer, multiple consumer thread safe queue

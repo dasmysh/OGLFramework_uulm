@@ -27,7 +27,7 @@ namespace cgu {
 
     bool Arcball::HandleMouse(unsigned int buttonAction, BaseGLWindow* sender)
     {
-        bool handled = false;
+        auto handled = false;
         if (buttonAction & buttonDownFlag) {
             arcballOn = true;
             lastScreenNDC = currentScreenNDC = sender->GetMouseAbsoluteNDC();
@@ -48,9 +48,9 @@ namespace cgu {
     {
         glm::quat result(1.0f, 0.0f, 0.0f, 0.0f);
         if (currentScreenNDC != lastScreenNDC) {
-            float angle = acos(glm::min(1.0f, glm::dot(lastScreenNDC, currentScreenNDC)));
-            glm::vec3 camAxis = glm::cross(lastScreenNDC, currentScreenNDC);
-            glm::vec3 worldAxis = glm::normalize(glm::vec3(glm::inverse(glm::mat3(view)) * camAxis));
+            auto angle = acos(glm::min(1.0f, glm::dot(lastScreenNDC, currentScreenNDC)));
+            auto camAxis = glm::cross(lastScreenNDC, currentScreenNDC);
+            auto worldAxis = glm::normalize(glm::vec3(glm::inverse(glm::mat3(view)) * camAxis));
             result = glm::angleAxis(-1.5f * angle, worldAxis);
             lastScreenNDC = currentScreenNDC;
         }

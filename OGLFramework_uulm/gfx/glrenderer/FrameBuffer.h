@@ -42,10 +42,10 @@ namespace cgu {
     public:
         FrameBuffer();
         FrameBuffer(unsigned int fbWidth, unsigned int fbHeight, const FrameBufferDescriptor& desc);
-        FrameBuffer(const FrameBuffer& orig);
-        FrameBuffer(FrameBuffer&& orig);
-        FrameBuffer& operator=(const FrameBuffer& orig);
-        FrameBuffer& operator=(FrameBuffer&& orig);
+        FrameBuffer(const FrameBuffer&);
+        FrameBuffer(FrameBuffer&&);
+        FrameBuffer& operator=(const FrameBuffer&);
+        FrameBuffer& operator=(FrameBuffer&&);
         ~FrameBuffer();
 
         void UseAsRenderTarget();
@@ -59,7 +59,7 @@ namespace cgu {
     private:
         void Destroy();
 
-        unsigned int findAttachment(GLenum internalFormat, unsigned int& colorAtt, std::vector<GLenum> &drawBuffers);
+        static unsigned int findAttachment(GLenum internalFormat, unsigned int& colorAtt, std::vector<GLenum> &drawBuffers);
 
         /** holds the frame buffers OpenGL name. */
         GLuint fbo;

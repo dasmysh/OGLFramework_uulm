@@ -15,7 +15,6 @@
 #include <sstream>
 #include <string>
 #include <chrono>
-#include <thread>
 #include <ctime>
 #include <iomanip>
 
@@ -50,7 +49,7 @@ namespace g2
 {
 std::time_t systemtime_now()
 {
-  system_time_point system_now = std::chrono::system_clock::now();
+  auto system_now = std::chrono::system_clock::now();
   return std::chrono::system_clock::to_time_t(system_now);
 }
 
@@ -71,7 +70,7 @@ tm localtime(const std::time_t& time)
 /// This is similar to std::put_time(std::localtime(std::time_t*), time_format.c_str());
 std::string localtime_formatted(const std::time_t& time_snapshot, const std::string& time_format)
 {
-  std::tm t = localtime(time_snapshot); // could be const, but cannot due to VS2012 is non conformant for C++11's std::put_time (see above)
+  auto t = localtime(time_snapshot); // could be const, but cannot due to VS2012 is non conformant for C++11's std::put_time (see above)
   std::stringstream buffer;
   buffer << g2::internal::put_time(&t, time_format.c_str());  // format example: //"%Y/%m/%d %H:%M:%S");
   return buffer.str();

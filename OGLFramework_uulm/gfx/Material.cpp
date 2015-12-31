@@ -47,7 +47,7 @@ namespace cgu {
     /** Default move assignment operator. */
     Material& Material::operator=(Material&& rhs)
     {
-
+        this->~Material();
         ambient = std::move(rhs.ambient);
         diffuse = std::move(rhs.diffuse);
         specular = std::move(rhs.specular);

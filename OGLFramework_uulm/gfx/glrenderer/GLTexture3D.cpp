@@ -78,6 +78,7 @@ namespace cgu {
     }
     GLTexture3D& GLTexture3D::operator=(GLTexture3D&& rhs)
     {
+        this->~GLTexture3D();
         texture = std::move(rhs.texture);
         volumeSize = std::move(rhs.volumeSize);
         cellSize = std::move(rhs.cellSize);
@@ -313,12 +314,12 @@ namespace cgu {
         assert(texDesc.format == GL_RED || texDesc.format == GL_RED_INTEGER);
 
         data.resize(texSize.x * texSize.y * texSize.z * texDesc.bytesPP, 0);
-        unsigned int lineSize = volumeSize.x * texDesc.bytesPP;
-        char* dataPtr = reinterpret_cast<char*>(data.data());
+        auto lineSize = volumeSize.x * texDesc.bytesPP;
+        auto dataPtr = reinterpret_cast<char*>(data.data());
 
         for (unsigned int z = 0; z < dataSize.z; ++z) {
             for (unsigned int y = 0; y < dataSize.y; ++y) {
-                unsigned int lineStartFile = ((pos.z + z) * volumeSize.y * lineSize) + ((pos.y + y) * lineSize) + pos.x * texDesc.bytesPP;
+                auto lineStartFile = ((pos.z + z) * volumeSize.y * lineSize) + ((pos.y + y) * lineSize) + pos.x * texDesc.bytesPP;
                 fileStream->seekg(lineStartFile, std::ios::beg);
                 fileStream->read(dataPtr, dataSize.x * texDesc.bytesPP);
                 dataPtr += texSize.x * texDesc.bytesPP;
@@ -337,7 +338,7 @@ namespace cgu {
     {
         assert(texDesc.format == GL_RED || texDesc.format == GL_RED_INTEGER);
         std::vector<uint8_t> dataRaw;
-        glm::uvec3 dataSize = glm::min(size, volumeSize - pos);
+        auto dataSize = glm::min(size, volumeSize - pos);
         glm::uvec3 actualSize;
         if (dataSize.x == 1) actualSize.x = 2;
         else actualSize.x = cguMath::roundupPow2(dataSize.x);
@@ -362,7 +363,7 @@ namespace cgu {
             minMaxDesc.internalFormat = GL_RGBA32F;
             minMaxProg = application->GetGPUProgramManager()->GetResource("genMinMaxTexture32.cp");
         } else throw std::runtime_error("Pixel-type not supported.");
-        std::vector<BindingLocation> uniformNames = minMaxProg->GetUniformLocations(boost::assign::list_of<std::string>("origTex")("minMaxTex"));
+        auto uniformNames = minMaxProg->GetUniformLocations(boost::assign::list_of<std::string>("origTex")("minMaxTex"));
 
         GLTexture origTex(actualSize.x, actualSize.y, actualSize.z, texDesc, dataRaw.data());
         std::unique_ptr<GLTexture> result{ new GLTexture(actualSize.x, actualSize.y, actualSize.z, minMaxDesc, nullptr) };
@@ -371,7 +372,7 @@ namespace cgu {
         minMaxProg->SetUniform(uniformNames[0], 0);
         minMaxProg->SetUniform(uniformNames[1], 1);
 
-        glm::ivec3 numGroups = glm::ivec3(glm::ceil(glm::vec3(actualSize) / 8.0f));
+        auto numGroups = glm::ivec3(glm::ceil(glm::vec3(actualSize) / 8.0f));
         origTex.ActivateImage(0, 0, GL_READ_ONLY);
         result->ActivateImage(1, 0, GL_WRITE_ONLY);
         OGL_CALL(glDispatchCompute, numGroups.x, numGroups.y, numGroups.z);

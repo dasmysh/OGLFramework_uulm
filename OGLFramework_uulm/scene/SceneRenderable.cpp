@@ -39,7 +39,7 @@ namespace cgu {
         worldMatrix = glm::mat4(matOrient[0], matOrient[1], matOrient[2], glm::vec4(position, 1));
     }
 
-    void SceneRenderable::Draw(const CameraView& camera)
+    void SceneRenderable::Draw(const CameraView& camera) const
     {
         camera.SetView(worldMatrix);
         renderable->Draw();

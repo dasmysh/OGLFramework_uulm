@@ -23,8 +23,6 @@
 
 #include <thread>
 #include <functional>
-#include <condition_variable>
-#include <mutex>
 #include <memory>
 
 #include "shared_queue.h"
@@ -33,7 +31,6 @@ namespace kjellkod {
 typedef std::function<void()> Callback;
 
 class Active {
-private:
   Active(const Active&); // c++11 feature not yet in vs2010 = delete;
   Active& operator=(const Active&); // c++11 feature not yet in vs2010 = delete;
   Active();                         // Construction ONLY through factory createActive();

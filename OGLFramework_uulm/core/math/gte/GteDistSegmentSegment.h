@@ -123,7 +123,7 @@ namespace gte
         mG01 = mG00 + mC;
         mG11 = mG10 + mC;
 
-        if (mA > (Real)0 && mC > (Real)0)
+        if (mA > static_cast<Real>(0) && mC > static_cast<Real>(0))
         {
             // Compute the solutions to dR/ds(s0,0) = 0 and dR/ds(s1,1) = 0.  The
             // location of sI on the s-axis is stored in classifyI (I = 0 or 1).  If
@@ -137,12 +137,12 @@ namespace gte
             sValue[1] = GetClampedRoot(mA, mF01, mF11);
 
             int classify[2];
-            for (int i = 0; i < 2; ++i)
+            for (auto i = 0; i < 2; ++i)
             {
-                if (sValue[i] <= (Real)0)
+                if (sValue[i] <= static_cast<Real>(0))
                 {
                     classify[i] = -1;
-                } else if (sValue[i] >= (Real)1)
+                } else if (sValue[i] >= static_cast<Real>(1))
                 {
                     classify[i] = +1;
                 } else
@@ -154,12 +154,12 @@ namespace gte
             if (classify[0] == -1 && classify[1] == -1)
             {
                 // The minimum must occur on s = 0 for 0 <= t <= 1.
-                result.parameter[0] = (Real)0;
+                result.parameter[0] = static_cast<Real>(0);
                 result.parameter[1] = GetClampedRoot(mC, mG00, mG01);
             } else if (classify[0] == +1 && classify[1] == +1)
             {
                 // The minimum must occur on s = 1 for 0 <= t <= 1.
-                result.parameter[0] = (Real)1;
+                result.parameter[0] = static_cast<Real>(1);
                 result.parameter[1] = GetClampedRoot(mC, mG10, mG11);
             } else
             {
@@ -180,35 +180,35 @@ namespace gte
             }
         } else
         {
-            if (mA > (Real)0)
+            if (mA > static_cast<Real>(0))
             {
                 // The Q-segment is degenerate (Q0 and Q1 are the same point) and
                 // the quadratic is R(s,0) = a*s^2 + 2*d*s + f and has (half)
                 // first derivative F(t) = a*s + d.  The closest P-point is
                 // interior to the P-segment when F(0) < 0 and F(1) > 0.
                 result.parameter[0] = GetClampedRoot(mA, mF00, mF10);
-                result.parameter[1] = (Real)0;
-            } else if (mC > (Real)0)
+                result.parameter[1] = static_cast<Real>(0);
+            } else if (mC > static_cast<Real>(0))
             {
                 // The P-segment is degenerate (P0 and P1 are the same point) and
                 // the quadratic is R(0,t) = c*t^2 - 2*e*t + f and has (half)
                 // first derivative G(t) = c*t - e.  The closest Q-point is
                 // interior to the Q-segment when G(0) < 0 and G(1) > 0.
-                result.parameter[0] = (Real)0;
+                result.parameter[0] = static_cast<Real>(0);
                 result.parameter[1] = GetClampedRoot(mC, mG00, mG01);
             } else
             {
                 // P-segment and Q-segment are degenerate.
-                result.parameter[0] = (Real)0;
-                result.parameter[1] = (Real)0;
+                result.parameter[0] = static_cast<Real>(0);
+                result.parameter[1] = static_cast<Real>(0);
             }
         }
 
 
         result.closest[0] =
-            ((Real)1 - result.parameter[0]) * P0 + result.parameter[0] * P1;
+            (static_cast<Real>(1) - result.parameter[0]) * P0 + result.parameter[0] * P1;
         result.closest[1] =
-            ((Real)1 - result.parameter[1]) * Q0 + result.parameter[1] * Q1;
+            (static_cast<Real>(1) - result.parameter[1]) * Q0 + result.parameter[1] * Q1;
         Vector diff = result.closest[0] - result.closest[1];
         result.sqrDistance = glm::dot(diff, diff);
         return result;
@@ -231,24 +231,24 @@ namespace gte
         // slower, which might be a problem for high-performance applications.
 
         Real r;
-        if (h0 < (Real)0)
+        if (h0 < static_cast<Real>(0))
         {
-            if (h1 > (Real)0)
+            if (h1 > static_cast<Real>(0))
             {
                 r = -h0 / slope;
-                if (r > (Real)1)
+                if (r > static_cast<Real>(1))
                 {
-                    r = (Real)0.5;
+                    r = static_cast<Real>(0.5);
                 }
                 // The slope is positive and -h0 is positive, so there is no
                 // need to test for a negative value and clamp it.
             } else
             {
-                r = (Real)1;
+                r = static_cast<Real>(1);
             }
         } else
         {
-            r = (Real)0;
+            r = static_cast<Real>(0);
         }
         return r;
     }
@@ -271,81 +271,81 @@ namespace gte
         if (classify[0] < 0)
         {
             edge[0] = 0;
-            end[0][0] = (Real)0;
+            end[0][0] = static_cast<Real>(0);
             end[0][1] = mF00 / mB;
-            if (end[0][1] < (Real)0 || end[0][1] > (Real)1)
+            if (end[0][1] < static_cast<Real>(0) || end[0][1] > static_cast<Real>(1))
             {
-                end[0][1] = (Real)0.5;
+                end[0][1] = static_cast<Real>(0.5);
             }
 
             if (classify[1] == 0)
             {
                 edge[1] = 3;
                 end[1][0] = sValue[1];
-                end[1][1] = (Real)1;
+                end[1][1] = static_cast<Real>(1);
             } else  // classify[1] > 0
             {
                 edge[1] = 1;
-                end[1][0] = (Real)1;
+                end[1][0] = static_cast<Real>(1);
                 end[1][1] = mF10 / mB;
-                if (end[1][1] < (Real)0 || end[1][1] > (Real)1)
+                if (end[1][1] < static_cast<Real>(0) || end[1][1] > static_cast<Real>(1))
                 {
-                    end[1][1] = (Real)0.5;
+                    end[1][1] = static_cast<Real>(0.5);
                 }
             }
         } else if (classify[0] == 0)
         {
             edge[0] = 2;
             end[0][0] = sValue[0];
-            end[0][1] = (Real)0;
+            end[0][1] = static_cast<Real>(0);
 
             if (classify[1] < 0)
             {
                 edge[1] = 0;
-                end[1][0] = (Real)0;
+                end[1][0] = static_cast<Real>(0);
                 end[1][1] = mF00 / mB;
-                if (end[1][1] < (Real)0 || end[1][1] > (Real)1)
+                if (end[1][1] < static_cast<Real>(0) || end[1][1] > static_cast<Real>(1))
                 {
-                    end[1][1] = (Real)0.5;
+                    end[1][1] = static_cast<Real>(0.5);
                 }
             } else if (classify[1] == 0)
             {
                 edge[1] = 3;
                 end[1][0] = sValue[1];
-                end[1][1] = (Real)1;
+                end[1][1] = static_cast<Real>(1);
             } else
             {
                 edge[1] = 1;
-                end[1][0] = (Real)1;
+                end[1][0] = static_cast<Real>(1);
                 end[1][1] = mF10 / mB;
-                if (end[1][1] < (Real)0 || end[1][1] > (Real)1)
+                if (end[1][1] < static_cast<Real>(0) || end[1][1] > static_cast<Real>(1))
                 {
-                    end[1][1] = (Real)0.5;
+                    end[1][1] = static_cast<Real>(0.5);
                 }
             }
         } else  // classify[0] > 0
         {
             edge[0] = 1;
-            end[0][0] = (Real)1;
+            end[0][0] = static_cast<Real>(1);
             end[0][1] = mF10 / mB;
-            if (end[0][1] < (Real)0 || end[0][1] > (Real)1)
+            if (end[0][1] < static_cast<Real>(0) || end[0][1] > static_cast<Real>(1))
             {
-                end[0][1] = (Real)0.5;
+                end[0][1] = static_cast<Real>(0.5);
             }
 
             if (classify[1] == 0)
             {
                 edge[1] = 3;
                 end[1][0] = sValue[1];
-                end[1][1] = (Real)1;
+                end[1][1] = static_cast<Real>(1);
             } else
             {
                 edge[1] = 0;
-                end[1][0] = (Real)0;
+                end[1][0] = static_cast<Real>(0);
                 end[1][1] = mF00 / mB;
-                if (end[1][1] < (Real)0 || end[1][1] > (Real)1)
+                if (end[1][1] < static_cast<Real>(0) || end[1][1] > static_cast<Real>(1))
                 {
-                    end[1][1] = (Real)0.5;
+                    end[1][1] = static_cast<Real>(0.5);
                 }
             }
         }
@@ -356,15 +356,15 @@ namespace gte
     {
         Real delta = end[1][1] - end[0][1];
         Real h0 = delta * (-mB * end[0][0] + mC * end[0][1] - mE);
-        if (h0 >= (Real)0)
+        if (h0 >= static_cast<Real>(0))
         {
             if (edge[0] == 0)
             {
-                parameter[0] = (Real)0;
+                parameter[0] = static_cast<Real>(0);
                 parameter[1] = GetClampedRoot(mC, mG00, mG01);
             } else if (edge[0] == 1)
             {
-                parameter[0] = (Real)1;
+                parameter[0] = static_cast<Real>(1);
                 parameter[1] = GetClampedRoot(mC, mG10, mG11);
             } else
             {
@@ -374,15 +374,15 @@ namespace gte
         } else
         {
             Real h1 = delta * (-mB * end[1][0] + mC * end[1][1] - mE);
-            if (h1 <= (Real)0)
+            if (h1 <= static_cast<Real>(0))
             {
                 if (edge[1] == 0)
                 {
-                    parameter[0] = (Real)0;
+                    parameter[0] = static_cast<Real>(0);
                     parameter[1] = GetClampedRoot(mC, mG00, mG01);
                 } else if (edge[1] == 1)
                 {
-                    parameter[0] = (Real)1;
+                    parameter[0] = static_cast<Real>(1);
                     parameter[1] = GetClampedRoot(mC, mG10, mG11);
                 } else
                 {
@@ -391,8 +391,8 @@ namespace gte
                 }
             } else  // h0 < 0 and h1 > 0
             {
-                Real z = std::min(std::max(h0 / (h0 - h1), (Real)0), (Real)1);
-                Real omz = (Real)1 - z;
+                Real z = std::min(std::max(h0 / (h0 - h1), static_cast<Real>(0)), static_cast<Real>(1));
+                Real omz = static_cast<Real>(1) - z;
                 parameter[0] = omz * end[0][0] + z * end[1][0];
                 parameter[1] = omz * end[0][1] + z * end[1][1];
             }

@@ -1,7 +1,7 @@
 /**
  * @file   GLBatchRenderTarget.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   16. Januar 2014
+ * @date   2014.01.16
  *
  * @brief  Contains the definition of GLBatchRenderTarget.
  */
@@ -19,7 +19,6 @@ namespace cgu {
     /** The type for a list of vertex arrays. */
     typedef std::vector<GLVertexAttributeArray*> VertexAttributeBindings;
     class ScreenText;
-    class GUIRenderable;
     class Font;
 
     /** Flags representing which buffers to clear. */
@@ -35,7 +34,7 @@ namespace cgu {
      * frame buffer is set in every call.
      *
      * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
-     * @date   16. Januar 2014
+     * @date   2014.01.16
      */
     class GLBatchRenderTarget
     {
@@ -46,15 +45,13 @@ namespace cgu {
         GLBatchRenderTarget& operator=(const GLBatchRenderTarget&) = delete;
 
     public:
-        GLBatchRenderTarget(GLRenderTarget& renderTarget);
+        explicit GLBatchRenderTarget(GLRenderTarget& renderTarget);
         virtual ~GLBatchRenderTarget();
 
         void Clear(unsigned int clflags, const float color[4],
             float depth, unsigned int stencil);
         void UseFont(Font* font);
         void DrawScreenText(ScreenText* text);
-        void DrawGUIGeometry(GUIRenderable* guiElement);
-        // void DrawGUIText(GUIRenderable* guiElement);
         void EnableAlphaBlending();
         void DisableAlphaBlending();
 

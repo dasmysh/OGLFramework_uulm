@@ -25,9 +25,10 @@
 #include "crashhandler.h"
 #include "g2time.h"
 #include "g2future.h"
+#include <iostream>
 
 using namespace g2;
-using namespace g2::internal;
+using namespace internal;
 
 namespace
 {
@@ -40,29 +41,29 @@ bool isValidFilename(const std::string prefix_filename)
 {
 
   std::string illegal_characters("/,|<>:#$%{}()[]\'\"^!?+* ");
-  size_t pos = prefix_filename.find_first_of(illegal_characters,0);
+  auto pos = prefix_filename.find_first_of(illegal_characters,0);
   if(pos != std::string::npos)
   {
     std::wcerr << "Illegal character [" << prefix_filename.at(pos) << "] in logname prefix: " << "[" << prefix_filename << "]" << std::endl;
     return false;
   }
-  else if (prefix_filename.empty())
+  if (prefix_filename.empty())
   {
     std::wcerr << "Empty filename prefix is not allowed" << std::endl;
     return false;
   }
 
-  return true;
+    return true;
 }
 
 
 // Clean up the path if put in by mistake in the prefix
 std::string prefixSanityFix(std::string prefix)
 {
-  prefix.erase(std::remove_if(prefix.begin(), prefix.end(), ::isspace), prefix.end());
-  prefix.erase(std::remove( prefix.begin(), prefix.end(), '/'), prefix.end()); // '/'
-  prefix.erase(std::remove( prefix.begin(), prefix.end(), '\\'), prefix.end()); // '\\'
-  prefix.erase(std::remove( prefix.begin(), prefix.end(), '.'), prefix.end());  // '.'
+  prefix.erase(remove_if(prefix.begin(), prefix.end(), isspace), prefix.end());
+  prefix.erase(remove( prefix.begin(), prefix.end(), '/'), prefix.end()); // '/'
+  prefix.erase(remove( prefix.begin(), prefix.end(), '\\'), prefix.end()); // '\\'
+  prefix.erase(remove( prefix.begin(), prefix.end(), '.'), prefix.end());  // '.'
   if(!isValidFilename(prefix))
   {
     return "";
@@ -74,13 +75,13 @@ std::string prefixSanityFix(std::string prefix)
 std::string pathSanityFix(std::string path, std::string file_name) {
         // Unify the delimeters,. maybe sketchy solution but it seems to work
         // on at least win7 + ubuntu. All bets are off for older windows
-        std::replace(path.begin(), path.end(), '\\', '/');
+        replace(path.begin(), path.end(), '\\', '/');
 
         // clean up in case of multiples
         auto contains_end = [&](std::string& in) -> bool {
-                size_t size = in.size();
+            auto size = in.size();
                 if(!size) return false;
-                char end = in[size-1];
+            auto end = in[size-1];
                 return (end == '/' || end == ' ');
         };
 
@@ -98,7 +99,7 @@ std::string createLogFileName(const std::string& verified_prefix, bool useTimest
   std::stringstream oss_name;
   oss_name.fill('0');
   oss_name << verified_prefix;
-  if (useTimestamp) oss_name << ".g2log." << g2::localtime_formatted(g2::systemtime_now(), file_name_time_formatted);
+  if (useTimestamp) oss_name << ".g2log." << localtime_formatted(systemtime_now(), file_name_time_formatted);
   oss_name << ".log";
   return oss_name.str();
 }
@@ -131,8 +132,8 @@ bool openLogFile(const std::wstring& complete_file_with_path, std::wofstream& ou
 std::unique_ptr<std::wofstream> createLogFile(const std::wstring& file_with_full_path)
 {
   std::unique_ptr<std::wofstream> out(new std::wofstream);
-  std::wofstream& stream(*(out.get()));
-  bool success_with_open_file = openLogFile(file_with_full_path, stream);
+  auto& stream(*(out.get()));
+  auto success_with_open_file = openLogFile(file_with_full_path, stream);
   if(false == success_with_open_file)
   {
     out.release(); // nullptr contained ptr<file> signals error in creating the log file
@@ -150,10 +151,10 @@ struct g2LogWorkerImpl
   g2LogWorkerImpl(const std::string& log_prefix, const std::string& log_directory, bool useTimestamp);
   ~g2LogWorkerImpl();
 
-  void backgroundFileWrite(g2::internal::LogEntry message);
-  void backgroundExitFatal(g2::internal::FatalMessage fatal_message);
+  void backgroundFileWrite(g2::internal::LogEntry message) const;
+  void backgroundExitFatal(g2::internal::FatalMessage fatal_message) const;
   std::string  backgroundChangeLogFile(const std::string& directory, bool useTimestamp);
-  std::string  backgroundFileName();
+  std::string  backgroundFileName() const;
 
   std::string log_file_with_path_;
   std::string log_prefix_backup_; // needed in case of future log file changes of directory
@@ -164,7 +165,7 @@ struct g2LogWorkerImpl
 private:
   g2LogWorkerImpl& operator=(const g2LogWorkerImpl&); // c++11 feature not yet in vs2010 = delete;
   g2LogWorkerImpl(const g2LogWorkerImpl& other); // c++11 feature not yet in vs2010 = delete;
-  std::wofstream& filestream(){return *(outptr_.get());}
+  std::wofstream& filestream() const  { return *(outptr_.get()); }
 };
 
 
@@ -186,7 +187,7 @@ g2LogWorkerImpl::g2LogWorkerImpl(const std::string& log_prefix, const std::strin
     abort();
   }
 
-  std::string file_name = createLogFileName(log_prefix_backup_, useTimestamp);
+  auto file_name = createLogFileName(log_prefix_backup_, useTimestamp);
   log_file_with_path_ = pathSanityFix(log_file_with_path_, file_name);
   outptr_ = createLogFile(std::wstring(log_file_with_path_.begin(), log_file_with_path_.end()));
   if(!outptr_) {
@@ -207,12 +208,12 @@ g2LogWorkerImpl::~g2LogWorkerImpl()
 }
 
 
-void g2LogWorkerImpl::backgroundFileWrite(LogEntry message)
+void g2LogWorkerImpl::backgroundFileWrite(LogEntry message) const
 {
   using namespace std;
-  std::wofstream& out(filestream());
+  auto& out(filestream());
   auto system_time = g2::systemtime_now();
-  auto steady_time = std::chrono::steady_clock::now();
+  // auto steady_time = std::chrono::steady_clock::now();
   out << "\n" << g2::localtime_formatted(system_time, date_formatted);
   out << " " << g2::localtime_formatted(system_time, time_formatted); // TODO: time kommer från LogEntry
   // out << "." << chrono::duration_cast<std::chrono::microseconds>(steady_time - steady_start_time_).count(); //microseconds TODO: ta in min g2clocka här StopWatch
@@ -220,14 +221,14 @@ void g2LogWorkerImpl::backgroundFileWrite(LogEntry message)
 }
 
 
-void g2LogWorkerImpl::backgroundExitFatal(FatalMessage fatal_message)
+void g2LogWorkerImpl::backgroundExitFatal(FatalMessage fatal_message) const
 {
   backgroundFileWrite(fatal_message.message_);
   backgroundFileWrite(L"Log flushed successfully to disk \nExiting");
   std::wcerr << "g2log exiting after receiving fatal event" << std::endl;
   std::wcerr << "Log file at: [" << log_file_with_path_ << "]\n" << std::endl << std::flush;
   filestream().close();
-  g2::shutDownLogging(); // only an initialized logger can recieve a fatal message. So shutting down logging now is fine.
+  g2::shutDownLogging(); // only an initialized logger can receive a fatal message. So shutting down logging now is fine.
   exitWithDefaultSignalHandler(fatal_message.signal_id_);
   perror("g2log exited after receiving FATAL trigger. Flush message status: "); // should never reach this point
 }
@@ -235,9 +236,9 @@ void g2LogWorkerImpl::backgroundExitFatal(FatalMessage fatal_message)
 
 std::string g2LogWorkerImpl::backgroundChangeLogFile(const std::string& directory, bool useTimestamp)
 {
-  std::string file_name = createLogFileName(log_prefix_backup_, useTimestamp);
-  std::string prospect_log = directory + file_name;
-  std::unique_ptr<std::wofstream> log_stream = createLogFile(std::wstring(prospect_log.begin(), prospect_log.end()));
+  auto file_name = createLogFileName(log_prefix_backup_, useTimestamp);
+  auto prospect_log = directory + file_name;
+  auto log_stream = createLogFile(std::wstring(prospect_log.begin(), prospect_log.end()));
   if(nullptr == log_stream)
   {
     backgroundFileWrite(L"Unable to change log file. Illegal filename or busy? Unsuccessful log name was:" + std::wstring(prospect_log.begin(), prospect_log.end()));
@@ -251,7 +252,7 @@ std::string g2LogWorkerImpl::backgroundChangeLogFile(const std::string& director
   ss_change.str(L"");
 
   // setting the new log as active
-  std::string old_log = log_file_with_path_;
+  auto old_log = log_file_with_path_;
   log_file_with_path_ = prospect_log;
   outptr_ = std::move(log_stream);
   ss_change << "\n\tNew log file. The previous log file was at: ";
@@ -260,7 +261,7 @@ std::string g2LogWorkerImpl::backgroundChangeLogFile(const std::string& director
   return log_file_with_path_;
 }
 
-std::string  g2LogWorkerImpl::backgroundFileName()
+std::string  g2LogWorkerImpl::backgroundFileName() const
 {
   return log_file_with_path_;
 }
@@ -276,7 +277,7 @@ g2LogWorker::g2LogWorker(const std::string& log_prefix, const std::string& log_d
   :  pimpl_(new g2LogWorkerImpl(log_prefix, log_directory, useTimestamp))
   , log_file_with_path_(pimpl_->log_file_with_path_)
 {
-  assert((pimpl_ != nullptr) && "shouild never happen");
+  assert((pimpl_ != nullptr) && "should never happen");
 }
 
 g2LogWorker::~g2LogWorker()
@@ -286,28 +287,28 @@ g2LogWorker::~g2LogWorker()
   std::wcerr << L"\nExiting, log location: " << log_file_with_path_ << std::endl << std::flush;
 }
 
-void g2LogWorker::save(g2::internal::LogEntry msg)
+void g2LogWorker::save(g2::internal::LogEntry msg) const
 {
   pimpl_->bg_->send(std::bind(&g2LogWorkerImpl::backgroundFileWrite, pimpl_.get(), msg));
 }
 
-void g2LogWorker::fatal(g2::internal::FatalMessage fatal_message)
+void g2LogWorker::fatal(g2::internal::FatalMessage fatal_message) const
 {
   pimpl_->bg_->send(std::bind(&g2LogWorkerImpl::backgroundExitFatal, pimpl_.get(), fatal_message));
 }
 
 std::future<std::string> g2LogWorker::changeLogFile(const std::string& log_directory, bool useTimestamp)
 {
-  kjellkod::Active* bgWorker = pimpl_->bg_.get();
+  auto bgWorker = pimpl_->bg_.get();
   //auto future_result = g2::spawn_task(std::bind(&g2LogWorkerImpl::backgroundChangeLogFile, pimpl_.get(), log_directory), bgWorker);
   auto bg_call =     [this, log_directory, useTimestamp]() {return pimpl_->backgroundChangeLogFile(log_directory, useTimestamp);};
-   auto future_result = g2::spawn_task(bg_call, bgWorker);
+  auto future_result = g2::spawn_task(bg_call, bgWorker);
   return std::move(future_result);
 }
 
 std::future<std::string> g2LogWorker::logFileName()
 {
-  kjellkod::Active* bgWorker = pimpl_->bg_.get();
+  auto bgWorker = pimpl_->bg_.get();
   auto bg_call=[&](){return pimpl_->backgroundFileName();};
   auto future_result = g2::spawn_task(bg_call ,bgWorker);
   return std::move(future_result);

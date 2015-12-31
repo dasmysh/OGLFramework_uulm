@@ -10,7 +10,6 @@
 #define SIMPLEQUADRENDERABLE_H
 
 #include "main.h"
-#include "gfx/glrenderer/ShaderMeshAttributes.h"
 
 namespace cgu {
 
@@ -32,7 +31,7 @@ namespace cgu {
         ScreenQuadRenderable& operator=(ScreenQuadRenderable&& orig);
         ~ScreenQuadRenderable();
 
-        void Draw(GPUProgram* program) const;
+        void Draw() const;
 
     private:
         /** Holds the vertex buffer object to use. */

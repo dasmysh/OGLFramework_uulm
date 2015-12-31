@@ -28,7 +28,7 @@ namespace cgu {
         glaresRT.reset(new GLTexture(size.x, size.y, texDesc, nullptr));
 
         unsigned int base = 2;
-        int blurTexUnit = 0;
+        auto blurTexUnit = 0;
         for (auto& blurPassRTs : blurRTs) {
             blurTextureUnitIds.emplace_back(++blurTexUnit);
             blurPassRTs[0].reset(new GLTexture(glm::max(size.x / base, 1u), glm::max(size.y / base, 1u), texDesc, nullptr));
@@ -39,7 +39,9 @@ namespace cgu {
 
     BloomEffect::~BloomEffect() = default;
 
-    void BloomEffect::AddParameterSlidersToBar(TwBar* bar)
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void BloomEffect::AddParameterSlidersToBar(TwBar*)
     {
         // TODO: add variables later... [12/22/2015 Sebastian Maisch]
     }

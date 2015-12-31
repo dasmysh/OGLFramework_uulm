@@ -15,7 +15,5 @@ namespace cgu {
     }
 
 
-    ShaderMeshAttributes::~ShaderMeshAttributes()
-    {
-    }
+    ShaderMeshAttributes::~ShaderMeshAttributes() = default;
 }

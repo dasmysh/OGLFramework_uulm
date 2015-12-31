@@ -66,7 +66,7 @@ namespace cgu {
             tmProgram->UseProgram();
             sourceRT->GetTextures()[0]->ActivateTexture(GL_TEXTURE0);
             tmProgram->SetUniform(uniformIds[0], 0);
-            renderable->Draw(tmProgram);
+            renderable->Draw();
         });
     }
 }

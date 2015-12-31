@@ -24,7 +24,7 @@ namespace cgu {
         SceneRenderable(MeshRenderable* renderable, const glm::vec3& pos, const glm::quat& orient);
 
         void UpdatePositionOrientation(const glm::vec3& pos, const glm::quat& orient);
-        void Draw(const CameraView& camera);
+        void Draw(const CameraView& camera) const;
 
     protected:
         /** Constructor used for derivations that create their own renderables. */

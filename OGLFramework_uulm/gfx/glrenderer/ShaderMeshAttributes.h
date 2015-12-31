@@ -10,7 +10,6 @@
 #define SHADERMESHATTRIBUTES_H
 
 #include "main.h"
-#include "gfx/glrenderer/GLVertexAttributeArray.h"
 
 namespace cgu {
 

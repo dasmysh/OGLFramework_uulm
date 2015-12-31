@@ -44,6 +44,7 @@ namespace cgu {
     /** Default move assignment operator. */
     Mesh& Mesh::operator=(Mesh&& rhs)
     {
+        this->~Mesh();
         SubMesh* tMesh = this;
         *tMesh = static_cast<SubMesh&&>(std::move(rhs));
         vertices = std::move(rhs.vertices);
@@ -105,7 +106,7 @@ namespace cgu {
      */
     unsigned int Mesh::FindContainingTriangle(const glm::vec3 point)
     {
-        int result = FindContainingTriangleSub(this, point);
+        auto result = FindContainingTriangleSub(this, point);
         if (result != -1) return result;
 
         for (auto submesh : subMeshes) {
@@ -121,7 +122,7 @@ namespace cgu {
      */
     unsigned int Mesh::GetNumberOfTriangles() const
     {
-        unsigned int result = numTriangles;
+        auto result = numTriangles;
         for (const auto submesh : subMeshes) {
             result += submesh->numTriangles;
         }
@@ -159,7 +160,7 @@ namespace cgu {
         namespace bg = boost::geometry;
         submesh->fastFindTree.query(bg::index::contains(point(pt.x, pt.y, pt.z)), std::back_inserter(hits));
         for (const auto& polyBox : hits) {
-            unsigned int triId = polyBox.second;
+            auto triId = polyBox.second;
             cguMath::Tri3<float> tri{ { vertices[triangleConnect[triId].vertex[0]].xyz(),
                 vertices[triangleConnect[triId].vertex[1]].xyz(), vertices[triangleConnect[triId].vertex[2]].xyz() } };
             if (cguMath::pointInTriangleTest<float>(tri, pt, nullptr)) return triId;
@@ -189,19 +190,19 @@ namespace cgu {
         triangleConnect.insert(triangleConnect.end(), submesh->trianglePtsIndices.begin(), submesh->trianglePtsIndices.end());
 
         // set vertex connectivity
-        for (unsigned int i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
-            MeshConnectTriangle& tri = triangleConnect[i];
+        for (auto i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
+            auto& tri = triangleConnect[i];
             verticesConnect[tri.vertex[0]].triangles.push_back(i);
             verticesConnect[tri.vertex[1]].triangles.push_back(i);
             verticesConnect[tri.vertex[2]].triangles.push_back(i);
         }
 
         // set triangle neighbours
-        for (unsigned int i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
-            MeshConnectTriangle& tri = triangleConnect[i];
+        for (auto i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
+            auto& tri = triangleConnect[i];
             for (unsigned int ni = 0; ni < 3; ++ni) {
-                unsigned int vi0 = tri.vertex[(ni + 1) % 3];
-                unsigned int vi1 = tri.vertex[(ni + 2) % 3];
+                auto vi0 = tri.vertex[(ni + 1) % 3];
+                auto vi1 = tri.vertex[(ni + 2) % 3];
                 std::vector<unsigned int> isect;
                 std::set_intersection(verticesConnect[vi0].triangles.begin(), verticesConnect[vi0].triangles.end(),
                     verticesConnect[vi1].triangles.begin(), verticesConnect[vi1].triangles.end(), std::back_inserter(isect));
@@ -224,10 +225,10 @@ namespace cgu {
     {
         for (const auto& tc : triangleConnect) {
             for (unsigned int vi0 = 0; vi0 < 3; ++vi0) {
-                unsigned int vi1 = (vi0 + 1) % 3;
-                unsigned int vi2 = (vi0 + 2) % 3;
-                glm::vec3 v0 = vertices[tc.vertex[vi1]].xyz - vertices[tc.vertex[vi0]].xyz;
-                glm::vec3 v1 = vertices[tc.vertex[vi2]].xyz - vertices[tc.vertex[vi0]].xyz;
+                auto vi1 = (vi0 + 1) % 3;
+                auto vi2 = (vi0 + 2) % 3;
+                auto v0 = vertices[tc.vertex[vi1]].xyz - vertices[tc.vertex[vi0]].xyz;
+                auto v1 = vertices[tc.vertex[vi2]].xyz - vertices[tc.vertex[vi0]].xyz;
                 faceVertices[tc.faceVertex[vi0]].normal += glm::cross(v0, v1);
             }
         }
@@ -261,13 +262,13 @@ namespace cgu {
      */
     void Mesh::CreateRTree(SubMesh* submesh)
     {
-        for (unsigned int i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
+        for (auto i = submesh->firstTriIndex; i < submesh->firstTriIndex + submesh->numTriangles; ++i) {
             polygon poly;
             for (unsigned int vi = 0; vi < 3; ++vi) {
-                glm::vec3 vpt = vertices[triangleConnect[i].vertex[vi]].xyz();
+                auto vpt = vertices[triangleConnect[i].vertex[vi]].xyz();
                 poly.outer().push_back(point(vpt.x, vpt.y, vpt.z));
             }
-            box b = boost::geometry::return_envelope<box>(poly);
+            auto b = boost::geometry::return_envelope<box>(poly);
             submesh->fastFindTree.insert(std::make_pair(b, i));
         }
     }

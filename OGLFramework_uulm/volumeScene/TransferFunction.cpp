@@ -13,7 +13,7 @@ namespace cgu {
     namespace tf {
         // Comparison operator for sorting ControlPoints
         struct {
-            bool operator()(const ControlPoint& a, const ControlPoint& b)
+            bool operator()(const ControlPoint& a, const ControlPoint& b) const
             {
                 return a.val < b.val;
             }
@@ -38,11 +38,11 @@ namespace cgu {
         int TransferFunction::SetPosition(int i, const glm::vec2& pos)
         {
             points_[i].SetPos(pos);
-            ControlPoint p = points_[i];
+            auto p = points_[i];
 
             std::sort(points_.begin(), points_.end(), PointLess);
 
-            for (int u = 0; u < (int)points_.size(); ++u)
+            for (auto u = 0; u < static_cast<int>(points_.size()); ++u)
                 if (points_[u] == p)
                     return u;
 
@@ -77,11 +77,11 @@ namespace cgu {
                 ++i;
 
             // Prev and Next points
-            const ControlPoint p = points_[i - 1];
-            const ControlPoint n = points_[i];
+            const auto p = points_[i - 1];
+            const auto n = points_[i];
 
             // Linear interpolation value t
-            float t = (val - p.val) / (n.val - p.val);
+            auto t = (val - p.val) / (n.val - p.val);
 
             // Return interpolated values
             return glm::mix(p.rgba, n.rgba, t);
@@ -93,8 +93,8 @@ namespace cgu {
             assert(resolution > 0);
             assert(data);
 
-            for (int i = 0; i < resolution; ++i) {
-                float x = (float)i / (float)(resolution - 1);
+            for (auto i = 0; i < resolution; ++i) {
+                auto x = static_cast<float>(i) / static_cast<float>(resolution - 1);
                 data[i] = RGBA(x);
             }
         }

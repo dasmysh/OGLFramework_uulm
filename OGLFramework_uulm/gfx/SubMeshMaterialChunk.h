@@ -38,7 +38,7 @@ namespace cgu {
          * Constructor.
          * @param mat the material to use
          */
-        SubMeshMaterialChunk(const Material* mat) :
+        explicit SubMeshMaterialChunk(const Material* mat) :
             material(mat),
             point_seq_begin(0),
             point_seq_num(0),
@@ -81,7 +81,7 @@ namespace cgu {
         }
 
         /** Checks if the chunk is empty. */
-        bool IsEmpty()
+        bool IsEmpty() const
         {
             return point_seq_num == 0 && line_seq_num == 0 && face_seq_num == 0;
         }

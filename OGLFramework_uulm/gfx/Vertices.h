@@ -26,7 +26,7 @@ namespace cgu {
          * @param rhs the other LineVertex to compare to
          * @return whether the vertices are equal
          */
-        bool operator==(const LineVertex& rhs)
+        bool operator==(const LineVertex& rhs) const
         {
             return pos == rhs.pos && tex == rhs.tex;
         }
@@ -47,7 +47,7 @@ namespace cgu {
          * @param rhs the other FaceVertex to compare to
          * @return whether the vertices are equal
          */
-        bool operator==(const FaceVertex& rhs)
+        bool operator==(const FaceVertex& rhs) const
         {
             return pos == rhs.pos && tex == rhs.tex && normal == rhs.normal;
         }
@@ -66,13 +66,13 @@ namespace cgu {
          * @param rhs the other FontVertex to compare to
          * @return whether the vertices are equal
          */
-        bool operator==(const FontVertex& rhs)
+        bool operator==(const FontVertex& rhs) const
         {
             return pos == rhs.pos && idx == rhs.idx;
         }
     };
 
-    /** Represents a vertex of a gui element. */
+    /** Represents a vertex of a GUI element. */
     struct GUIVertex
     {
         /** Holds the vertices position. */
@@ -85,7 +85,7 @@ namespace cgu {
          * @param rhs the other GUIVertex to compare to
          * @return whether the vertices are equal
          */
-        bool operator==(const GUIVertex& rhs)
+        bool operator==(const GUIVertex& rhs) const
         {
             return pos == rhs.pos && texCoords == rhs.texCoords;
         }

@@ -17,8 +17,8 @@
 */
 void log_ogl_err(const std::string& file, int line, const std::string& func, const std::string& glfn)
 {
-    GLenum err = glGetError();
-    bool doprint = true;
+    auto err = glGetError();
+    auto doprint = true;
     std::string errorStr;
     switch (err)
     {
@@ -53,7 +53,7 @@ void log_ogl_err(const std::string& file, int line, const std::string& func, con
         // call << file << "(" << line << "): " << func << "-> " << glfn << " Returned error: " << errorStr;
         call << glfn << " Returned error: " << errorStr;
 
-        std::string simpleStr = call.str();
+        auto simpleStr = call.str();
         std::wstring wideStr(simpleStr.begin(), simpleStr.end());
         if (ERROR >= APPLICATION_LOG_LEVEL) g2::internal::LogMessage(file, line, func, "ERROR  ").messageStream() << wideStr;
         // G2_LOG_ERROR.messageStream() << wideStr;
@@ -86,6 +86,6 @@ std::string ogl_call_fn_params(std::nullptr_t)
 std::string ogl_call_fn_params(char* ptr)
 {
     std::stringstream conv;
-    conv << (void*)ptr;
+    conv << static_cast<void*>(ptr);
     return conv.str();
 }

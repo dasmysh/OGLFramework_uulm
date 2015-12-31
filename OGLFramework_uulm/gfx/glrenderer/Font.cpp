@@ -75,6 +75,7 @@ namespace cgu {
     /** Move assignment operator. */
     Font& Font::operator=(Font&& orig)
     {
+        this->~Font();
         Resource* tRes = this;
         *tRes = static_cast<Resource&&> (std::move(orig));
         if (this != &orig) {
@@ -122,7 +123,7 @@ namespace cgu {
                     fm.pages.push_back(page);
                 }
             } else if (v.first == "chars") {
-                unsigned int charCount = v.second.get<unsigned int>("<xmlattr>.count");
+                auto charCount = v.second.get<unsigned int>("<xmlattr>.count");
                 assert(charCount == 96); // 95 printable + invalid ...
                 fm.chars.reserve(charCount);
                 for (const ptree::value_type& c : v.second) {
@@ -133,9 +134,9 @@ namespace cgu {
                         c.second.get<float>("<xmlattr>.y", ft) / fTexHeight);
                     fg.metrics.off = glm::vec2(c.second.get<float>("<xmlattr>.xoffset", ft),
                         c.second.get<float>("<xmlattr>.yoffset", ft));
-                    float fWidth = c.second.get<float>("<xmlattr>.width", ft);
-                    float fHeight = c.second.get<float>("<xmlattr>.height", ft);
-                    float aspectRatio = fWidth / fHeight;
+                    auto fWidth = c.second.get<float>("<xmlattr>.width", ft);
+                    auto fHeight = c.second.get<float>("<xmlattr>.height", ft);
+                    auto aspectRatio = fWidth / fHeight;
                     fg.metrics.heightInTex = fHeight / fTexHeight;
                     fg.metrics.heightInPixels = fHeight;
                     fg.metrics.aspectRatio = aspectRatio;
@@ -173,11 +174,8 @@ namespace cgu {
      */
     unsigned int Font::GetCharacterId(char character)
     {
-        if (character < ' ' || character > '~') {
-            return 0;
-        } else {
-            return (character - ' ') + 1;
-        }
+        if (character < ' ' || character > '~') return 0;
+        return (character - ' ') + 1;
     }
 
     /**

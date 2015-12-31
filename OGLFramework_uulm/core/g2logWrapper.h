@@ -10,6 +10,7 @@
 #define G2LOGWRAPPER_H
 
 #include "core/g2log/g2log.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "core/g2log/g2logworker.h"
 
 #undef LOG

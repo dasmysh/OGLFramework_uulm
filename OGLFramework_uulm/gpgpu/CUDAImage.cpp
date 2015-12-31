@@ -9,8 +9,6 @@
 #include "CUDAImage.h"
 #include "cudamain.h"
 #include "gfx/glrenderer/GLTexture.h"
-#include "gfx/glrenderer/GLUniformBuffer.h"
-
 #include <cuda_gl_interop.h>
 
 namespace cgu {
@@ -65,7 +63,7 @@ namespace cgu {
         /// <param name="arrayIndex">Index of the array.</param>
         /// <param name="mipLevel">The mip level.</param>
         /// <returns></returns>
-        cudaArray* CUDAImage::GetMappedArray(unsigned int arrayIndex, unsigned int mipLevel)
+        cudaArray* CUDAImage::GetMappedArray(unsigned int arrayIndex, unsigned int mipLevel) const
         {
             assert(mapped);
             cudaArray* result;

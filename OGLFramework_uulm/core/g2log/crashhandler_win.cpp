@@ -8,13 +8,11 @@
 #include "g2log.h"
 
 #include <csignal>
-#include <cstring>
-#include <cstdlib>
+#include <iostream>
 #if !(defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 #error "crashhandler_win.cpp used but not on a windows system"
 #endif
 
-#include <process.h> // getpid
 #define getpid _getpid
 
 namespace

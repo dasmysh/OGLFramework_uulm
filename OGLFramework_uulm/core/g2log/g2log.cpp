@@ -23,18 +23,17 @@
 #include <string>
 #include <stdexcept> // exceptions
 #include <cstdio>    // vsnprintf
-#include <cassert>
 #include <mutex>
 
 #include "g2logworker.h"
 #include "crashhandler.h"
 #include <signal.h>
 #include <thread>
-#include <cctype>
+#include <cstdarg>
 
 std::wostream& operator<<(std::wostream& out, const std::string& str)
 {
-    const std::ctype<std::wstring::value_type>* charWiden
+    auto charWiden
         = &std::use_facet<std::ctype<std::wstring::value_type> >(std::locale());
     std::vector<wchar_t> wideStringArray(str.length());
     charWiden->widen(str.c_str(), str.c_str() + str.length(), wideStringArray.data());
@@ -75,7 +74,7 @@ std::string splitFileName(const std::string& str)
    void saveToLogger(const g2::internal::LogEntry& log_entry) {
       // Uninitialized messages are ignored but does not CHECK/crash the logger  
       if (!g2::internal::isLoggingInitialized()) {
-         std::wstring err(L"LOGGER NOT INITIALIZED: " + log_entry);
+         auto err(L"LOGGER NOT INITIALIZED: " + log_entry);
          std::call_once(g_set_first_uninitialized_flag, [&] { g_first_unintialized_msg = err;  });
             // dump to std::err all the non-initialized logs
             std::wcerr << err << std::endl;
@@ -212,13 +211,13 @@ LogMessage::~LogMessage()
 {
   using namespace internal;
   std::wostringstream oss;
-  const bool fatal = (0 == level_.compare("FATAL"));
+  const auto fatal = (0 == level_.compare("FATAL"));
   oss << level_ << " [" << splitFileName(file_);
   if(fatal)
     oss <<  " at: " << function_ ;
   oss << " L: " << line_ << "]   ";
 
-  const std::wstring str(stream_.str());
+  const auto str(stream_.str());
   if(!str.empty())
   {
     oss << '"' << str << '"';
@@ -229,7 +228,7 @@ LogMessage::~LogMessage()
   if(fatal) // os_fatal is handled by crashhandlers
   {
     { // local scope - to trigger FatalMessage sending
-      FatalMessage::FatalType fatal_type(FatalMessage::kReasonFatal);
+        auto fatal_type(FatalMessage::kReasonFatal);
       FatalMessage fatal_message(log_entry_, fatal_type, SIGABRT);
       FatalTrigger trigger(fatal_message);
       std::wcerr  << log_entry_ << "\t*******  ]" << std::endl << std::flush;
@@ -270,7 +269,7 @@ void LogMessage::messageSave(const char *printf_like_message, ...)
   char finished_message[kMaxMessageSize];
   va_list arglist;
   va_start(arglist, printf_like_message);
-  const int nbrcharacters = vsnprintf_s(finished_message, sizeof(finished_message),
+  const auto nbrcharacters = vsnprintf_s(finished_message, sizeof(finished_message),
       kMaxMessageSize, printf_like_message, arglist);
   va_end(arglist);
   if (nbrcharacters <= 0)

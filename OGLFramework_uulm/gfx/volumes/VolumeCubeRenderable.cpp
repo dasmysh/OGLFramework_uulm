@@ -21,8 +21,8 @@ namespace cgu {
         vBuffer(0),
         iBuffer(0),
         backProgram(backProg),
-        drawProgram(drawProg),
         backAttribBind(nullptr),
+        drawProgram(drawProg),
         drawAttribBind(nullptr)
     {
         CreateVertexIndexBuffers();
@@ -36,8 +36,8 @@ namespace cgu {
         vBuffer(0),
         iBuffer(0),
         backProgram(orig.backProgram),
-        drawProgram(orig.drawProgram),
         backAttribBind(nullptr),
+        drawProgram(orig.drawProgram),
         drawAttribBind(nullptr)
     {
         CreateVertexIndexBuffers();
@@ -51,8 +51,8 @@ namespace cgu {
         vBuffer(orig.vBuffer),
         iBuffer(orig.iBuffer),
         backProgram(orig.backProgram),
-        drawProgram(orig.drawProgram),
         backAttribBind(std::move(orig.backAttribBind)),
+        drawProgram(orig.drawProgram),
         drawAttribBind(std::move(orig.drawAttribBind))
 
     {
@@ -186,6 +186,7 @@ namespace cgu {
      *  Internal rendering method.
      *  @param attribBinding the vertex attribute bindings to use.
      */
+    // ReSharper disable once CppMemberFunctionMayBeStatic
     void VolumeCubeRenderable::Draw(const GLVertexAttributeArray* attribBinding) const
     {
         attribBinding->EnableVertexAttributeArray();
@@ -202,7 +203,7 @@ namespace cgu {
     {
         assert(bindings.size() == 0);
 
-        std::vector<BindingLocation> loc = prog.GetAttributeLocations(boost::assign::list_of<std::string>("position")("texPosition"));
+        auto loc = prog.GetAttributeLocations(boost::assign::list_of<std::string>("position")("texPosition"));
         OGL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vBuffer);
         bindings.push_back(prog.CreateVertexAttributeArray(vBuffer, iBuffer));
         bindings[0]->StartAttributeSetup();

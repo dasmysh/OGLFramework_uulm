@@ -22,9 +22,6 @@
 
 #include <string>
 #include <sstream>
-#include <iostream>
-#include <cstdarg>
-#include <chrono>
 #include <functional>
 
 class g2LogWorker;
@@ -196,7 +193,7 @@ struct FatalMessage
 // Will trigger a FatalMessage sending
 struct FatalTrigger
 {
-  FatalTrigger(const FatalMessage& message);
+  explicit FatalTrigger(const FatalMessage& message);
   ~FatalTrigger();
   FatalMessage message_;
 };

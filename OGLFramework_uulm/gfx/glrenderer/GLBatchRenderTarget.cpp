@@ -1,17 +1,14 @@
 /**
  * @file   GLBatchRenderTarget.cpp
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   16. Januar 2014
+ * @date   2014.01.16
  *
  * @brief  Contains the implementation of GLBatchRenderTarget.
  */
 
 #include "GLBatchRenderTarget.h"
 #include "main.h"
-#include "GPUProgram.h"
 #include "ScreenText.h"
-#include "GUIRenderable.h"
-#include "GLVertexAttributeArray.h"
 
 namespace cgu {
 
@@ -35,6 +32,8 @@ namespace cgu {
      * @param depth the depth to set the depth buffer to (only used if clflags contains ClearFlags::CF_Depth)
      * @param stencil the value to set the stencil buffer to (only used if clflags contains ClearFlags::CF_Stencil)
      */
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void GLBatchRenderTarget::Clear(unsigned int clflags, const float color[], float depth, unsigned int stencil)
     {
         GLbitfield clearFlags = 0;
@@ -54,26 +53,22 @@ namespace cgu {
         OGL_CALL(glClear, clearFlags);
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void GLBatchRenderTarget::DrawScreenText(ScreenText* text)
     {
         text->DrawMultiple();
     }
 
-    void GLBatchRenderTarget::DrawGUIGeometry(GUIRenderable* guiElement)
-    {
-        guiElement->RenderGeometry();
-    }
-
-    //void GLBatchRenderTarget::DrawGUIText(GUIRenderable* guiElement)
-    //{
-    //    guiElement->RenderText();
-    //}
-
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void GLBatchRenderTarget::UseFont(Font*)
     {
         // TODO: implement
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    // ReSharper disable once CppMemberFunctionMayBeConst
     /** Enables alpha blending on this target. */
     void GLBatchRenderTarget::EnableAlphaBlending()
     {
@@ -81,6 +76,8 @@ namespace cgu {
         OGL_CALL(glBlendFunc, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeStatic
+    // ReSharper disable once CppMemberFunctionMayBeConst
     /** Disables alpha blending on this target. */
     void GLBatchRenderTarget::DisableAlphaBlending()
     {

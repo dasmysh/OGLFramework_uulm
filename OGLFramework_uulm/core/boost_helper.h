@@ -1,7 +1,7 @@
 /**
  * @file   boost_helper.h
  * @author Sebastian Maisch <sebastian.maisch@googlemail.com>
- * @date   24. Februar 2014
+ * @date   2014.02.24
  *
  * @brief  Contains the definition of boost helpers.
  */
@@ -24,8 +24,8 @@ public:
     /** The type to convert to. */
     typedef float external_type;
 
-    boost::optional<external_type> get_value(internal_type const &v);
-    boost::optional<internal_type> put_value(external_type const& v);
+    static boost::optional<external_type> get_value(internal_type const &v);
+    static boost::optional<internal_type> put_value(external_type const& v);
 };
 
 class ColorTranslator
@@ -36,7 +36,7 @@ public:
     /** The type to convert to. */
     typedef glm::vec3 external_type;
 
-    boost::optional<external_type> get_value(internal_type const &v);
-    boost::optional<internal_type> put_value(external_type const& v);
+    static boost::optional<external_type> get_value(internal_type const &v);
+    static boost::optional<internal_type> put_value(external_type const& v);
 };
 #endif /* BOOST_HELPER_H */

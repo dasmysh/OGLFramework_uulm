@@ -52,7 +52,6 @@
     <ClCompile Include="gfx\glrenderer\GLUniformBuffer.cpp" />
     <ClCompile Include="gfx\glrenderer\GLVertexAttributeArray.cpp" />
     <ClCompile Include="gfx\glrenderer\GPUProgram.cpp" />
-    <ClCompile Include="gfx\glrenderer\GUIRenderable.cpp" />
     <ClCompile Include="gfx\glrenderer\MeshRenderable.cpp" />
     <ClCompile Include="gfx\glrenderer\ScreenText.cpp" />
     <ClCompile Include="gfx\glrenderer\Shader.cpp" />
@@ -131,7 +130,6 @@
     <ClInclude Include="gfx\glrenderer\GLUniformBuffer.h" />
     <ClInclude Include="gfx\glrenderer\GLVertexAttributeArray.h" />
     <ClInclude Include="gfx\glrenderer\GPUProgram.h" />
-    <ClInclude Include="gfx\glrenderer\GUIRenderable.h" />
     <ClInclude Include="gfx\glrenderer\MeshRenderable.h" />
     <ClInclude Include="gfx\glrenderer\ScreenQuadRenderable.h" />
     <ClInclude Include="gfx\glrenderer\ScreenText.h" />

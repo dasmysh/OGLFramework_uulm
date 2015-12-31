@@ -29,14 +29,14 @@ namespace cgu {
     {
     }
 
-    bool ArcballRotatedSceneRenderable::HandleMouse(unsigned int buttonAction, float mouseWheelDelta, BaseGLWindow* sender)
+    bool ArcballRotatedSceneRenderable::HandleMouse(unsigned int buttonAction, float, BaseGLWindow* sender)
     {
         return rotArcball.HandleMouse(buttonAction, sender);
     }
 
-    void ArcballRotatedSceneRenderable::Update(const CameraView& camera, float time, float elapsed)
+    void ArcballRotatedSceneRenderable::Update(const CameraView& camera, float, float)
     {
-        glm::quat orient = glm::inverse(rotArcball.GetWorldRotation(camera.GetViewMatrix())) * orientation;
+        auto orient = glm::inverse(rotArcball.GetWorldRotation(camera.GetViewMatrix())) * orientation;
         UpdatePositionOrientation(position, orient);
     }
 }

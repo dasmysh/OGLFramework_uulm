@@ -18,7 +18,7 @@ namespace cgu {
         class CUDAImage;
 
         /// <summary>
-        /// Initilizes a grid in CUDA.
+        /// Initializes a grid in CUDA.
         /// </summary>
         class CUDAGrid
         {
@@ -26,13 +26,13 @@ namespace cgu {
             CUDAGrid(unsigned int width, unsigned int height, unsigned int depth, size_t elementSize);
             ~CUDAGrid();
 
-            void InitGrid(int value);
-            void InitGrid(CUDAImage* texture);
-            void CopyToTexture(CUDAImage* texture);
-            void CopyToHost(void* ptr, const glm::uvec3 destSize, size_t elementSize);
+            void InitGrid(int value) const;
+            void InitGrid(CUDAImage* texture) const;
+            void CopyToTexture(CUDAImage* texture) const;
+            void CopyToHost(void* ptr, const glm::uvec3 destSize, size_t elementSize) const;
 
-            const glm::uvec3& GetDimensions() { return dimensions; };
-            void* GetGridPtr() { return grid; };
+            const glm::uvec3& GetDimensions() const { return dimensions; };
+            void* GetGridPtr() const { return grid; };
 
         private:
             /** holds the grids size. */
