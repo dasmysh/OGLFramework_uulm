@@ -15,7 +15,9 @@
 #include <glm/glm.hpp>
 
 #pragma warning (disable : 4505)
-#define __CUDACC__
+#ifndef __CUDACC__
+    #define __CUDACC__
+#endif
 #include <curand_kernel.h>
 #include <device_launch_parameters.h>
 #include <device_functions.h>
