@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
 if(CMAKE_CONFIGURATION_TYPES)
-   #list(APPEND CMAKE_CONFIGURATION_TYPES Debugverbose)
    set(CMAKE_CONFIGURATION_TYPES Release Debug DebugOpenGLCalls)
    set(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES} CACHE STRING "Append user-defined configuration to list of configurations to make it usable in Visual Studio" FORCE)
 endif()
@@ -18,9 +17,6 @@ if(MSVC)
 	SET_SOURCE_FILES_PROPERTIES( ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/gfx/SubMesh.cpp PROPERTIES COMPILE_FLAGS /wd4503 )
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -Wpedantic -std=c++14")
-#    if(NOT WIN32)
-#        set(GLAD_LIBRARIES dl)
-#    endif()
 endif()
 
 get_filename_component(FW_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
@@ -60,7 +56,6 @@ LIST(REMOVE_ITEM TMP_FILES ${TOP_FILES})
 
 foreach(f ${TMP_FILES})
     file(RELATIVE_PATH SRCGR ${CMAKE_SOURCE_DIR}/${PROJECT_NAME} ${f})
-    # set(SRCGR "Something/${SRCGR}") alter path
     string(REGEX REPLACE "(.*)(/[^/]*)$" "\\1" SRCGR ${SRCGR})
     string(REPLACE / \\ SRCGR ${SRCGR})
     source_group("${SRCGR}" FILES ${f})
@@ -89,17 +84,14 @@ source_group(" " FILES ${TOP_FILES})
 add_definitions(-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 cuda_add_executable(${PROJECT_NAME} WIN32 ${TMP_FILES} ${TOP_FILES}
                                ${RES_FILES} ${PROJECT_CONFIGS})
-target_link_libraries(${PROJECT_NAME} FreeImage glew32 opengl32) # cudart
+target_link_libraries(${PROJECT_NAME} FreeImage glew32 opengl32)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:DebugOpenGLCalls>:_OGL_DEBUG_MSGS> _CRT_SECURE_NO_WARNINGS)
 
 file(GLOB CUDA_DLLS ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart*.dll)
-# copy freeimage, anttweakbar dlls
 
 foreach(f ${CUDA_DLLS})
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${f} ${CMAKE_BINARY_DIR})
 endforeach()
-
-# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/patternsConfig.xml ${CMAKE_BINARY_DIR})
