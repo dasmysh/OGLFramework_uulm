@@ -8,8 +8,9 @@
 	<windowTop>0</windowTop>
 	<windowWidth>1280</windowWidth>
 	<windowHeight>720</windowHeight>
+	<useSRGB>1</useSRGB>
 	<pauseOnKillFocus>0</pauseOnKillFocus>
-	<resourceBase>resources</resourceBase>
+	<resourceBase>@FW_RESOURCE_BASE_PATH@</resourceBase>
 	<useCUDA>0</useCUDA>
 	<cudaDevice>-1</cudaDevice>
 </config>
