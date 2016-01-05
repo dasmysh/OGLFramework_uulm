@@ -1,0 +1,4 @@
+[submodule "OGLFrameworkLib"]
+	path = OGLFrameworkLib
+	url = https://github.com/dasmysh/OGLFrameworkLib_uulm.git
+	branch = develop
