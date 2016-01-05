@@ -9,7 +9,7 @@
 #ifndef FWAPPLICATION_H
 #define FWAPPLICATION_H
 
-#include "ApplicationBase.h"
+#include "app/ApplicationBase.h"
 #include "gfx/glrenderer/ScreenText.h"
 
 namespace cguFrameworkApp {
