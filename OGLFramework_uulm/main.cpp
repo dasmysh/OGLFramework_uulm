@@ -23,7 +23,7 @@
  */
 void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
 {
-    LOG(ERROR) << L"FreeImage Error occured:";
+    LOG(ERROR) << L"FreeImage Error occurred:";
     LOG(ERROR) << L"***";
     if (fif != FIF_UNKNOWN) {
         LOG(ERROR) << FreeImage_GetFormatFromFIF(fif) << L" Format";
@@ -64,13 +64,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (configFile.is_open()) {
         boost::archive::xml_iarchive ia(configFile);
         ia >> BOOST_SERIALIZATION_NVP(config);
+
+        // always directly write configuration to update version.
+        std::ofstream ofs(configFileName, std::ios::out);
+        boost::archive::xml_oarchive oa(ofs);
+        oa << BOOST_SERIALIZATION_NVP(config);
     } else {
         LOG(DEBUG) << L"Configuration file not found. Using standard config.";
     }
     LOG(DEBUG) << L"Starting window initialization.";
-    // GLWindow win(hInstance, nCmdShow, L"", config);
     cgu::GLWindow win(hInstance, nCmdShow, "", config);
-    // FWApplication app(*pwin);
     cguFrameworkApp::FWApplication app(win);
 
     LOG(DEBUG) << L"Starting main loop.";
