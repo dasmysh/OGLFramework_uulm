@@ -11,7 +11,6 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 get_filename_component(FW_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
 set(FW_RESOURCE_DIR "resources" CACHE STRING "Resources directory in project structure.")
 set(FW_RESOURCE_BASE_PATH ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/${FW_RESOURCE_DIR})
-configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/patternsConfig.xml" "patternsConfig.xml")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
@@ -27,6 +26,7 @@ set(CMAKE_EXE_LINKER_FLAGS_DEBUGOPENGLCALLS ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
 set(CMAKE_SHARED_LINKER_FLAGS_DEBUGOPENGLCALLS ${CMAKE_SHARED_LINKER_FLAGS_DEBUG})
 
 add_subdirectory(OGLFrameworkLib)
+configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/patternsConfig.xml" "patternsConfig.xml")
 
 
 file(GLOB_RECURSE RES_FILES ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/${FW_RESOURCE_DIR}/*.*)

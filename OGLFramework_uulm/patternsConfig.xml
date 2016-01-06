@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="12">
-<config class_id="0" tracking_level="0" version="4">
+<config class_id="0" tracking_level="0" version="5">
 	<fullscreen>0</fullscreen>
 	<backbufferBits>32</backbufferBits>
 	<windowLeft>0</windowLeft>
@@ -11,6 +11,11 @@
 	<useSRGB>1</useSRGB>
 	<pauseOnKillFocus>0</pauseOnKillFocus>
 	<resourceBase>@FW_RESOURCE_BASE_PATH@</resourceBase>
+	<resourceDirs class_id="1" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item>@FWLIB_RESOURCE_BASE_PATH@</item>
+	</resourceDirs>
 	<useCUDA>1</useCUDA>
 	<cudaDevice>-1</cudaDevice>
 </config>
