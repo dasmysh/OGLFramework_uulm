@@ -19,7 +19,7 @@ namespace cguFrameworkApp {
      */
     FWApplication::FWApplication(cgu::GLWindow& window) :
         ApplicationBase(window, glm::vec3(0.0f, 0.0f, 10.0f)),
-        fpsText(new cgu::ScreenText(*fontManager->GetResource("Arial"), programManager->GetResource(fontProgramID),
+        fpsText(new cgu::ScreenText(fontManager->GetResource("Arial"), programManager->GetResource(fontProgramID),
             "test", glm::vec2(static_cast<float>(window.GetWidth()) - 100.0f, 10.0f), 30.0f))
     {
         // OpenGL stuff
@@ -72,6 +72,10 @@ namespace cguFrameworkApp {
             glDisable(GL_DEPTH_TEST);
             fpsText->Draw();
         });
+    }
+
+    void FWApplication::RenderGUI()
+    {
     }
 
     bool FWApplication::HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender)

@@ -37,6 +37,7 @@ namespace cguFrameworkApp {
     protected:
         void FrameMove(float time, float elapsed) override;
         void RenderScene() override;
+        void RenderGUI() override;
     };
 }
 
