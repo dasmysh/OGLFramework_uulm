@@ -12,11 +12,6 @@ get_filename_component(FW_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
 set(FW_RESOURCE_DIR "resources" CACHE STRING "Resources directory in project structure.")
 set(FW_RESOURCE_BASE_PATH ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/${FW_RESOURCE_DIR})
 
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -Wpedantic -std=c++14")
-endif()
 LIST(APPEND CUDA_NVCC_FLAGS -gencode arch=${FWLIB_CUDA_ARCH},code=${FWLIB_CUDA_CODE})
 
 set(COMPILE_DEFINITIONS_DEBUGOPENGLCALLS ${COMPILE_DEFINITIONS_DEBUG})
@@ -26,6 +21,15 @@ set(CMAKE_EXE_LINKER_FLAGS_DEBUGOPENGLCALLS ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
 set(CMAKE_SHARED_LINKER_FLAGS_DEBUGOPENGLCALLS ${CMAKE_SHARED_LINKER_FLAGS_DEBUG})
 
 add_subdirectory(OGLFrameworkLib)
+find_package(Boost 1.58.0 REQUIRED)
+link_directories(${Boost_LIBRARY_DIRS})
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -Wpedantic -std=c++14")
+endif()
+
 configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/patternsConfig.xml" "patternsConfig.xml")
 
 
@@ -63,19 +67,22 @@ foreach(f ${RES_OBJ_FILES})
 	set_source_files_properties(${f} PROPERTIES HEADER_FILE_ONLY TRUE)
 endforeach()
 
+file(GLOB EXTERN_SOURCES_PROJECT ${CMAKE_SOURCE_DIR}/${FWLIB_LIBNAME}/extern/glad/src/glad.c ${CMAKE_SOURCE_DIR}/${FWLIB_LIBNAME}/extern/glad/src/glad_wgl.c)
+source_group("Extern" FILES ${EXTERN_SOURCES_PROJECT})
+
 
 file(GLOB PROJECT_CONFIGS CMakeLists.txt Readme.md .gitattributes .gitignore .gitmodules)
 
-# add_definitions(-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 include_directories(${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/)
-cuda_add_executable(${PROJECT_NAME} WIN32 ${TMP_FILES} ${TOP_FILES} ${RES_FILES} ${PROJECT_CONFIGS})
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC FreeImage glew32 opengl32 OGLFrameworkLib)
+cuda_add_executable(${PROJECT_NAME} WIN32 ${TMP_FILES} ${TOP_FILES} ${RES_FILES} ${PROJECT_CONFIGS} ${EXTERN_SOURCES_PROJECT})
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC opengl32 assimp OGLFrameworkLib)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
-set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:DebugOpenGLCalls>:_OGL_DEBUG_MSGS> _CRT_SECURE_NO_WARNINGS)
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:DebugOpenGLCalls>:_OGL_DEBUG_MSGS> _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS)
 
 file(GLOB CUDA_DLLS ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart*.dll)
 foreach(f ${CUDA_DLLS})
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${f} ${CMAKE_BINARY_DIR})
 endforeach()
+
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/${FWLIB_LIBNAME}/$<CONFIGURATION>/${FWLIB_LIBNAME}.dll" ${CMAKE_BINARY_DIR})

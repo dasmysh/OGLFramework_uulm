@@ -28,7 +28,7 @@ namespace cguFrameworkApp {
 
         bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender) override;
         bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, cgu::BaseGLWindow* sender) override;
-        void OnResize(unsigned int width, unsigned int height) override;
+		void Resize(const glm::uvec2& screenSize) override;
 
     private:
         /** Holds the screen text to render fps. */

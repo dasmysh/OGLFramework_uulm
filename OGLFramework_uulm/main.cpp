@@ -14,14 +14,15 @@
 #include <fstream>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-#include <FreeImage.h>
+/*#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>*/
 
 /**
  * Handler for FreeImage debug messages.
  * @param fif the free image format
  * @param message the message
  */
-void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
+/*void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
 {
     LOG(ERROR) << L"FreeImage Error occurred:";
     LOG(ERROR) << L"***";
@@ -30,7 +31,7 @@ void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
     }
     LOG(ERROR) << message;
     LOG(ERROR) << L"***";
-}
+}*/
 
 /**
  * @brief Window main.
@@ -55,8 +56,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     LOG(INFO) << L"Log created.";
 
-    FreeImage_Initialise();
-    FreeImage_SetOutputMessage(FreeImageErrorHandler);
+    // FreeImage_Initialise();
+    // FreeImage_SetOutputMessage(FreeImageErrorHandler);
 
     LOG(DEBUG) << L"Trying to load configuration.";
     cgu::Configuration config;
@@ -102,8 +103,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     std::ofstream ofs(configFileName, std::ios::out);
     boost::archive::xml_oarchive oa(ofs);
     oa << BOOST_SERIALIZATION_NVP(config);
-
-    FreeImage_DeInitialise();
 
     return 0;
 }

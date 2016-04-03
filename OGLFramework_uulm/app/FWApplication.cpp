@@ -22,6 +22,7 @@ namespace cguFrameworkApp {
         fpsText(new cgu::ScreenText(fontManager->GetResource("Arial"), programManager->GetResource(fontProgramID),
             "test", glm::vec2(static_cast<float>(window.GetWidth()) - 100.0f, 10.0f), 30.0f))
     {
+        gladLoadGL();
         // OpenGL stuff
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
@@ -91,12 +92,8 @@ namespace cguFrameworkApp {
         return false;
     }
 
-    void FWApplication::OnResize(unsigned int width, unsigned int height)
+	void FWApplication::Resize(const glm::uvec2& screenSize)
     {
-        ApplicationBase::OnResize(width, height);
-        auto fWidth = static_cast<float> (width);
-        // auto fHeight = static_cast<float> (height);
-        fpsText->SetPosition(glm::vec2(fWidth - 100.0f, 10.0f));
-        // auto aspectRatio = fWidth / fHeight;
+		fpsText->SetPosition(glm::vec2(static_cast<float>(screenSize.x) - 100.0f, 10.0f));
     }
 }
