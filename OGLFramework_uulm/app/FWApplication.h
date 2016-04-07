@@ -23,12 +23,12 @@ namespace cguFrameworkApp {
     class FWApplication : public cgu::ApplicationBase
     {
     public:
-        explicit FWApplication(cgu::GLWindow& window);
+        explicit FWApplication(const std::string& mainWindowTitle, cgu::Configuration& config);
         virtual ~FWApplication();
 
-        bool HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender) override;
-        bool HandleMouseApp(unsigned int buttonAction, float mouseWheelDelta, cgu::BaseGLWindow* sender) override;
-		void Resize(const glm::uvec2& screenSize) override;
+        bool HandleKeyboard(int key, int scancode, int action, int mods, cgu::GLWindow* sender) override;
+        bool HandleMouseApp(int button, int action, int mods, float mouseWheelDelta, cgu::GLWindow* sender) override;
+        void Resize(const glm::uvec2& screenSize) override;
 
     private:
         /** Holds the screen text to render fps. */

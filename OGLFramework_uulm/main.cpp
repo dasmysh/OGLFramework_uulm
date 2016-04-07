@@ -9,29 +9,11 @@
 #include "main.h"
 #include "app/FWApplication.h"
 #include "app/Configuration.h"
-#include "app/GLWindow.h"
 
 #include <fstream>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-/*#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>*/
-
-/**
- * Handler for FreeImage debug messages.
- * @param fif the free image format
- * @param message the message
- */
-/*void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message)
-{
-    LOG(ERROR) << L"FreeImage Error occurred:";
-    LOG(ERROR) << L"***";
-    if (fif != FIF_UNKNOWN) {
-        LOG(ERROR) << FreeImage_GetFormatFromFIF(fif) << L" Format";
-    }
-    LOG(ERROR) << message;
-    LOG(ERROR) << L"***";
-}*/
+#include <glad/glad.h>
 
 /**
  * @brief Window main.
@@ -46,18 +28,12 @@
  *
  * @return The applications return code.
  */
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
     g2LogWorker g2log("application", "./", LOG_USE_TIMESTAMPS);
     g2::initializeLogging(&g2log);
 
     LOG(INFO) << L"Log created.";
-
-    // FreeImage_Initialise();
-    // FreeImage_SetOutputMessage(FreeImageErrorHandler);
 
     LOG(DEBUG) << L"Trying to load configuration.";
     cgu::Configuration config;
@@ -73,22 +49,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     } else {
         LOG(DEBUG) << L"Configuration file not found. Using standard config.";
     }
+
     LOG(DEBUG) << L"Starting window initialization.";
-    cgu::GLWindow win(hInstance, nCmdShow, "", config);
-    cguFrameworkApp::FWApplication app(win);
+    cguFrameworkApp::FWApplication app("OGLFramework Dummy Application", config);
 
     LOG(DEBUG) << L"Starting main loop.";
     app.StartRun();
-    MSG msg = {nullptr, 0, 0, 0, 0, 0, 0};
     auto done = false;
     while (app.IsRunning() && !done) {
-        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            if (WM_QUIT == msg.message) {
-                done = true;
-            }
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
         try {
             app.Step();
         } catch (std::runtime_error e) {
@@ -97,7 +65,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
     }
     app.EndRun();
-    LOG(DEBUG) << L"Main loop ended (" << static_cast<int>(msg.wParam) << L"). Message: " << msg.message;
+    LOG(DEBUG) << L"Main loop ended.";
 
     LOG(DEBUG) << L"Exiting application. Saving configuration to file.";
     std::ofstream ofs(configFileName, std::ios::out);

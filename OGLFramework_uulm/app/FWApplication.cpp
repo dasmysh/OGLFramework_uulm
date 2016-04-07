@@ -17,12 +17,12 @@ namespace cguFrameworkApp {
      * Constructor.
      * @param window the primary window used for rendering
      */
-    FWApplication::FWApplication(cgu::GLWindow& window) :
-        ApplicationBase(window, glm::vec3(0.0f, 0.0f, 10.0f)),
-        fpsText(new cgu::ScreenText(fontManager->GetResource("Arial"), programManager->GetResource(fontProgramID),
-            "test", glm::vec2(static_cast<float>(window.GetWidth()) - 100.0f, 10.0f), 30.0f))
+    FWApplication::FWApplication(const std::string& mainWindowTitle, cgu::Configuration& config) :
+        ApplicationBase(mainWindowTitle, config, glm::vec3(0.0f, 0.0f, 10.0f)),
+        fpsText(new cgu::ScreenText(GetFontManager()->GetResource("Arial"), GetGPUProgramManager()->GetResource(fontProgramID),
+            "test", glm::vec2(static_cast<float>(GetWindow()->GetWidth()) - 100.0f, 10.0f), 30.0f))
     {
-        gladLoadGL();
+        int status = gladLoadGL();
         // OpenGL stuff
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
@@ -52,12 +52,12 @@ namespace cguFrameworkApp {
         fpsString << fps;
         fpsText->SetText(fpsString.str());
 
-        cameraView->UpdateCamera();
+        GetCameraView()->UpdateCamera();
     }
 
     void FWApplication::RenderScene()
     {
-        win.BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
+        GetWindow()->BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
             glDepthMask(GL_TRUE);
             glEnable(GL_DEPTH_TEST);
             glCullFace(GL_BACK);
@@ -66,8 +66,8 @@ namespace cguFrameworkApp {
             rt.Clear(static_cast<unsigned int>(cgu::ClearFlags::CF_RenderTarget) | static_cast<unsigned int>(cgu::ClearFlags::CF_Depth), clearColor, 1.0, 0);
         });
 
-        win.BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
-            orthoView->SetView();
+        GetWindow()->BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
+            GetOrthoginalView()->SetView();
             // depth of for text / GUI
             glDepthMask(GL_FALSE);
             glDisable(GL_DEPTH_TEST);
@@ -79,21 +79,21 @@ namespace cguFrameworkApp {
     {
     }
 
-    bool FWApplication::HandleKeyboard(unsigned int vkCode, bool bKeyDown, cgu::BaseGLWindow* sender)
+    bool FWApplication::HandleKeyboard(int key, int scancode, int action, int mods, cgu::GLWindow* sender)
     {
-        if (ApplicationBase::HandleKeyboard(vkCode, bKeyDown, sender)) return true;
+        if (ApplicationBase::HandleKeyboard(key, scancode, action, mods, sender)) return true;
         if (!IsRunning() || IsPaused()) return false;
         auto handled = false;
         return handled;
     }
 
-    bool FWApplication::HandleMouseApp(unsigned int, float, cgu::BaseGLWindow*)
+    bool FWApplication::HandleMouseApp(int, int, int, float, cgu::GLWindow*)
     {
         return false;
     }
 
-	void FWApplication::Resize(const glm::uvec2& screenSize)
+    void FWApplication::Resize(const glm::uvec2& screenSize)
     {
-		fpsText->SetPosition(glm::vec2(static_cast<float>(screenSize.x) - 100.0f, 10.0f));
+        fpsText->SetPosition(glm::vec2(static_cast<float>(screenSize.x) - 100.0f, 10.0f));
     }
 }
