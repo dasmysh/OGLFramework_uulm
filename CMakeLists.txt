@@ -25,7 +25,7 @@ find_package(Boost 1.58.0 REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /wd4201 /wd4512 /WX /EHsc")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -Wpedantic -std=c++14")
 endif()
@@ -67,7 +67,7 @@ foreach(f ${RES_OBJ_FILES})
 	set_source_files_properties(${f} PROPERTIES HEADER_FILE_ONLY TRUE)
 endforeach()
 
-file(GLOB EXTERN_SOURCES_PROJECT ${CMAKE_SOURCE_DIR}/${FWLIB_LIBNAME}/extern/glad/src/glad.c ${CMAKE_SOURCE_DIR}/${FWLIB_LIBNAME}/extern/glad/src/glad_wgl.c)
+file(GLOB EXTERN_SOURCES_PROJECT)
 source_group("Extern" FILES ${EXTERN_SOURCES_PROJECT})
 
 

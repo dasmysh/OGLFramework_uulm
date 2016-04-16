@@ -10,6 +10,7 @@
 #include "app/GLWindow.h"
 
 #include <glm/glm.hpp>
+#include <glbinding/Binding.h>
 
 namespace cguFrameworkApp {
 
@@ -22,13 +23,13 @@ namespace cguFrameworkApp {
         fpsText(new cgu::ScreenText(GetFontManager()->GetResource("Arial"), GetGPUProgramManager()->GetResource(fontProgramID),
             "test", glm::vec2(static_cast<float>(GetWindow()->GetWidth()) - 100.0f, 10.0f), 30.0f))
     {
-        int status = gladLoadGL();
+        glbinding::Binding::initialize();
         // OpenGL stuff
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glFrontFace(GL_CCW);
+        gl::glCullFace(gl::GL_BACK);
+        gl::glEnable(gl::GL_CULL_FACE);
+        gl::glEnable(gl::GL_DEPTH_TEST);
+        gl::glDepthFunc(gl::GL_LEQUAL);
+        gl::glFrontFace(gl::GL_CCW);
     }
 
     FWApplication::~FWApplication()
@@ -58,19 +59,19 @@ namespace cguFrameworkApp {
     void FWApplication::RenderScene()
     {
         GetWindow()->BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
-            glDepthMask(GL_TRUE);
-            glEnable(GL_DEPTH_TEST);
-            glCullFace(GL_BACK);
-            glEnable(GL_CULL_FACE);
+            gl::glDepthMask(gl::GL_TRUE);
+            gl::glEnable(gl::GL_DEPTH_TEST);
+            gl::glCullFace(gl::GL_BACK);
+            gl::glEnable(gl::GL_CULL_FACE);
             float clearColor[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
             rt.Clear(static_cast<unsigned int>(cgu::ClearFlags::CF_RenderTarget) | static_cast<unsigned int>(cgu::ClearFlags::CF_Depth), clearColor, 1.0, 0);
         });
 
-        GetWindow()->BatchDraw([&](cgu::GLBatchRenderTarget & rt) {
+        GetWindow()->BatchDraw([&](cgu::GLBatchRenderTarget &) {
             GetOrthoginalView()->SetView();
             // depth of for text / GUI
-            glDepthMask(GL_FALSE);
-            glDisable(GL_DEPTH_TEST);
+            gl::glDepthMask(gl::GL_FALSE);
+            gl::glDisable(gl::GL_DEPTH_TEST);
             fpsText->Draw();
         });
     }
